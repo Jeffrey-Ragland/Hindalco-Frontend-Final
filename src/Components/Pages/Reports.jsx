@@ -8,6 +8,7 @@ import { BsDatabaseDown } from "react-icons/bs";
 import { MdOutlineSensors } from "react-icons/md";
 import { TbHash } from "react-icons/tb";
 import { FaFileDownload, FaCloudDownloadAlt } from "react-icons/fa";
+import { TbSum } from "react-icons/tb";
 import axios from "axios";
 import reportsImg from "../Assets/reports.jpeg";
 
@@ -18,7 +19,7 @@ const Reports = ({dataFromApp}) => {
   // console.log('reports page data', dataFromApp);
 
   const [selectedReportOption, setSelectedReportOption] =
-    useState("datePicker");
+    useState("averageData");
   const [count, setCount] = useState(100);
   const [enableCount, setEnableCount] = useState(false);
   const [parameters, setParameters] = useState({}); // for sensor-wise data
@@ -32,6 +33,9 @@ const Reports = ({dataFromApp}) => {
   const [toDate, setToDate] = useState("");
   const [sensorWiseFromDate, setSensorWiseFromDate] = useState("");
   const [sensorWiseToDate, setSensorWiseToDate] = useState("");
+  const [avgFromDate, setAvgFromDate] = useState('');
+  const [avgToDate, setAvgToDate] = useState('');
+
 
   // const dataFromAppFile = dataFromApp.dataFromApp;
   // const projectName = "DEMOKIT01";
@@ -112,6 +116,8 @@ const Reports = ({dataFromApp}) => {
         {
           params: {
             projectName: projectName,
+            avgFromDate: avgFromDate,
+            avgToDate : avgToDate,
             fromDate: fromDate,
             toDate: toDate,
             count: count,
@@ -122,21 +128,14 @@ const Reports = ({dataFromApp}) => {
           },
         }
       );
-      setFromDate('');
-      setToDate('');
-      setCount(100);
-      setEnableCount(false);
-      setSensorWiseFromDate('');
-      setSensorWiseToDate('');
-      setSensorWiseCount(100);
-      setEnableSensorWiseCount(false);
 
       // console.log("report data", response.data.data);
 
       const ws = XLSX.utils.json_to_sheet(
         response.data.data.map(({ createdAt, ...rest }) => ({
           ...rest,
-          createdAt: new Date(createdAt).toLocaleString("en-GB"),
+          // createdAt: new Date(createdAt).toLocaleString("en-GB"),
+          createdAt: createdAt,
         }))
       );
       const wb = XLSX.utils.book_new();
@@ -151,6 +150,37 @@ const Reports = ({dataFromApp}) => {
     };
   };
 
+  const generateAverageExcel = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:4000/backend/getHindalcoAverageReport",
+        {
+          params: {
+            projectName: projectName,
+            avgFromDate: avgFromDate,
+            avgToDate: avgToDate,
+          },
+        }
+      );
+      const ws = XLSX.utils.json_to_sheet(
+        response.data.data.map(({ createdAt, ...rest }) => ({
+          ...rest,
+          // createdAt: new Date(createdAt).toLocaleString("en-GB"),
+          createdAt: createdAt,
+        }))
+      );
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const info = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(info, `${projectName}_Average_Report.xlsx`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="h-screen text-white p-4 flex flex-col gap-2 ">
       {/* top bar - h-[10%] */}
@@ -159,6 +189,27 @@ const Reports = ({dataFromApp}) => {
       </div>
       <div className="xl:h-[90%] flex flex-col justify-center">
         <div className="flex gap-2 justify-evenly font-medium">
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
+              selectedReportOption === "averageData" && "text-[#9cb3d6]"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("averageData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setSensorWiseCount();
+              setSelectedSensors([]);
+              setUnselectedSensors([]);
+              setSensorWiseFromDate("");
+              setSensorWiseToDate("");
+              setEnableCount(false);
+            }}
+          >
+            <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Average Data
+          </div>
+
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
               selectedReportOption === "datePicker" && "text-[#9cb3d6]"
@@ -172,6 +223,8 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
+              setAvgFromDate('');
+              setAvgToDate('');
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -193,31 +246,12 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
             Count-wise Data
-          </div>
-
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "overallData" && "text-[#9cb3d6]"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("overallData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
-              setEnableCount(false);
-            }}
-          >
-            <BsDatabaseDown className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Overall Data
           </div>
 
           <div
@@ -231,6 +265,8 @@ const Reports = ({dataFromApp}) => {
               setCount();
               setSelectedSensorWiseReportOption("datePicker");
               setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
             }}
           >
             <MdOutlineSensors className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -392,16 +428,38 @@ const Reports = ({dataFromApp}) => {
               </div>
             )}
 
-            {/* overall data option */}
-            {selectedReportOption === "overallData" && (
+            {/* averageData option */}
+            {selectedReportOption === "averageData" && (
               <div className="p-8 flex flex-col items-center justify-center gap-6">
-                <div className="font-medium">
-                  Entire data from the database <br /> will be downloaded!
+                <center className="text-xl font-medium">
+                  Select Date Range
+                </center>
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-4 font-medium">
+                    <label>From</label>
+                    <label>To</label>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={avgFromDate}
+                      onChange={(e) => setAvgFromDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={avgToDate}
+                      onChange={(e) => setAvgToDate(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex justify-center gap-4 font-medium">
                   <button
                     className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1"
-                    onClick={generateExcel}
+                    onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
@@ -474,7 +532,7 @@ const Reports = ({dataFromApp}) => {
                     Count-wise Data
                   </div>
 
-                  <div
+                  {/* <div
                     className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
                       selectedSensorWiseReportOption === "overallData" &&
                       "text-[#9cb3d6]"
@@ -489,7 +547,7 @@ const Reports = ({dataFromApp}) => {
                   >
                     <BsDatabaseDown className="text-2xl md:text-5xl" />
                     Overall Data
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* sensorwise datepicker option */}

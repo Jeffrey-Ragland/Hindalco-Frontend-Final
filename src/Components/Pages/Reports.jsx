@@ -4,17 +4,14 @@ import Navbar from './Navbar';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { LuCalendarSearch } from "react-icons/lu";
-import { BsDatabaseDown } from "react-icons/bs";
 import { MdOutlineSensors } from "react-icons/md";
 import { TbHash } from "react-icons/tb";
-import { FaFileDownload, FaCloudDownloadAlt } from "react-icons/fa";
+import { FaFileDownload } from "react-icons/fa";
 import { TbSum } from "react-icons/tb";
 import axios from "axios";
 import reportsImg from "../Assets/reports.jpeg";
 
 const Reports = ({dataFromApp}) => {
-
-  // added changes - testing
 
   // console.log('reports page data', dataFromApp);
 
@@ -36,9 +33,6 @@ const Reports = ({dataFromApp}) => {
   const [avgFromDate, setAvgFromDate] = useState('');
   const [avgToDate, setAvgToDate] = useState('');
 
-
-  // const dataFromAppFile = dataFromApp.dataFromApp;
-  // const projectName = "DEMOKIT01";
   const projectName = "XY001";
 
   // console.log('selected sensors', selectedSensors)
@@ -73,7 +67,7 @@ const Reports = ({dataFromApp}) => {
     }
   }, [parameters, selectedSensors]);
 
-  console.log("unselected sensors:", unselectedSensors);
+  // console.log("unselected sensors:", unselectedSensors);
 
   const handleSensorWiseDataSensorSelection = (key) => {
     setSelectedSensors((prevSelectedSensors) => {
@@ -134,8 +128,8 @@ const Reports = ({dataFromApp}) => {
       const ws = XLSX.utils.json_to_sheet(
         response.data.data.map(({ createdAt, ...rest }) => ({
           ...rest,
-          // createdAt: new Date(createdAt).toLocaleString("en-GB"),
-          createdAt: createdAt,
+          createdAt: new Date(createdAt).toLocaleString("en-GB"),
+          // createdAt: createdAt,
         }))
       );
       const wb = XLSX.utils.book_new();
@@ -162,13 +156,8 @@ const Reports = ({dataFromApp}) => {
           },
         }
       );
-      const ws = XLSX.utils.json_to_sheet(
-        response.data.data.map(({ createdAt, ...rest }) => ({
-          ...rest,
-          // createdAt: new Date(createdAt).toLocaleString("en-GB"),
-          createdAt: createdAt,
-        }))
-      );
+      console.log('report data', response.data.data);
+      const ws = XLSX.utils.json_to_sheet(response.data.data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

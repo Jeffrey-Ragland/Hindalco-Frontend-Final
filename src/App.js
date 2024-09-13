@@ -100,8 +100,14 @@ const App = () => {
         <Route path="/" element={<ProtectedRoute />}>
           <Route index element={<Dashboard dataFromApp={hindalcoData} />} />
           {/* <Route path='MainPage' element={<DashboardOld />} /> */}
-          <Route path="Reports" element={<Reports dataFromApp={hindalcoData[0]}/>} />
-          <Route path="Analytics" element={<Analysis />} />
+          <Route
+            path="Reports"
+            element={<Reports dataFromApp={hindalcoData[0]} />}
+          />
+          <Route
+            path="Analytics"
+            element={<Analysis dataFromApp={hindalcoData[0]} />}
+          />
         </Route>
       </Routes>
     </>

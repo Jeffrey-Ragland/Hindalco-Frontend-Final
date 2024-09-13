@@ -81,27 +81,6 @@ const Reports = ({dataFromApp}) => {
 
   // console.log('selected sensors', selectedSensors);
 
-  // fetch data
-  // useEffect(() => {
-  //   handleReportData();
-  // }, [
-  //   fromDate,
-  //   toDate,
-  //   count,
-  //   unselectedSensors,
-  //   sensorWiseFromDate,
-  //   sensorWiseToDate,
-  //   sensorWiseCount,
-  // ]);
-
-  const handleReportData = async () => {
-    try {
-      
-    } catch (error) {
-      
-    }
-  };
-
   const generateExcel = async () => {
     try {
       const response = await axios.get(
@@ -212,8 +191,8 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
-              setAvgFromDate('');
-              setAvgToDate('');
+              setAvgFromDate("");
+              setAvgToDate("");
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -264,7 +243,13 @@ const Reports = ({dataFromApp}) => {
         </div>
 
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col md:flex-row p-4 md:p-8 bg-white/10 rounded-xl">
+          <div
+            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-gray-600"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            }}
+          >
             <div className="p-2 md:p-4 flex items-center justify-center">
               <img
                 src={reportsImg}
@@ -300,7 +285,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1"
+                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -407,7 +392,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1"
+                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -447,7 +432,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1"
+                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -490,9 +475,10 @@ const Reports = ({dataFromApp}) => {
 
                 <div className="flex gap-4 font-medium">
                   <div
-                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-                      selectedSensorWiseReportOption === "datePicker" &&
-                      "text-[#9cb3d6]"
+                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                      selectedSensorWiseReportOption === "datePicker"
+                        ? "text-gray-700"
+                        : "text-white"
                     }`}
                     onClick={() => {
                       setSelectedSensorWiseReportOption("datePicker");
@@ -505,9 +491,10 @@ const Reports = ({dataFromApp}) => {
                   </div>
 
                   <div
-                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-                      selectedSensorWiseReportOption === "countWiseData" &&
-                      "text-[#9cb3d6]"
+                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                      selectedSensorWiseReportOption === "countWiseData"
+                        ? "text-gray-700"
+                        : " text-white"
                     }`}
                     onClick={() => {
                       setSelectedSensorWiseReportOption("countWiseData");
@@ -675,16 +662,16 @@ const Reports = ({dataFromApp}) => {
                 )}
 
                 {/* sensorwise overall data option */}
-                {selectedSensorWiseReportOption === "overallData" && (
+                {/* {selectedSensorWiseReportOption === "overallData" && (
                   <div className="font-medium">
                     Entire data from the database will be <br />
                     downloaded!
                   </div>
-                )}
+                )} */}
 
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1"
+                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />

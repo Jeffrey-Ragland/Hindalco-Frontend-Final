@@ -13,7 +13,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 
 const Dashboard = ({dataFromApp}) => {
-  // console.log("data", dataFromApp);
+  console.log("data", dataFromApp);
 
   const parameters =
     dataFromApp.length > 0 &&
@@ -85,7 +85,7 @@ const Dashboard = ({dataFromApp}) => {
               key !== "DeviceTemperature" &&
               key !== "DeviceBattery" &&
               key !== "DeviceSignal" &&
-              key !== "createdAt" &&
+              key !== "Time" &&
               value !== "N/A"
           )
           .filter(([key, value]) => value >= alertLimitFromLS)
@@ -229,7 +229,7 @@ const Dashboard = ({dataFromApp}) => {
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
           if (
-            key !== "createdAt" &&
+            key !== "Time" &&
             key !== "_id" &&
             key !== "DeviceName" &&
             key !== "DeviceTemperature" &&
@@ -246,7 +246,7 @@ const Dashboard = ({dataFromApp}) => {
           }
         } else if (viewAllCards === false) {
           if (
-            key !== "createdAt" &&
+            key !== "Time" &&
             key !== "_id" &&
             key !== "DeviceName" &&
             key !== "DeviceTemperature" &&
@@ -270,7 +270,7 @@ const Dashboard = ({dataFromApp}) => {
       });
 
       const lineCategories = dataFromApp
-        .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
+        .map((item) => new Date(item.Time).toLocaleString("en-GB"))
         .reverse();
       const allSeries = [
         {
@@ -388,8 +388,8 @@ const Dashboard = ({dataFromApp}) => {
     }
   }, [dataFromApp, selectedSensors, viewAllCards]);
 
-  console.log("selectedSensors", selectedSensors);
-  console.log("parameters", parameters);
+  // console.log("selectedSensors", selectedSensors);
+  // console.log("parameters", parameters);
 
   return (
     <div className="xl:h-screen text-gray-600 p-4 flex flex-col gap-2 ">
@@ -1008,7 +1008,7 @@ const Dashboard = ({dataFromApp}) => {
                   <div>-</div>
                   <div>
                     {dataFromApp.length > 0 &&
-                      new Date(dataFromApp[0].createdAt).toLocaleString(
+                      new Date(dataFromApp[0].Time).toLocaleString(
                         "en-GB"
                       )}
                   </div>
@@ -1040,7 +1040,7 @@ const Dashboard = ({dataFromApp}) => {
             </div>
             <div className="text-center text-sm 2xl:text-xl">
               {dataFromApp.length > 0 &&
-                new Date(dataFromApp[0].createdAt).toLocaleString("en-GB")}
+                new Date(dataFromApp[0].Time).toLocaleString("en-GB")}
             </div>
           </div>
 

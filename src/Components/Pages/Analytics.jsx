@@ -1,17 +1,14 @@
 import React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "./Navbar";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import { LuCalendarSearch } from "react-icons/lu";
 import { MdOutlineSensors } from "react-icons/md";
 import { TbHash, TbSum } from "react-icons/tb";
 import { BiScatterChart } from "react-icons/bi";
 import axios from "axios";
-import reportsImg from "../Assets/reports.jpeg";
+import ApexCharts from "react-apexcharts";
 
 const Analytics = ({ dataFromApp }) => {
-
   const [selectedReportOption, setSelectedReportOption] =
     useState("averageData");
   const [count, setCount] = useState(100);
@@ -29,6 +26,7 @@ const Analytics = ({ dataFromApp }) => {
   const [sensorWiseToDate, setSensorWiseToDate] = useState("");
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
+  const [analyticsData, setAnalyticsData] = useState([]);
 
   const projectName = "XY001";
 
@@ -79,7 +77,7 @@ const Analytics = ({ dataFromApp }) => {
 
   // console.log('selected sensors', selectedSensors);
 
-  const generateExcel = async () => {
+  const generateAnalyticsData = async () => {
     try {
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
@@ -99,29 +97,13 @@ const Analytics = ({ dataFromApp }) => {
           },
         }
       );
-
-      // console.log("report data", response.data.data);
-
-      const ws = XLSX.utils.json_to_sheet(
-        response.data.data.map(({ createdAt, ...rest }) => ({
-          ...rest,
-          createdAt: new Date(createdAt).toLocaleString("en-GB"),
-          // createdAt: createdAt,
-        }))
-      );
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const info = new Blob([excelBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      saveAs(info, `${projectName}_Report.xlsx`);
+      setAnalyticsData(response.data.data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const generateAverageExcel = async () => {
+  const generateAverageAnalyticsData = async () => {
     try {
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoAverageReport",
@@ -133,19 +115,229 @@ const Analytics = ({ dataFromApp }) => {
           },
         }
       );
-      console.log("report data", response.data.data);
-      const ws = XLSX.utils.json_to_sheet(response.data.data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const info = new Blob([excelBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      saveAs(info, `${projectName}_Average_Report.xlsx`);
+      setAnalyticsData(response.data.data);
     } catch (error) {
       console.error(error);
     }
   };
+
+  console.log("analytics data", analyticsData);
+
+  // line chart options
+  const [lineData, setLineData] = useState({
+    series: [],
+    options: {
+      chart: {
+        type: "line",
+        zoom: {
+          enabled: true,
+          type: "x",
+          scrollable: true,
+        },
+      },
+      xaxis: {
+        categories: [],
+        labels: {
+          style: {
+            fontSize: "5px",
+          },
+        },
+      },
+      yaxis: {
+        labels: {
+          style: {
+            fontSize: "6px",
+          },
+        },
+      },
+      grid: {
+        show: false,
+      },
+      legend: {
+        show: false,
+      },
+      stroke: {
+        curve: "straight",
+        width: 1.5,
+      },
+      markers: {
+        size: 0,
+      },
+      tooltip: {
+        enabled: true,
+        theme: "dark",
+        marker: {
+          show: true,
+        },
+      },
+    },
+  });
+
+  // const chartRef = useRef({ min: null, max: null });
+
+  // chart data assignment
+  useEffect(() => {
+    if (analyticsData.length > 0) {
+      if(selectedReportOption === 'averageData') {
+        const lineCategories = analyticsData
+          .map((item) => item.dateTimeRange)
+          .reverse();
+        const lineSeries = [
+          {
+            name: "S1",
+            data: [...analyticsData.map((item) => item.avgS1).reverse()],
+          },
+          {
+            name: "S2",
+            data: [...analyticsData.map((item) => item.avgS2).reverse()],
+          },
+          {
+            name: "S3",
+            data: [...analyticsData.map((item) => item.avgS3).reverse()],
+          },
+          {
+            name: "S4",
+            data: [...analyticsData.map((item) => item.avgS4).reverse()],
+          },
+          {
+            name: "S5",
+            data: [...analyticsData.map((item) => item.avgS5).reverse()],
+          },
+          {
+            name: "S6",
+            data: [...analyticsData.map((item) => item.avgS6).reverse()],
+          },
+          {
+            name: "S7",
+            data: [...analyticsData.map((item) => item.avgS7).reverse()],
+          },
+          {
+            name: "S8",
+            data: [...analyticsData.map((item) => item.avgS8).reverse()],
+          },
+          {
+            name: "S9",
+            data: [...analyticsData.map((item) => item.avgS9).reverse()],
+          },
+          {
+            name: "S10",
+            data: [...analyticsData.map((item) => item.avgS10).reverse()],
+          },
+          {
+            name: "S11",
+            data: [...analyticsData.map((item) => item.avgS11).reverse()],
+          },
+          {
+            name: "S12",
+            data: [...analyticsData.map((item) => item.avgS12).reverse()],
+          },
+          {
+            name: "S13",
+            data: [...analyticsData.map((item) => item.avgS13).reverse()],
+          },
+          {
+            name: "S14",
+            data: [...analyticsData.map((item) => item.avgS14).reverse()],
+          },
+          {
+            name: "S15",
+            data: [...analyticsData.map((item) => item.avgS15).reverse()],
+          },
+        ];
+        setLineData({
+          series: lineSeries,
+          options: {
+            ...lineData.options,
+            xaxis: {
+              categories: lineCategories,
+            },
+          },
+        });
+      } else if(selectedReportOption !== 'averageData') {
+        const lineCategories = analyticsData
+          .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
+          .reverse();
+        const lineSeries = [
+          {
+            name: "S1",
+            data: [...analyticsData.map((item) => item.S1).reverse()],
+          },
+          {
+            name: "S2",
+            data: [...analyticsData.map((item) => item.S2).reverse()],
+          },
+          {
+            name: "S3",
+            data: [...analyticsData.map((item) => item.S3).reverse()],
+          },
+          {
+            name: "S4",
+            data: [...analyticsData.map((item) => item.S4).reverse()],
+          },
+          {
+            name: "S5",
+            data: [...analyticsData.map((item) => item.S5).reverse()],
+          },
+          {
+            name: "S6",
+            data: [...analyticsData.map((item) => item.S6).reverse()],
+          },
+          {
+            name: "S7",
+            data: [...analyticsData.map((item) => item.S7).reverse()],
+          },
+          {
+            name: "S8",
+            data: [...analyticsData.map((item) => item.S8).reverse()],
+          },
+          {
+            name: "S9",
+            data: [...analyticsData.map((item) => item.S9).reverse()],
+          },
+          {
+            name: "S10",
+            data: [...analyticsData.map((item) => item.S10).reverse()],
+          },
+          {
+            name: "S11",
+            data: [...analyticsData.map((item) => item.S11).reverse()],
+          },
+          {
+            name: "S12",
+            data: [...analyticsData.map((item) => item.S12).reverse()],
+          },
+          {
+            name: "S13",
+            data: [...analyticsData.map((item) => item.S13).reverse()],
+          },
+          {
+            name: "S14",
+            data: [...analyticsData.map((item) => item.S14).reverse()],
+          },
+          {
+            name: "S15",
+            data: [...analyticsData.map((item) => item.S15).reverse()],
+          },
+        ];
+        setLineData({
+          series: lineSeries,
+          options: {
+            ...lineData.options,
+            xaxis: {
+              categories: lineCategories,
+            },
+          },
+        });
+      }
+      
+
+      // const lineSeries = allSeries.filter((series) =>
+      //   selectedSensors.includes(series.name)
+      // );
+
+      
+    }
+  }, [analyticsData]);
 
   return (
     <div className="h-screen text-white p-4 flex flex-col gap-2 ">
@@ -281,7 +473,7 @@ const Analytics = ({ dataFromApp }) => {
                   <div className="flex justify-center gap-4 font-medium">
                     <button
                       className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                      onClick={generateExcel}
+                      onClick={generateAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
@@ -388,7 +580,7 @@ const Analytics = ({ dataFromApp }) => {
                   <div className="flex gap-4">
                     <button
                       className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                      onClick={generateExcel}
+                      onClick={generateAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
@@ -428,7 +620,7 @@ const Analytics = ({ dataFromApp }) => {
                   <div className="flex justify-center gap-4 font-medium">
                     <button
                       className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                      onClick={generateAverageExcel}
+                      onClick={generateAverageAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
@@ -439,7 +631,7 @@ const Analytics = ({ dataFromApp }) => {
 
               {/* sensorwise data option */}
               {selectedReportOption === "sensorWiseData" && (
-                <div className="flex flex-col items-center justify-center gap-2 text-sm md:text-base">
+                <div className="flex flex-col items-center justify-center gap-1.5 text-sm md:text-base">
                   <center className="text-sm md:text-xl font-medium">
                     Select sensor
                   </center>
@@ -473,9 +665,10 @@ const Analytics = ({ dataFromApp }) => {
 
                   <div className="flex gap-4 font-medium">
                     <div
-                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-                        selectedSensorWiseReportOption === "datePicker" &&
-                        "text-[#9cb3d6]"
+                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                        selectedSensorWiseReportOption === "datePicker"
+                          ? "text-gray-700"
+                          : "text-white"
                       }`}
                       onClick={() => {
                         setSelectedSensorWiseReportOption("datePicker");
@@ -488,9 +681,10 @@ const Analytics = ({ dataFromApp }) => {
                     </div>
 
                     <div
-                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-                        selectedSensorWiseReportOption === "countWiseData" &&
-                        "text-[#9cb3d6]"
+                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                        selectedSensorWiseReportOption === "countWiseData"
+                          ? "text-gray-700"
+                          : "text-white"
                       }`}
                       onClick={() => {
                         setSelectedSensorWiseReportOption("countWiseData");
@@ -649,7 +843,7 @@ const Analytics = ({ dataFromApp }) => {
                   <div className="flex gap-4 text-sm">
                     <button
                       className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                      onClick={generateExcel}
+                      onClick={generateAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
@@ -660,11 +854,48 @@ const Analytics = ({ dataFromApp }) => {
             </div>
 
             {/* table */}
-            <div className="border border-white h-1/3">Table</div>
+            <div className="border border-white h-1/3">
+              <table className="w-full">
+                <thead className="sticky top-0 text-sm">
+                  {/* <tr>
+                    <th className="px-4">S.No</th>
+                    <th className="px-4">S1</th>
+                    <th className="px-4">S2</th>
+                    <th className="px-4">S3</th>
+                    <th className="px-4">S4</th>
+                    <th className="px-4">S5</th>
+                    <th className="px-4">S6</th>
+                    <th className="px-4">S7</th>
+                    <th className="px-4">S8</th>
+                    <th className="px-4">S9</th>
+                    <th className="px-4">S10</th>
+                    <th className="px-4">S11</th>
+                    <th className="px-4">S12</th>
+                    <th className="px-4">S13</th>
+                    <th className="px-4">S14</th>
+                    <th className="px-4">S15</th>
+                    <th className="px-4">Last&nbsp;Updated</th>
+                  </tr> */}
+                </thead>
+              </table>
+            </div>
           </div>
 
           {/* right half graph */}
-          <div className="border border-white w-[70%]">line chart</div>
+          <div className="border border-white w-[70%] overflow-hidden">
+            {analyticsData.length > 0 ? (
+              <ApexCharts
+                options={lineData.options}
+                series={lineData.series}
+                type="line"
+                height="100%"
+              />
+            ) : (
+              <div className="h-full flex justify-center items-center">
+                No Data Found
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

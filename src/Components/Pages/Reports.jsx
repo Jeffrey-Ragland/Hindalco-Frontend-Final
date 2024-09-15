@@ -285,7 +285,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -392,7 +392,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -432,7 +432,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -671,7 +671,7 @@ const Reports = ({dataFromApp}) => {
 
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-green-500 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />

@@ -77,14 +77,18 @@ const App = () => {
   const getHindalcoData = async () => {
     try {
       const hindalcoLimit = localStorage.getItem("HindalcoLimit");
+      const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
+      const HindalcoCardsViewMore = localStorage.getItem("HindalcoCardsViewMore");
       // console.log('localstorage', hindalcoLimit);
-      const response = await axios.get(
-        `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
-      );
-      if (response.data.success) {
-        setHindalcoData(response.data.data);
-      } else {
-        console.log("No data found");
+      if (hindalcoLimit && hindalcoAlertLimit && HindalcoCardsViewMore) {
+        const response = await axios.get(
+          `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
+        );
+        if (response.data.success) {
+          setHindalcoData(response.data.data);
+        } else {
+          console.log("No data found");
+        }
       }
     } catch (error) {
       console.error("Error fetching hindalco data", error);

@@ -229,7 +229,8 @@ const Dashboard = ({dataFromApp}) => {
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
           if (
-            key !== "Time" &&
+            // key !== "Time" &&
+            key !== "createdAt" &&
             key !== "_id" &&
             key !== "DeviceName" &&
             key !== "DeviceTemperature" &&
@@ -239,14 +240,15 @@ const Dashboard = ({dataFromApp}) => {
             barCategories.push(key);
             barSeries.push(parseFloat(dataFromApp[0][key]));
             if (alertKeys.includes(key)) {
-              barColors.push("#FF0000"); 
+              barColors.push("#FF0000");
             } else {
-              barColors.push("#00FF00"); 
+              barColors.push("#00FF00");
             }
           }
         } else if (viewAllCards === false) {
           if (
-            key !== "Time" &&
+            // key !== "Time" &&
+            key !== "createdAt" &&
             key !== "_id" &&
             key !== "DeviceName" &&
             key !== "DeviceTemperature" &&
@@ -270,7 +272,7 @@ const Dashboard = ({dataFromApp}) => {
       });
 
       const lineCategories = dataFromApp
-        .map((item) => new Date(item.Time).toLocaleString("en-GB"))
+        .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
         .reverse();
       const allSeries = [
         {
@@ -1008,7 +1010,7 @@ const Dashboard = ({dataFromApp}) => {
                   <div>-</div>
                   <div>
                     {dataFromApp.length > 0 &&
-                      new Date(dataFromApp[0].Time).toLocaleString(
+                      new Date(dataFromApp[0].createdAt).toLocaleString(
                         "en-GB"
                       )}
                   </div>
@@ -1040,7 +1042,7 @@ const Dashboard = ({dataFromApp}) => {
             </div>
             <div className="text-center text-sm 2xl:text-xl">
               {dataFromApp.length > 0 &&
-                new Date(dataFromApp[0].Time).toLocaleString("en-GB")}
+                new Date(dataFromApp[0].createdAt).toLocaleString("en-GB")}
             </div>
           </div>
 

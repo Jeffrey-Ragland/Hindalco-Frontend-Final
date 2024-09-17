@@ -27,10 +27,76 @@ const Analytics = ({ dataFromApp }) => {
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
+  const [graphKeys, setGraphKeys] = useState([]);
+  const [avgGraphKeys, setAvgGraphKeys] = useState([]);
 
   const projectName = "XY001";
 
   // console.log('selected sensors', selectedSensors)
+
+  // for graph selection
+  // const graphKeys = (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) && Object.keys(analyticsData[0]).filter((key) => key.startsWith('S'));
+
+  useEffect(() => {
+    if (
+      analyticsData &&
+      Array.isArray(analyticsData) &&
+      analyticsData.length > 0
+    ) 
+    {
+      const keys = Object.keys(analyticsData[0]).filter((key) =>
+        key.startsWith("S")
+      );
+      setGraphKeys(keys);
+    }
+  }, [analyticsData])
+
+  useEffect(() => {
+    if (
+      analyticsData &&
+      Array.isArray(analyticsData) &&
+      analyticsData.length > 0
+    ) {
+      const keys = Object.keys(analyticsData[0]).filter((key) =>
+        key.startsWith("avgS")
+      );
+      setAvgGraphKeys(keys);
+    }
+  }, [analyticsData]);
+  
+
+  console.log('graph keys', graphKeys);
+  
+  // const firstGraphKey = graphKeys.length > 0 && graphKeys[0];
+
+  // console.log("first graph key", firstGraphKey);
+  
+  // console.log("graphKeys", graphKeys);
+
+  // const avgGraphKeys = (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) && Object.keys(analyticsData[0]).filter((key) => key.startsWith('avgS'));
+  
+  const [selectedGraphKeys, setSelectedGraphKeys] = useState(['S1']);
+  const [selectedAvgGraphKeys, setSelectedAvgGraphKeys] = useState(["avgS1"]);
+
+  const handleLineSelection = (key) => {
+    if (selectedReportOption !== "averageData") {
+      setSelectedGraphKeys((prevState) =>
+        prevState.includes(key)
+          ? prevState.filter((sensor) => sensor !== key)
+          : [...prevState, key]
+      );
+    }
+    else if (selectedReportOption === 'averageData') {
+      setSelectedAvgGraphKeys((prevState) =>
+        prevState.includes(key)
+          ? prevState.filter((sensor) => sensor !== key)
+          : [...prevState, key]
+      );
+    }
+  };
+
+  console.log('selected graph keys', selectedGraphKeys);
+  console.log('selected avg graph keys', selectedAvgGraphKeys);
 
   // used for displaying the sensor names in sensor wise data option
   useEffect(() => {
@@ -151,7 +217,9 @@ const Analytics = ({ dataFromApp }) => {
         },
       },
       grid: {
-        show: false,
+        show: true,
+        borderColor: "#4d4d4d",
+        strokeDashArray: 4,
       },
       legend: {
         show: false,
@@ -177,73 +245,80 @@ const Analytics = ({ dataFromApp }) => {
 
   // chart data assignment
   useEffect(() => {
-    if (analyticsData.length > 0) {
+    if (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) {
       if(selectedReportOption === 'averageData') {
         const lineCategories = analyticsData
           .map((item) => item.dateTimeRange)
           .reverse();
-        const lineSeries = [
+        const allSeries = [
           {
-            name: "S1",
+            name: "avgS1",
             data: [...analyticsData.map((item) => item.avgS1).reverse()],
           },
           {
-            name: "S2",
+            name: "avgS2",
             data: [...analyticsData.map((item) => item.avgS2).reverse()],
           },
           {
-            name: "S3",
+            name: "avgS3",
             data: [...analyticsData.map((item) => item.avgS3).reverse()],
           },
           {
-            name: "S4",
+            name: "avgS4",
             data: [...analyticsData.map((item) => item.avgS4).reverse()],
           },
           {
-            name: "S5",
+            name: "avgS5",
             data: [...analyticsData.map((item) => item.avgS5).reverse()],
           },
           {
-            name: "S6",
+            name: "avgS6",
             data: [...analyticsData.map((item) => item.avgS6).reverse()],
           },
           {
-            name: "S7",
+            name: "avgS7",
             data: [...analyticsData.map((item) => item.avgS7).reverse()],
           },
           {
-            name: "S8",
+            name: "avgS8",
             data: [...analyticsData.map((item) => item.avgS8).reverse()],
           },
           {
-            name: "S9",
+            name: "avgS9",
             data: [...analyticsData.map((item) => item.avgS9).reverse()],
           },
           {
-            name: "S10",
+            name: "avgS10",
             data: [...analyticsData.map((item) => item.avgS10).reverse()],
           },
           {
-            name: "S11",
+            name: "avgS11",
             data: [...analyticsData.map((item) => item.avgS11).reverse()],
           },
           {
-            name: "S12",
+            name: "avgS12",
             data: [...analyticsData.map((item) => item.avgS12).reverse()],
           },
           {
-            name: "S13",
+            name: "avgS13",
             data: [...analyticsData.map((item) => item.avgS13).reverse()],
           },
           {
-            name: "S14",
+            name: "avgS14",
             data: [...analyticsData.map((item) => item.avgS14).reverse()],
           },
           {
-            name: "S15",
+            name: "avgS15",
             data: [...analyticsData.map((item) => item.avgS15).reverse()],
           },
         ];
+
+        const lineSeries = allSeries.filter((series) =>
+          selectedAvgGraphKeys.includes(series.name)
+        );
+
+        console.log('line series average', lineSeries);
+
         setLineData({
           series: lineSeries,
           options: {
@@ -257,7 +332,7 @@ const Analytics = ({ dataFromApp }) => {
         const lineCategories = analyticsData
           .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
           .reverse();
-        const lineSeries = [
+        const allSeries = [
           {
             name: "S1",
             data: [...analyticsData.map((item) => item.S1).reverse()],
@@ -319,6 +394,18 @@ const Analytics = ({ dataFromApp }) => {
             data: [...analyticsData.map((item) => item.S15).reverse()],
           },
         ];
+
+        const lineSeries = allSeries.filter((series) =>
+          selectedGraphKeys.includes(series.name)
+        );
+
+        // const lineSeries = Object.keys(analyticsData[0] || {}) // Get the keys from the first data point
+        //   .filter((key) => key.startsWith("S")) // Filter keys that start with 'S'
+        //   .map((key) => ({
+        //     name: key,
+        //     data: analyticsData.map((item) => item[key]).reverse(),
+        // }));
+
         setLineData({
           series: lineSeries,
           options: {
@@ -337,17 +424,17 @@ const Analytics = ({ dataFromApp }) => {
 
       
     }
-  }, [analyticsData]);
+  }, [analyticsData, selectedGraphKeys, selectedAvgGraphKeys]);
 
   return (
-    <div className="h-screen text-white p-4 flex flex-col gap-2 ">
+    <div className="xl:h-screen text-white p-4 flex flex-col gap-2 ">
       {/* top bar - h-[10%] */}
       <div className="xl:h-[10%]">
         <Navbar />
       </div>
 
       <div className="xl:h-[90%] flex flex-col gap-2 justify-center">
-        <div className="flex gap-2 justify-evenly font-medium">
+        <div className="flex gap-2 justify-evenly font-medium xl:h-[15%]">
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
               selectedReportOption === "averageData" && "text-[#9cb3d6]"
@@ -363,6 +450,7 @@ const Analytics = ({ dataFromApp }) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
+              setAnalyticsData([]);
             }}
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -384,6 +472,7 @@ const Analytics = ({ dataFromApp }) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setAnalyticsData([]);
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -407,38 +496,20 @@ const Analytics = ({ dataFromApp }) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setAnalyticsData([]);
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
             Count-wise Data
           </div>
-
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "sensorWiseData" && "text-[#9cb3d6]"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("sensorWiseData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setSelectedSensorWiseReportOption("datePicker");
-              setEnableCount(false);
-              setAvgFromDate("");
-              setAvgToDate("");
-            }}
-          >
-            <MdOutlineSensors className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Sensor-wise Data
-          </div>
         </div>
 
-        <div className="flex-1 flex gap-4">
+        <div className="xl:h-[85%] flex flex-col xl:flex-row gap-2">
           {/* left half */}
-          <div className="w-[30%] flex flex-col gap-4">
+          <div className="w-full xl:w-[30%] flex flex-col gap-2">
             {/* selector */}
             <div
-              className="p-4 rounded-xl h-2/3 flex justify-center items-center text-gray-600"
+              className="p-4 rounded-xl h-[300px] lg:h-[400px] xl:h-2/3 flex justify-center items-center text-gray-600 2xl:text-2xl"
               style={{
                 backgroundImage:
                   "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
@@ -446,8 +517,10 @@ const Analytics = ({ dataFromApp }) => {
             >
               {/* datepicker option */}
               {selectedReportOption === "datePicker" && (
-                <div className="flex flex-col items-center justify-center gap-6">
-                  <center className="text-xl font-medium">Select Date</center>
+                <div className="flex flex-col items-center justify-center gap-6 2xl:gap-12 h-full">
+                  <center className="text-xl 2xl:text-2xl font-medium">
+                    Select Date
+                  </center>
                   <div className="flex gap-2">
                     <div className="flex flex-col gap-4 font-medium">
                       <label>From</label>
@@ -484,8 +557,10 @@ const Analytics = ({ dataFromApp }) => {
 
               {/* countwise option */}
               {selectedReportOption === "countWiseData" && (
-                <div className="flex flex-col gap-4 items-center justify-center">
-                  <center className="text-xl font-medium">Select Count</center>
+                <div className="flex flex-col gap-4 2xl:gap-12 items-center justify-center">
+                  <center className="text-xl 2xl:text-2xl font-medium">
+                    Select Count
+                  </center>
                   <div className="grid grid-cols-2 gap-2 md:gap-4">
                     <div className="flex items-center">
                       <input
@@ -591,8 +666,8 @@ const Analytics = ({ dataFromApp }) => {
 
               {/* averageData option */}
               {selectedReportOption === "averageData" && (
-                <div className="flex flex-col items-center justify-center gap-6">
-                  <center className="text-xl font-medium">
+                <div className="flex flex-col items-center justify-center gap-6 2xl:gap-12">
+                  <center className="text-xl 2xl:text-2xl font-medium">
                     Select Date Range
                   </center>
                   <div className="flex gap-2">
@@ -628,273 +703,157 @@ const Analytics = ({ dataFromApp }) => {
                   </div>
                 </div>
               )}
-
-              {/* sensorwise data option */}
-              {selectedReportOption === "sensorWiseData" && (
-                <div className="flex flex-col items-center justify-center gap-1.5 text-sm md:text-base">
-                  <center className="text-sm md:text-xl font-medium">
-                    Select sensor
-                  </center>
-                  {/* sensor selection */}
-                  <div
-                    className="flex gap-2 md:gap-4 w-80 overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    {parameters &&
-                      parameters.length > 0 &&
-                      parameters.map((key) => (
-                        <div
-                          className="flex gap-1 items-center text-sm 2xl:text-base"
-                          key={key}
-                        >
-                          <input
-                            type="checkbox"
-                            id={key}
-                            className="h-2 md:h-4 w-2 md:w-4 cursor-pointer"
-                            value={key}
-                            onClick={() =>
-                              handleSensorWiseDataSensorSelection(key)
-                            }
-                          />
-                          <label className="cursor-pointer" htmlFor={key}>
-                            {key}
-                          </label>
-                        </div>
-                      ))}
-                  </div>
-
-                  <div className="flex gap-4 font-medium">
-                    <div
-                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
-                        selectedSensorWiseReportOption === "datePicker"
-                          ? "text-gray-700"
-                          : "text-white"
-                      }`}
-                      onClick={() => {
-                        setSelectedSensorWiseReportOption("datePicker");
-                        setSensorWiseCount();
-                        setEnableSensorWiseCount(false);
-                      }}
-                    >
-                      <LuCalendarSearch className="text-2xl md:text-4xl" />
-                      Date Picker
-                    </div>
-
-                    <div
-                      className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
-                        selectedSensorWiseReportOption === "countWiseData"
-                          ? "text-gray-700"
-                          : "text-white"
-                      }`}
-                      onClick={() => {
-                        setSelectedSensorWiseReportOption("countWiseData");
-                        setSensorWiseFromDate("");
-                        setSensorWiseToDate("");
-                        setSensorWiseCount(100);
-                        setEnableSensorWiseCount(false);
-                      }}
-                    >
-                      <TbHash className="text-2xl md:text-4xl" />
-                      Count-wise Data
-                    </div>
-                  </div>
-
-                  {/* sensorwise datepicker option */}
-                  {selectedSensorWiseReportOption === "datePicker" && (
-                    <div className="flex flex-col items-center justify-center gap-2 text-sm md:text-base">
-                      <center className=" font-medium">Select date</center>
-                      <div className="flex gap-2 text-sm 2xl:text-base">
-                        <div className="flex flex-col gap-2 font-medium ">
-                          <label>From</label>
-                          <label>To</label>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <input
-                            type="date"
-                            className="text-gray-600 rounded-md px-0.5"
-                            required
-                            value={sensorWiseFromDate}
-                            onChange={(e) =>
-                              setSensorWiseFromDate(e.target.value)
-                            }
-                          />
-                          <input
-                            type="date"
-                            className="text-gray-600 rounded-md px-0.5"
-                            required
-                            value={sensorWiseToDate}
-                            onChange={(e) =>
-                              setSensorWiseToDate(e.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* sensorwise countwise option */}
-                  {selectedSensorWiseReportOption === "countWiseData" && (
-                    <div className="flex flex-col gap-2 text-sm md:text-base">
-                      <center className="font-medium">Select Count</center>
-                      <div className="flex gap-4 text-sm 2xl:text-base">
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center">
-                            <input
-                              type="radio"
-                              id="option1"
-                              name="options"
-                              value={100}
-                              checked={sensorWiseCount === 100}
-                              readOnly
-                              className="cursor-pointer mr-1"
-                              onClick={() => {
-                                setSensorWiseCount(100);
-                                setEnableSensorWiseCount(false);
-                              }}
-                            />
-                            <label htmlFor="option1" className="cursor-pointer">
-                              Last 100 Data
-                            </label>
-                          </div>
-                          <div>
-                            <input
-                              type="radio"
-                              id="option3"
-                              name="options"
-                              value={1000}
-                              checked={sensorWiseCount === 1000}
-                              readOnly
-                              className="cursor-pointer mr-1"
-                              onClick={() => {
-                                setSensorWiseCount(1000);
-                                setEnableSensorWiseCount(false);
-                              }}
-                            />
-                            <label htmlFor="option3" className="cursor-pointer">
-                              Last 1000 Data
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                          <div>
-                            <input
-                              type="radio"
-                              id="option2"
-                              name="options"
-                              value={500}
-                              checked={sensorWiseCount === 500}
-                              readOnly
-                              className="cursor-pointer mr-1"
-                              onClick={() => {
-                                setSensorWiseCount(500);
-                                setEnableSensorWiseCount(false);
-                              }}
-                            />
-                            <label htmlFor="option2" className="cursor-pointer">
-                              Last 500 Data
-                            </label>
-                          </div>
-
-                          <div>
-                            <input
-                              type="radio"
-                              id="option4"
-                              name="options"
-                              checked={enableSensorWiseCount === true}
-                              readOnly
-                              className="cursor-pointer mr-1"
-                              onClick={() => {
-                                setSensorWiseCount(0);
-                                setEnableSensorWiseCount(true);
-                              }}
-                            />
-                            <label htmlFor="option4" className="cursor-pointer">
-                              Custom Count
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      {enableSensorWiseCount && (
-                        <div className="flex gap-2 text-sm 2xl:text-base">
-                          <label htmlFor="count">Enter Count:</label>
-                          <input
-                            type="number"
-                            id="count"
-                            value={sensorWiseCount}
-                            className="text-gray-600 w-40 rounded-md px-2"
-                            onChange={(e) =>
-                              setSensorWiseCount(parseInt(e.target.value) || 0)
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* sensorwise overall data option */}
-                  {/* {selectedSensorWiseReportOption === "overallData" && (
-                  <div className="font-medium">
-                    Entire data from the database will be <br />
-                    downloaded!
-                  </div>
-                )} */}
-
-                  <div className="flex gap-4 text-sm">
-                    <button
-                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                      onClick={generateAnalyticsData}
-                    >
-                      <BiScatterChart className="text-lg" />
-                      Plot Graph
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* table */}
-            <div className="border border-white h-1/3">
-              <table className="w-full">
-                <thead className="sticky top-0 text-sm">
-                  {/* <tr>
-                    <th className="px-4">S.No</th>
-                    <th className="px-4">S1</th>
-                    <th className="px-4">S2</th>
-                    <th className="px-4">S3</th>
-                    <th className="px-4">S4</th>
-                    <th className="px-4">S5</th>
-                    <th className="px-4">S6</th>
-                    <th className="px-4">S7</th>
-                    <th className="px-4">S8</th>
-                    <th className="px-4">S9</th>
-                    <th className="px-4">S10</th>
-                    <th className="px-4">S11</th>
-                    <th className="px-4">S12</th>
-                    <th className="px-4">S13</th>
-                    <th className="px-4">S14</th>
-                    <th className="px-4">S15</th>
-                    <th className="px-4">Last&nbsp;Updated</th>
-                  </tr> */}
-                </thead>
-              </table>
+            <div
+              className="h-[300px] lg:h-[400px] xl:h-1/3 rounded-xl overflow-auto text-gray-600"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#1D4ED8 transparent",
+                backgroundImage:
+                  "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+              }}
+            >
+              {analyticsData &&
+              Array.isArray(analyticsData) &&
+              analyticsData.length > 0 ? (
+                <table className="w-full text-center">
+                  <thead className="sticky top-0 text-sm backdrop-blur-sm">
+                    <tr>
+                      {analyticsData &&
+                        Array.isArray(analyticsData) &&
+                        analyticsData.length > 0 && (
+                          <th className="px-2">S.No</th>
+                        )}
+                      {analyticsData &&
+                        Array.isArray(analyticsData) &&
+                        analyticsData.length > 0 &&
+                        Object.keys(analyticsData[0]).map((key) => (
+                          <th className="px-2">{key}</th>
+                        ))}
+                    </tr>
+                  </thead>
+                  <tbody className="text-xs 2xl:text-base ">
+                    {selectedReportOption === "averageData"
+                      ? analyticsData &&
+                        analyticsData.map((data, index) => (
+                          <tr key={index}>
+                            <td className="px-2 border border-gray-400">
+                              {index + 1}
+                            </td>
+                            {Object.keys(data).map((key) => (
+                              <td
+                                className="px-2 border border-gray-400"
+                                key={key}
+                              >
+                                {data[key]}
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      : analyticsData &&
+                        analyticsData.map((data, index) => (
+                          <tr key={index}>
+                            <td className="px-2 border border-gray-400">
+                              {index + 1}
+                            </td>
+                            {Object.keys(data)
+                              .filter((key) => key !== "createdAt")
+                              .map((key) => (
+                                <td
+                                  className="px-2 border border-gray-400"
+                                  key={key}
+                                >
+                                  {data[key]}
+                                </td>
+                              ))}
+                            <td className="px-2 border border-gray-400">
+                              {new Date(data["createdAt"]).toLocaleString(
+                                "en-GB"
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="h-full flex justify-center items-center text-sm 2xl:text-base font-medium">
+                  No Data
+                </div>
+              )}
             </div>
           </div>
 
           {/* right half graph */}
-          <div className="border border-white w-[70%] overflow-hidden">
-            {analyticsData.length > 0 ? (
+          <div
+            className="rounded-xl p-1 w-full h-[300px] lg:h-[400px] xl:h-auto xl:w-[70%] overflow-hidden flex flex-col text-gray-600 text-sm 2xl:text-base"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            }}
+          >
+            {analyticsData &&
+              Array.isArray(analyticsData) &&
+              analyticsData.length > 0 &&
+              (selectedReportOption === "averageData" ? (
+                <div className="flex justify-evenly">
+                  {avgGraphKeys.length > 0 &&
+                    avgGraphKeys.map((key) => (
+                      <div
+                        key={key}
+                        className="flex items-center gap-1 cursor-pointer"
+                        onClick={() => handleLineSelection(key)}
+                      >
+                        <div
+                          className={`h-2 w-2 mt-1 rounded-full border border-white 
+                        ${
+                          selectedAvgGraphKeys.includes(key)
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                        }`}
+                        />
+                        {key}
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="flex justify-evenly">
+                  {graphKeys.length > 0 &&
+                    graphKeys.map((key) => (
+                      <div
+                        key={key}
+                        className="flex items-center gap-1 cursor-pointer"
+                        onClick={() => handleLineSelection(key)}
+                      >
+                        <div
+                          className={`h-2 w-2 rounded-full border border-white 
+                        ${
+                          selectedGraphKeys.includes(key)
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                        }`}
+                        />
+                        {key}
+                      </div>
+                    ))}
+                </div>
+              ))}
+
+            <div className="flex-1">
               <ApexCharts
                 options={lineData.options}
-                series={lineData.series}
+                series={
+                  analyticsData &&
+                  Array.isArray(analyticsData) &&
+                  analyticsData.length > 0
+                    ? lineData.series
+                    : [{ name: "No Data", data: [] }]
+                }
                 type="line"
                 height="100%"
               />
-            ) : (
-              <div className="h-full flex justify-center items-center">
-                No Data Found
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

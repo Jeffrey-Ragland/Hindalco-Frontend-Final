@@ -150,12 +150,12 @@ const Reports = ({dataFromApp}) => {
   };
 
   return (
-    <div className="h-screen text-white p-4 flex flex-col gap-2 ">
+    <div className="h-screen text-white p-4 flex flex-col gap-2">
       {/* top bar - h-[10%] */}
-      <div className="xl:h-[10%]">
+      <div className="h-[10%]">
         <Navbar />
       </div>
-      <div className="xl:h-[90%] flex flex-col justify-center">
+      <div className="h-[90%] flex flex-col justify-center">
         <div className="flex gap-2 justify-evenly font-medium">
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
@@ -450,7 +450,7 @@ const Reports = ({dataFromApp}) => {
                 </center>
                 {/* sensor selection */}
                 <div
-                  className="flex gap-2 md:gap-4 w-80 overflow-auto"
+                  className="flex gap-2 md:gap-4 w-48 md:w-60 xl:w-80 overflow-auto"
                   style={{ scrollbarWidth: "none" }}
                 >
                   {parameters &&

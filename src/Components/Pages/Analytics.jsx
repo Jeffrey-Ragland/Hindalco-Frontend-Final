@@ -330,7 +330,7 @@ const Analytics = ({ dataFromApp }) => {
         });
       } else if(selectedReportOption !== 'averageData') {
         const lineCategories = analyticsData
-          .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
+          .map((item) => item.Time)
           .reverse();
         const allSeries = [
           {
@@ -768,11 +768,6 @@ const Analytics = ({ dataFromApp }) => {
                                   {data[key]}
                                 </td>
                               ))}
-                            <td className="px-2 border border-gray-400">
-                              {new Date(data["createdAt"]).toLocaleString(
-                                "en-GB"
-                              )}
-                            </td>
                           </tr>
                         ))}
                   </tbody>
@@ -797,7 +792,7 @@ const Analytics = ({ dataFromApp }) => {
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 &&
               (selectedReportOption === "averageData" ? (
-                <div className="flex justify-evenly">
+                <div className="flex justify-evenly font-medium">
                   {avgGraphKeys.length > 0 &&
                     avgGraphKeys.map((key) => (
                       <div
@@ -818,7 +813,7 @@ const Analytics = ({ dataFromApp }) => {
                     ))}
                 </div>
               ) : (
-                <div className="flex justify-evenly">
+                <div className="flex justify-evenly font-medium">
                   {graphKeys.length > 0 &&
                     graphKeys.map((key) => (
                       <div

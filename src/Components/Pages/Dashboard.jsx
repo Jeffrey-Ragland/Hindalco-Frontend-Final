@@ -229,7 +229,7 @@ const Dashboard = ({dataFromApp}) => {
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
           if (
-            // key !== "Time" &&
+            key !== "Time" &&
             key !== "createdAt" &&
             key !== "_id" &&
             key !== "DeviceName" &&
@@ -272,7 +272,7 @@ const Dashboard = ({dataFromApp}) => {
       });
 
       const lineCategories = dataFromApp
-        .map((item) => new Date(item.createdAt).toLocaleString("en-GB"))
+        .map((item) => item.Time)
         .reverse();
       const allSeries = [
         {
@@ -984,7 +984,7 @@ const Dashboard = ({dataFromApp}) => {
           <div
             className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto rounded-b-md"
             style={{
-              scrollbarWidth: "thin",
+              scrollbarWidth: "none",
               scrollbarColor: "#D1D5DB transparent",
             }}
           >
@@ -1010,9 +1010,7 @@ const Dashboard = ({dataFromApp}) => {
                   <div>-</div>
                   <div>
                     {dataFromApp.length > 0 &&
-                      new Date(dataFromApp[0].createdAt).toLocaleString(
-                        "en-GB"
-                      )}
+                      dataFromApp[0].Time}
                   </div>
                 </div>
               ))
@@ -1042,7 +1040,7 @@ const Dashboard = ({dataFromApp}) => {
             </div>
             <div className="text-center text-sm 2xl:text-xl">
               {dataFromApp.length > 0 &&
-                new Date(dataFromApp[0].createdAt).toLocaleString("en-GB")}
+                dataFromApp[0].Time}
             </div>
           </div>
 

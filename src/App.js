@@ -2,7 +2,6 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Login from './Components/Pages/Login';
-import DashboardOld from "./Components/Pages/DashboardOld";
 import ProtectedRoute from "./Components/Pages/ProtectedRoute";
 import { Route, Routes } from "react-router-dom";
 import Dashboard from './Components/Pages/Dashboard';
@@ -14,53 +13,53 @@ const App = () => {
   const [hindalcoData, setHindalcoData] = useState([]);
 
   // for line graph limit
-  const getInitialHindalcoCondition = () => {
-    const storedLimit = localStorage.getItem("HindalcoLimit");
-    return storedLimit ? 1 : 0;
-  };
+  // const getInitialHindalcoCondition = () => {
+  //   const storedLimit = localStorage.getItem("HindalcoLimit");
+  //   return storedLimit ? 1 : 0;
+  // };
 
-  const [hindalcoCondition, setHindalcoCondition] = useState(
-    getInitialHindalcoCondition
-  );
+  // const [hindalcoCondition, setHindalcoCondition] = useState(
+  //   getInitialHindalcoCondition
+  // );
 
-  useEffect(() => {
-    if (hindalcoCondition === 0) {
-      localStorage.setItem("HindalcoLimit", "100");
-      setHindalcoCondition(1);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (hindalcoCondition === 0) {
+  //     localStorage.setItem("HindalcoLimit", "100");
+  //     setHindalcoCondition(1);
+  //   }
+  // }, []);
 
-  // for card alert limit
-  const getInitialHindalcoAlertCondition = () => {
-    const storedLimit = localStorage.getItem("HindalcoAlertLimit");
-    return storedLimit ? 1 : 0;
-  };
+  // // for card alert limit
+  // const getInitialHindalcoAlertCondition = () => {
+  //   const storedLimit = localStorage.getItem("HindalcoAlertLimit");
+  //   return storedLimit ? 1 : 0;
+  // };
 
-  const [hindalcoAlertCondition, setHindalcoAlertCondition] = useState(
-    getInitialHindalcoAlertCondition
-  );
+  // const [hindalcoAlertCondition, setHindalcoAlertCondition] = useState(
+  //   getInitialHindalcoAlertCondition
+  // );
 
-  useEffect(() => {
-    if (hindalcoAlertCondition === 0) {
-      localStorage.setItem("HindalcoAlertLimit", "75");
-      setHindalcoAlertCondition(1);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (hindalcoAlertCondition === 0) {
+  //     localStorage.setItem("HindalcoAlertLimit", "75");
+  //     setHindalcoAlertCondition(1);
+  //   }
+  // }, []);
 
-  // for view more cards
-  const getInitialViewCondition = () => {
-    const storedView = localStorage.getItem('HindalcoCardsViewMore');
-    return storedView ? 1 : 0;
-  };
+  // // for view more cards
+  // const getInitialViewCondition = () => {
+  //   const storedView = localStorage.getItem('HindalcoCardsViewMore');
+  //   return storedView ? 1 : 0;
+  // };
 
-  const [hindalcoViewCondition, setHindalcoViewCondition] = useState(getInitialViewCondition);
+  // const [hindalcoViewCondition, setHindalcoViewCondition] = useState(getInitialViewCondition);
 
-  useEffect(() => {
-    if(hindalcoViewCondition === 0) {
-      localStorage.setItem("HindalcoCardsViewMore", 'false');
-      setHindalcoViewCondition(1);
-    }
-  },[]);
+  // useEffect(() => {
+  //   if(hindalcoViewCondition === 0) {
+  //     localStorage.setItem("HindalcoCardsViewMore", 'false');
+  //     setHindalcoViewCondition(1);
+  //   }
+  // },[]);
 
   // fetching data
   useEffect(() => {

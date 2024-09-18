@@ -104,13 +104,7 @@ const Reports = ({dataFromApp}) => {
 
       // console.log("report data", response.data.data);
 
-      const ws = XLSX.utils.json_to_sheet(
-        response.data.data.map(({ createdAt, ...rest }) => ({
-          ...rest,
-          createdAt: new Date(createdAt).toLocaleString("en-GB"),
-          // createdAt: createdAt,
-        }))
-      );
+      const ws = XLSX.utils.json_to_sheet(response.data.data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

@@ -8,27 +8,21 @@ import { BiScatterChart } from "react-icons/bi";
 import axios from "axios";
 import ApexCharts from "react-apexcharts";
 
-const Analytics = ({ dataFromApp }) => {
+const Analytics = () => {
   const [selectedReportOption, setSelectedReportOption] =
     useState("averageData");
   const [count, setCount] = useState(100);
   const [enableCount, setEnableCount] = useState(false);
-  const [parameters, setParameters] = useState({}); // for sensor-wise data
-  const [selectedSensors, setSelectedSensors] = useState([]); //for sensor wise data
-  const [unselectedSensors, setUnselectedSensors] = useState([]);
-  const [selectedSensorWiseReportOption, setSelectedSensorWiseReportOption] =
-    useState("datePicker"); // for sensor wise data
-  const [sensorWiseCount, setSensorWiseCount] = useState(100); // for sensor-wise data
-  const [enableSensorWiseCount, setEnableSensorWiseCount] = useState(false); // for sensor-wise data
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [sensorWiseFromDate, setSensorWiseFromDate] = useState("");
-  const [sensorWiseToDate, setSensorWiseToDate] = useState("");
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
   const [graphKeys, setGraphKeys] = useState([]);
   const [avgGraphKeys, setAvgGraphKeys] = useState([]);
+  const [averageOption, setAverageOption] = useState('minute')
+
+  console.log('average option', averageOption);
 
   const projectName = "XY001";
 
@@ -65,7 +59,7 @@ const Analytics = ({ dataFromApp }) => {
   }, [analyticsData]);
   
 
-  console.log('graph keys', graphKeys);
+  // console.log('graph keys', graphKeys);
   
   // const firstGraphKey = graphKeys.length > 0 && graphKeys[0];
 
@@ -95,58 +89,24 @@ const Analytics = ({ dataFromApp }) => {
     }
   };
 
-  console.log('selected graph keys', selectedGraphKeys);
-  console.log('selected avg graph keys', selectedAvgGraphKeys);
+  // console.log('selected graph keys', selectedGraphKeys);
+  // console.log('selected avg graph keys', selectedAvgGraphKeys);
 
-  // used for displaying the sensor names in sensor wise data option
-  useEffect(() => {
-    if (dataFromApp) {
-      // const { createdAt, ...filteredData } = dataFromApp;
-      // setParameters(filteredData);
-      const filteredData = Object.keys(dataFromApp).filter((key) =>
-        key.startsWith("S")
-      );
-      setParameters(filteredData);
-    }
-  }, [dataFromApp]);
+  
 
   // console.log('parameters', parameters);
 
-  // used for setting unselected sensor
-  useEffect(() => {
-    if (
-      parameters &&
-      selectedSensors &&
-      selectedReportOption === "sensorWiseData"
-    ) {
-      // const allSensors = Object.keys(parameters);
-      // console.log('allsensors', allSensors);
-      const unselected = parameters.filter(
-        (sensor) => !selectedSensors.includes(sensor)
-      );
-
-      setUnselectedSensors(unselected);
-    }
-  }, [parameters, selectedSensors]);
+  
 
   // console.log("unselected sensors:", unselectedSensors);
 
-  const handleSensorWiseDataSensorSelection = (key) => {
-    setSelectedSensors((prevSelectedSensors) => {
-      if (prevSelectedSensors.includes(key)) {
-        return prevSelectedSensors.filter((sensor) => sensor !== key);
-      } else {
-        return [...prevSelectedSensors, key];
-      }
-    });
-  };
+  
 
   // console.log('selected sensors', selectedSensors);
 
   const generateAnalyticsData = async () => {
     try {
       const response = await axios.get(
-        // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
         "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
@@ -156,10 +116,6 @@ const Analytics = ({ dataFromApp }) => {
             fromDate: fromDate,
             toDate: toDate,
             count: count,
-            unselectedSensors: unselectedSensors.join(","),
-            sensorWiseFromDate: sensorWiseFromDate,
-            sensorWiseToDate: sensorWiseToDate,
-            sensorWiseCount: sensorWiseCount,
           },
         }
       );
@@ -178,6 +134,7 @@ const Analytics = ({ dataFromApp }) => {
             projectName: projectName,
             avgFromDate: avgFromDate,
             avgToDate: avgToDate,
+            averageOption: averageOption
           },
         }
       );
@@ -248,7 +205,7 @@ const Analytics = ({ dataFromApp }) => {
     if (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) {
       if(selectedReportOption === 'averageData') {
         const lineCategories = analyticsData
-          .map((item) => item.dateTimeRange)
+          .map((item) => item.dateRange)
           .reverse();
         const allSeries = [
           {
@@ -317,7 +274,7 @@ const Analytics = ({ dataFromApp }) => {
           selectedAvgGraphKeys.includes(series.name)
         );
 
-        console.log('line series average', lineSeries);
+        // console.log('line series average', lineSeries);
 
         setLineData({
           series: lineSeries,
@@ -444,11 +401,6 @@ const Analytics = ({ dataFromApp }) => {
               setFromDate("");
               setToDate("");
               setCount();
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
               setEnableCount(false);
               setAnalyticsData([]);
             }}
@@ -464,11 +416,6 @@ const Analytics = ({ dataFromApp }) => {
             onClick={() => {
               setSelectedReportOption("datePicker");
               setCount();
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
@@ -488,11 +435,6 @@ const Analytics = ({ dataFromApp }) => {
               setFromDate("");
               setToDate("");
               setCount(100);
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
@@ -692,6 +634,37 @@ const Analytics = ({ dataFromApp }) => {
                       />
                     </div>
                   </div>
+                  <div className="flex gap-2 items-center text-sm 2xl:text-base font-medium">
+                    <div>Average By:</div>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="option1"
+                        name="averageOption"
+                        value={averageOption}
+                        defaultChecked
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setAverageOption("minute")}
+                      />
+                      <label htmlFor="option1" className="mr-2 cursor-pointer">
+                        Minute
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="option2"
+                        name="averageOption"
+                        value={averageOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setAverageOption("hour")}
+                      />
+                      <label htmlFor="option2" className="mr-2 cursor-pointer">
+                        Hour
+                      </label>
+                    </div>
+                  </div>
+
                   <div className="flex justify-center gap-4 font-medium">
                     <button
                       className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
@@ -792,7 +765,7 @@ const Analytics = ({ dataFromApp }) => {
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 &&
               (selectedReportOption === "averageData" ? (
-                <div className="flex justify-evenly font-medium">
+                <div className="flex justify-evenly font-medium flex-wrap">
                   {avgGraphKeys.length > 0 &&
                     avgGraphKeys.map((key) => (
                       <div
@@ -813,7 +786,7 @@ const Analytics = ({ dataFromApp }) => {
                     ))}
                 </div>
               ) : (
-                <div className="flex justify-evenly font-medium">
+                <div className="flex justify-evenly font-medium flex-wrap">
                   {graphKeys.length > 0 &&
                     graphKeys.map((key) => (
                       <div

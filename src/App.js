@@ -109,7 +109,7 @@ const App = () => {
           />
           <Route
             path="Analytics"
-            element={<Analysis dataFromApp={hindalcoData[0]} />}
+            element={<Analysis/>}
           />
         </Route>
       </Routes>

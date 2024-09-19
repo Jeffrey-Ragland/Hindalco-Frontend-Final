@@ -3,7 +3,7 @@ import potline from '../Assets/potline.png';
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
-import { useRef, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { MdOutlineUpdate } from "react-icons/md";
 import { BsThermometerSun } from "react-icons/bs";
 import { LiaRulerVerticalSolid } from "react-icons/lia";
@@ -11,6 +11,32 @@ import ApexCharts from "react-apexcharts";
 import Navbar from './Navbar';
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  scales,
+  Zoom,
+} from "chart.js";
+
+import zoomPlugin from "chartjs-plugin-zoom";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  zoomPlugin
+);
 
 const Dashboard = ({dataFromApp}) => {
   console.log("data", dataFromApp);
@@ -130,7 +156,7 @@ const Dashboard = ({dataFromApp}) => {
       plotOptions: {
         bar: {
           horizontal: false,
-          columnWidth: "15%",
+          columnWidth: "20%",
           endingShape: "rounded",
           distributed: true,
           dataLabels: {
@@ -167,61 +193,14 @@ const Dashboard = ({dataFromApp}) => {
     },
   });
 
-  // line chart options
   const [lineData, setLineData] = useState({
-    series: [],
-    options: {
-      chart: {
-        type: "line",
-        zoom: {
-          enabled: true,
-          type: "x",
-          scrollable: true,
-        },
-      },
-      xaxis: {
-        categories: [],
-        labels: {
-          style: {
-            fontSize: "5px",
-          },
-        },
-      },
-      yaxis: {
-        labels: {
-          style: {
-            fontSize: "6px",
-          },
-        },
-      },
-      grid: {
-        show: false,
-      },
-      legend: {
-        show: false,
-      },
-      stroke: {
-        curve: "straight",
-        width: 1.5,
-      },
-      markers: {
-        size: 0,
-      },
-      tooltip: {
-        enabled: true,
-        theme: "dark",
-        marker: {
-          show: true,
-        },
-      },
-    },
+    labels: [],
+    datasets: [],
   });
-
-  const chartRef = useRef({ min: null, max: null });
 
   // chart data assignment
   useEffect(() => {
-    if (dataFromApp.length > 0) {
+    if (Array.isArray(dataFromApp) && dataFromApp.length > 0) {
       const barCategories = [];
       const barSeries = [];
       const barColors = [];
@@ -247,7 +226,7 @@ const Dashboard = ({dataFromApp}) => {
           }
         } else if (viewAllCards === false) {
           if (
-            // key !== "Time" &&
+            key !== "Time" &&
             key !== "createdAt" &&
             key !== "_id" &&
             key !== "DeviceName" &&
@@ -271,76 +250,6 @@ const Dashboard = ({dataFromApp}) => {
         }
       });
 
-      const lineCategories = dataFromApp
-        .map((item) => item.Time)
-        .reverse();
-      const allSeries = [
-        {
-          name: "S1",
-          data: [...dataFromApp.map((item) => item.S1).reverse()],
-        },
-        {
-          name: "S2",
-          data: [...dataFromApp.map((item) => item.S2).reverse()],
-        },
-        {
-          name: "S3",
-          data: [...dataFromApp.map((item) => item.S3).reverse()],
-        },
-        {
-          name: "S4",
-          data: [...dataFromApp.map((item) => item.S4).reverse()],
-        },
-        {
-          name: "S5",
-          data: [...dataFromApp.map((item) => item.S5).reverse()],
-        },
-        {
-          name: "S6",
-          data: [...dataFromApp.map((item) => item.S6).reverse()],
-        },
-        {
-          name: "S7",
-          data: [...dataFromApp.map((item) => item.S7).reverse()],
-        },
-        {
-          name: "S8",
-          data: [...dataFromApp.map((item) => item.S8).reverse()],
-        },
-        {
-          name: "S9",
-          data: [...dataFromApp.map((item) => item.S9).reverse()],
-        },
-        {
-          name: "S10",
-          data: [...dataFromApp.map((item) => item.S10).reverse()],
-        },
-        {
-          name: "S11",
-          data: [...dataFromApp.map((item) => item.S11).reverse()],
-        },
-        {
-          name: "S12",
-          data: [...dataFromApp.map((item) => item.S12).reverse()],
-        },
-        {
-          name: "S13",
-          data: [...dataFromApp.map((item) => item.S13).reverse()],
-        },
-        {
-          name: "S14",
-          data: [...dataFromApp.map((item) => item.S14).reverse()],
-        },
-        {
-          name: "S15",
-          data: [...dataFromApp.map((item) => item.S15).reverse()],
-        },
-      ];
-
-      const lineSeries = allSeries.filter((series) =>
-        selectedSensors.includes(series.name)
-      );
-
       setBarData({
         series: [
           {
@@ -357,38 +266,242 @@ const Dashboard = ({dataFromApp}) => {
         },
       });
 
+      const reversedData = [...dataFromApp].reverse();
+
+      const lineLabels = reversedData.map((item) => {
+        return item.Time;
+      });
+      const sensor1Data = reversedData.map((item) => item.S1);
+      const sensor2Data = reversedData.map((item) => item.S2);
+      const sensor3Data = reversedData.map((item) => item.S3);
+      const sensor4Data = reversedData.map((item) => item.S4);
+      const sensor5Data = reversedData.map((item) => item.S5);
+      const sensor6Data = reversedData.map((item) => item.S6);
+      const sensor7Data = reversedData.map((item) => item.S7);
+      const sensor8Data = reversedData.map((item) => item.S8);
+      const sensor9Data = reversedData.map((item) => item.S9);
+      const sensor10Data = reversedData.map((item) => item.S10);
+      const sensor11Data = reversedData.map((item) => item.S11);
+      const sensor12Data = reversedData.map((item) => item.S12);
+      const sensor13Data = reversedData.map((item) => item.S13);
+      const sensor14Data = reversedData.map((item) => item.S14);
+      const sensor15Data = reversedData.map((item) => item.S15);
+
       setLineData({
-        series: lineSeries,
-        options: {
-          ...lineData.options,
-          chart: {
-            type: "line",
-            events: {
-              zoomed: (chartContext, { xaxis }) => {
-                chartRef.current.min = xaxis.min;
-                chartRef.current.max = xaxis.max;
-              },
-              scrolled: (chartContext, { xaxis }) => {
-                chartRef.current.min = xaxis.min;
-                chartRef.current.max = xaxis.max;
-              },
-              beforeResetZoom: () => {
-                chartRef.current.min = null;
-                chartRef.current.max = null;
-              },
-            },
+        labels: lineLabels,
+        datasets: [
+          {
+            label: "S1",
+            data: sensor1Data,
+            borderColor: "rgb(240, 5, 5)", // Vibrant Red
+            backgroundColor: "rgba(240, 5, 5, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
           },
-          xaxis: {
-            categories: lineCategories,
-            min:
-              chartRef.current.min !== null ? chartRef.current.min : undefined,
-            max:
-              chartRef.current.max !== null ? chartRef.current.max : undefined,
+          {
+            label: "S2",
+            data: sensor2Data,
+            borderColor: "rgb(0, 123, 255)", // Bright Blue
+            backgroundColor: "rgba(0, 123, 255, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
           },
-        },
+          {
+            label: "S3",
+            data: sensor3Data,
+            borderColor: "rgb(40, 167, 69)", // Bright Green
+            backgroundColor: "rgba(40, 167, 69, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S4",
+            data: sensor4Data,
+            borderColor: "rgb(255, 193, 7)", // Bright Yellow
+            backgroundColor: "rgba(255, 193, 7, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S5",
+            data: sensor5Data,
+            borderColor: "rgb(153, 50, 204)", // Vibrant Purple
+            backgroundColor: "rgba(153, 50, 204, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S6",
+            data: sensor6Data,
+            borderColor: "rgb(255, 165, 0)", // Bright Orange
+            backgroundColor: "rgba(255, 165, 0, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S7",
+            data: sensor7Data,
+            borderColor: "rgb(255, 99, 71)", // Vibrant Tomato Red
+            backgroundColor: "rgba(255, 99, 71, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S8",
+            data: sensor8Data,
+            borderColor: "rgb(0, 255, 127)", // Medium Sea Green
+            backgroundColor: "rgba(0, 255, 127, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S9",
+            data: sensor9Data,
+            borderColor: "rgb(238, 130, 238)", // Violet
+            backgroundColor: "rgba(238, 130, 238, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S10",
+            data: sensor10Data,
+            borderColor: "rgb(240, 128, 128)", // Light Coral
+            backgroundColor: "rgba(240, 128, 128, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S11",
+            data: sensor11Data,
+            borderColor: "rgb(255, 20, 147)", // Deep Pink
+            backgroundColor: "rgba(255, 20, 147, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S12",
+            data: sensor12Data,
+            borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
+            backgroundColor: "rgba(0, 191, 255, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S13",
+            data: sensor13Data,
+            borderColor: "rgb(75, 0, 130)", // Indigo
+            backgroundColor: "rgba(75, 0, 130, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S14",
+            data: sensor14Data,
+            borderColor: "rgb(255, 99, 71)", // Bright Coral
+            backgroundColor: "rgba(255, 99, 71, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+          {
+            label: "S15",
+            data: sensor15Data,
+            borderColor: "rgb(255, 222, 173)", // Light Peach
+            backgroundColor: "rgba(255, 222, 173, 0.2)",
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: true,
+          },
+        ],
       });
     }
   }, [dataFromApp, selectedSensors, viewAllCards]);
+
+  const lineOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            color: "#4B5563",
+            font: {
+              size: 8,
+            },
+          },
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: "x",
+          },
+          zoom: {
+            enabled: true,
+            mode: "x",
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false, 
+          },
+          ticks: {
+            color: "#4B5563",
+            font: {
+              size: 6,
+            },
+          },
+        },
+        y: {
+          grid: {
+            display: true, 
+          },
+          ticks: {
+            color: "#4B5563",
+            font: {
+              size: 6,
+            },
+          },
+        },
+      },
+    }),
+    []
+  );
 
   // console.log("selectedSensors", selectedSensors);
   // console.log("parameters", parameters);
@@ -1008,10 +1121,7 @@ const Dashboard = ({dataFromApp}) => {
                   <div>-</div>
                   <div className="font-medium">{value} °C</div>
                   <div>-</div>
-                  <div>
-                    {dataFromApp.length > 0 &&
-                      dataFromApp[0].Time}
-                  </div>
+                  <div>{dataFromApp.length > 0 && dataFromApp[0].Time}</div>
                 </div>
               ))
             ) : (
@@ -1039,8 +1149,7 @@ const Dashboard = ({dataFromApp}) => {
               <div>Last Updated Data: </div>
             </div>
             <div className="text-center text-sm 2xl:text-xl">
-              {dataFromApp.length > 0 &&
-                dataFromApp[0].Time}
+              {dataFromApp.length > 0 && dataFromApp[0].Time}
             </div>
           </div>
 
@@ -1091,33 +1200,8 @@ const Dashboard = ({dataFromApp}) => {
               "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
           }}
         >
-          <div className="grid grid-cols-8 md:grid-cols-2 gap-2 text-xs px-2">
-            {parameters.length > 0 &&
-              parameters.map((key) => (
-                <div
-                  key={key}
-                  className="flex items-center gap-1 w-10 cursor-pointer"
-                  onClick={() => handleLineSelection(key)}
-                >
-                  <div
-                    className={`h-2 w-2 rounded-full border border-white ${
-                      selectedSensors.includes(key)
-                        ? "bg-green-500"
-                        : "bg-red-500"
-                    }`}
-                  />
-                  {key}
-                </div>
-              ))}
-          </div>
-
           <div className="w-full">
-            <ApexCharts
-              options={lineData.options}
-              series={lineData.series}
-              type="line"
-              height="100%"
-            />
+            <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
           <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
             <div className="mr-2 text-center font-medium">Data&nbsp;Limit</div>

@@ -165,40 +165,6 @@ body {
   border-left-width: 0;
 }
 
-.chart-container .x-axis line,
-.chart-container .y-axis line {
-  stroke: #FF5733; /* Customize axis line color */
-}
-
-.chart-container .x-axis .tick text,
-.chart-container .y-axis .tick text {
-  fill: #C70039; /* Customize tick label color */
-}
-
-.chart-container .line-series {
-  stroke: #26a69a; /* Customize line color */
-}
-
-/* line chart styles */
-.apexcharts-toolbar .apexcharts-menu {
-  background-color: #000000 !important; 
-  width: 120px;
-}
-
-.apexcharts-toolbar .apexcharts-menu .apexcharts-menu-item {
-  color: white !important;
-  padding: 10px 15px;
-  transition: background-color 0.3s ease;
-}
-
-.apexcharts-toolbar .apexcharts-menu .apexcharts-menu-item:hover {
-  background-color: #333333 !important; 
-}
-
-.apexcharts-tooltip .apexcharts-tooltip-text {
-  font-size: 10px !important; 
-}
-
 /* card blink */
 @keyframes blink {
    0%

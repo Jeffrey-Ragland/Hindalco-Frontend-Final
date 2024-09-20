@@ -41,20 +41,6 @@ ChartJS.register(
 const Dashboard = ({dataFromApp}) => {
   console.log("data", dataFromApp);
 
-  const parameters =
-    dataFromApp.length > 0 &&
-    Object.keys(dataFromApp[0]).filter((key) => key.startsWith("S"));
-
-  const [selectedSensors, setSelectedSensors] = useState(["S1"]);
-
-  const handleLineSelection = (key) => {
-    setSelectedSensors((prevState) =>
-      prevState.includes(key)
-        ? prevState.filter((sensor) => sensor !== key)
-        : [...prevState, key]
-    );
-  };
-
   const alertLimitFromLS = parseFloat(
     localStorage.getItem("HindalcoAlertLimit")
   );
@@ -156,7 +142,7 @@ const Dashboard = ({dataFromApp}) => {
       plotOptions: {
         bar: {
           horizontal: false,
-          columnWidth: "20%",
+          columnWidth: "15%",
           endingShape: "rounded",
           distributed: true,
           dataLabels: {
@@ -342,8 +328,8 @@ const Dashboard = ({dataFromApp}) => {
           {
             label: "S6",
             data: sensor6Data,
-            borderColor: "rgb(255, 165, 0)", // Bright Orange
-            backgroundColor: "rgba(255, 165, 0, 0.2)",
+            borderColor: "rgb(163, 106, 2)", // Bright Orange
+            backgroundColor: "rgba(163, 106, 2, 0.2)",
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
@@ -352,8 +338,8 @@ const Dashboard = ({dataFromApp}) => {
           {
             label: "S7",
             data: sensor7Data,
-            borderColor: "rgb(255, 99, 71)", // Vibrant Tomato Red
-            backgroundColor: "rgba(255, 99, 71, 0.2)",
+            borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
+            backgroundColor: "rgba(241, 110, 250, 0.2)",
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
@@ -372,8 +358,8 @@ const Dashboard = ({dataFromApp}) => {
           {
             label: "S9",
             data: sensor9Data,
-            borderColor: "rgb(238, 130, 238)", // Violet
-            backgroundColor: "rgba(238, 130, 238, 0.2)",
+            borderColor: "rgb(148, 72, 148)", // Violet
+            backgroundColor: "rgba(148, 72, 148, 0.2)",
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
@@ -442,7 +428,7 @@ const Dashboard = ({dataFromApp}) => {
         ],
       });
     }
-  }, [dataFromApp, selectedSensors, viewAllCards]);
+  }, [dataFromApp, viewAllCards]);
 
   const lineOptions = useMemo(
     () => ({
@@ -456,7 +442,10 @@ const Dashboard = ({dataFromApp}) => {
             font: {
               size: 8,
             },
+             boxWidth: 20,
+             padding: 5,
           },
+         
         },
         zoom: {
           pan: {
@@ -478,7 +467,7 @@ const Dashboard = ({dataFromApp}) => {
       scales: {
         x: {
           grid: {
-            display: false, 
+            display: false,
           },
           ticks: {
             color: "#4B5563",
@@ -489,7 +478,7 @@ const Dashboard = ({dataFromApp}) => {
         },
         y: {
           grid: {
-            display: true, 
+            display: true,
           },
           ticks: {
             color: "#4B5563",
@@ -502,9 +491,6 @@ const Dashboard = ({dataFromApp}) => {
     }),
     []
   );
-
-  // console.log("selectedSensors", selectedSensors);
-  // console.log("parameters", parameters);
 
   return (
     <div className="xl:h-screen text-gray-600 p-4 flex flex-col gap-2 ">
@@ -1194,7 +1180,7 @@ const Dashboard = ({dataFromApp}) => {
 
         {/* line chart card */}
         <div
-          className=" overflow-hidden p-2 w-full md:w-[80%] md:h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:gap-0 md:flex-row"
+          className=" overflow-hidden p-2 w-full md:w-[80%] md:h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row"
           style={{
             backgroundImage:
               "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",

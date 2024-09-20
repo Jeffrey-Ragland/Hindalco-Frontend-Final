@@ -2,9 +2,9 @@ import React from 'react';
 import { useEffect, useState, useMemo } from "react";
 import Navbar from "./Navbar";
 import { LuCalendarSearch } from "react-icons/lu";
-import { MdOutlineSensors } from "react-icons/md";
 import { TbHash, TbSum } from "react-icons/tb";
 import { BiScatterChart } from "react-icons/bi";
+import loadingGif from "../Assets/loading.gif";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import {
@@ -42,99 +42,23 @@ const Analytics = () => {
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
-  const [graphKeys, setGraphKeys] = useState([]);
-  const [avgGraphKeys, setAvgGraphKeys] = useState([]);
-  const [averageOption, setAverageOption] = useState('minute')
+  const [averageOption, setAverageOption] = useState('minute');
+  const [loading, setLoading] = useState(false);
 
-  console.log('average option', averageOption);
+  // console.log('average option', averageOption);
 
   const projectName = "XY001";
 
   // console.log('selected sensors', selectedSensors)
-
-  // for graph selection
-  // const graphKeys = (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) && Object.keys(analyticsData[0]).filter((key) => key.startsWith('S'));
 
   const [lineData, setLineData] = useState({
     labels: [],
     datasets: [],
   });
 
-  // useEffect(() => {
-  //   if (
-  //     analyticsData &&
-  //     Array.isArray(analyticsData) &&
-  //     analyticsData.length > 0
-  //   ) 
-  //   {
-  //     const keys = Object.keys(analyticsData[0]).filter((key) =>
-  //       key.startsWith("S")
-  //     );
-  //     setGraphKeys(keys);
-  //   }
-  // }, [analyticsData])
-
-  // useEffect(() => {
-  //   if (
-  //     analyticsData &&
-  //     Array.isArray(analyticsData) &&
-  //     analyticsData.length > 0
-  //   ) {
-  //     const keys = Object.keys(analyticsData[0]).filter((key) =>
-  //       key.startsWith("avgS")
-  //     );
-  //     setAvgGraphKeys(keys);
-  //   }
-  // }, [analyticsData]);
-  
-
-  // console.log('graph keys', graphKeys);
-  
-  // const firstGraphKey = graphKeys.length > 0 && graphKeys[0];
-
-  // console.log("first graph key", firstGraphKey);
-  
-  // console.log("graphKeys", graphKeys);
-
-  // const avgGraphKeys = (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) && Object.keys(analyticsData[0]).filter((key) => key.startsWith('avgS'));
-  
-  // const [selectedGraphKeys, setSelectedGraphKeys] = useState(['S1']);
-  // const [selectedAvgGraphKeys, setSelectedAvgGraphKeys] = useState(["avgS1"]);
-
-  // const handleLineSelection = (key) => {
-  //   if (selectedReportOption !== "averageData") {
-  //     setSelectedGraphKeys((prevState) =>
-  //       prevState.includes(key)
-  //         ? prevState.filter((sensor) => sensor !== key)
-  //         : [...prevState, key]
-  //     );
-  //   }
-  //   else if (selectedReportOption === 'averageData') {
-  //     setSelectedAvgGraphKeys((prevState) =>
-  //       prevState.includes(key)
-  //         ? prevState.filter((sensor) => sensor !== key)
-  //         : [...prevState, key]
-  //     );
-  //   }
-  // };
-
-  // console.log('selected graph keys', selectedGraphKeys);
-  // console.log('selected avg graph keys', selectedAvgGraphKeys);
-
-  
-
-  // console.log('parameters', parameters);
-
-  
-
-  // console.log("unselected sensors:", unselectedSensors);
-
-  
-
-  // console.log('selected sensors', selectedSensors);
-
   const generateAnalyticsData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoReport",
         {
@@ -156,6 +80,7 @@ const Analytics = () => {
 
   const generateAverageAnalyticsData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoAverageReport",
         {
@@ -176,7 +101,7 @@ const Analytics = () => {
   console.log("analytics data", analyticsData);
 
   useEffect(() => {
-    if (Array.isArray(analyticsData) && analyticsData.length > 0) {
+    if (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) {
       const reversedData = [...analyticsData].reverse();
       if(selectedReportOption !== 'averageData') {
         const lineLabels = reversedData.map((item) => {
@@ -353,6 +278,7 @@ const Analytics = () => {
             },
           ],
         });
+        // console.log('graph rendered');
       }
 
       else if(selectedReportOption === 'averageData') {
@@ -531,6 +457,7 @@ const Analytics = () => {
           ],
         });
       }
+      setLoading(false);
     }
   },[analyticsData]);
 
@@ -594,243 +521,6 @@ const Analytics = () => {
     }),
     []
   );
-
-  // line chart options
-  // const [lineData, setLineData] = useState({
-  //   series: [],
-  //   options: {
-  //     chart: {
-  //       type: "line",
-  //       zoom: {
-  //         enabled: true,
-  //         type: "x",
-  //         scrollable: true,
-  //       },
-  //     },
-  //     xaxis: {
-  //       categories: [],
-  //       labels: {
-  //         style: {
-  //           fontSize: "5px",
-  //         },
-  //       },
-  //     },
-  //     yaxis: {
-  //       labels: {
-  //         style: {
-  //           fontSize: "6px",
-  //         },
-  //       },
-  //     },
-  //     grid: {
-  //       show: true,
-  //       borderColor: "#4d4d4d",
-  //       strokeDashArray: 4,
-  //     },
-  //     legend: {
-  //       show: false,
-  //     },
-  //     stroke: {
-  //       curve: "straight",
-  //       width: 1.5,
-  //     },
-  //     markers: {
-  //       size: 0,
-  //     },
-  //     tooltip: {
-  //       enabled: true,
-  //       theme: "dark",
-  //       marker: {
-  //         show: true,
-  //       },
-  //     },
-  //   },
-  // });
-
-  // // const chartRef = useRef({ min: null, max: null });
-
-  // // chart data assignment
-  // useEffect(() => {
-  //   if (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) {
-  //     if(selectedReportOption === 'averageData') {
-  //       const lineCategories = analyticsData
-  //         .map((item) => item.dateRange)
-  //         .reverse();
-  //       const allSeries = [
-  //         {
-  //           name: "avgS1",
-  //           data: [...analyticsData.map((item) => item.avgS1).reverse()],
-  //         },
-  //         {
-  //           name: "avgS2",
-  //           data: [...analyticsData.map((item) => item.avgS2).reverse()],
-  //         },
-  //         {
-  //           name: "avgS3",
-  //           data: [...analyticsData.map((item) => item.avgS3).reverse()],
-  //         },
-  //         {
-  //           name: "avgS4",
-  //           data: [...analyticsData.map((item) => item.avgS4).reverse()],
-  //         },
-  //         {
-  //           name: "avgS5",
-  //           data: [...analyticsData.map((item) => item.avgS5).reverse()],
-  //         },
-  //         {
-  //           name: "avgS6",
-  //           data: [...analyticsData.map((item) => item.avgS6).reverse()],
-  //         },
-  //         {
-  //           name: "avgS7",
-  //           data: [...analyticsData.map((item) => item.avgS7).reverse()],
-  //         },
-  //         {
-  //           name: "avgS8",
-  //           data: [...analyticsData.map((item) => item.avgS8).reverse()],
-  //         },
-  //         {
-  //           name: "avgS9",
-  //           data: [...analyticsData.map((item) => item.avgS9).reverse()],
-  //         },
-  //         {
-  //           name: "avgS10",
-  //           data: [...analyticsData.map((item) => item.avgS10).reverse()],
-  //         },
-  //         {
-  //           name: "avgS11",
-  //           data: [...analyticsData.map((item) => item.avgS11).reverse()],
-  //         },
-  //         {
-  //           name: "avgS12",
-  //           data: [...analyticsData.map((item) => item.avgS12).reverse()],
-  //         },
-  //         {
-  //           name: "avgS13",
-  //           data: [...analyticsData.map((item) => item.avgS13).reverse()],
-  //         },
-  //         {
-  //           name: "avgS14",
-  //           data: [...analyticsData.map((item) => item.avgS14).reverse()],
-  //         },
-  //         {
-  //           name: "avgS15",
-  //           data: [...analyticsData.map((item) => item.avgS15).reverse()],
-  //         },
-  //       ];
-
-  //       const lineSeries = allSeries.filter((series) =>
-  //         selectedAvgGraphKeys.includes(series.name)
-  //       );
-
-  //       // console.log('line series average', lineSeries);
-
-  //       setLineData({
-  //         series: lineSeries,
-  //         options: {
-  //           ...lineData.options,
-  //           xaxis: {
-  //             categories: lineCategories,
-  //           },
-  //         },
-  //       });
-  //     } else if(selectedReportOption !== 'averageData') {
-  //       const lineCategories = analyticsData
-  //         .map((item) => item.Time)
-  //         .reverse();
-  //       const allSeries = [
-  //         {
-  //           name: "S1",
-  //           data: [...analyticsData.map((item) => item.S1).reverse()],
-  //         },
-  //         {
-  //           name: "S2",
-  //           data: [...analyticsData.map((item) => item.S2).reverse()],
-  //         },
-  //         {
-  //           name: "S3",
-  //           data: [...analyticsData.map((item) => item.S3).reverse()],
-  //         },
-  //         {
-  //           name: "S4",
-  //           data: [...analyticsData.map((item) => item.S4).reverse()],
-  //         },
-  //         {
-  //           name: "S5",
-  //           data: [...analyticsData.map((item) => item.S5).reverse()],
-  //         },
-  //         {
-  //           name: "S6",
-  //           data: [...analyticsData.map((item) => item.S6).reverse()],
-  //         },
-  //         {
-  //           name: "S7",
-  //           data: [...analyticsData.map((item) => item.S7).reverse()],
-  //         },
-  //         {
-  //           name: "S8",
-  //           data: [...analyticsData.map((item) => item.S8).reverse()],
-  //         },
-  //         {
-  //           name: "S9",
-  //           data: [...analyticsData.map((item) => item.S9).reverse()],
-  //         },
-  //         {
-  //           name: "S10",
-  //           data: [...analyticsData.map((item) => item.S10).reverse()],
-  //         },
-  //         {
-  //           name: "S11",
-  //           data: [...analyticsData.map((item) => item.S11).reverse()],
-  //         },
-  //         {
-  //           name: "S12",
-  //           data: [...analyticsData.map((item) => item.S12).reverse()],
-  //         },
-  //         {
-  //           name: "S13",
-  //           data: [...analyticsData.map((item) => item.S13).reverse()],
-  //         },
-  //         {
-  //           name: "S14",
-  //           data: [...analyticsData.map((item) => item.S14).reverse()],
-  //         },
-  //         {
-  //           name: "S15",
-  //           data: [...analyticsData.map((item) => item.S15).reverse()],
-  //         },
-  //       ];
-
-  //       const lineSeries = allSeries.filter((series) =>
-  //         selectedGraphKeys.includes(series.name)
-  //       );
-
-  //       // const lineSeries = Object.keys(analyticsData[0] || {}) // Get the keys from the first data point
-  //       //   .filter((key) => key.startsWith("S")) // Filter keys that start with 'S'
-  //       //   .map((key) => ({
-  //       //     name: key,
-  //       //     data: analyticsData.map((item) => item[key]).reverse(),
-  //       // }));
-
-  //       setLineData({
-  //         series: lineSeries,
-  //         options: {
-  //           ...lineData.options,
-  //           xaxis: {
-  //             categories: lineCategories,
-  //           },
-  //         },
-  //       });
-  //     }
-      
-
-  //     // const lineSeries = allSeries.filter((series) =>
-  //     //   selectedSensors.includes(series.name)
-  //     // );
-
-      
-  //   }
-  // }, [analyticsData, selectedGraphKeys, selectedAvgGraphKeys]);
 
   return (
     <div className="xl:h-screen text-white p-4 flex flex-col gap-2 ">
@@ -1204,74 +894,31 @@ const Analytics = () => {
 
           {/* right half graph */}
           <div
-            className="rounded-xl p-1 w-full h-[300px] lg:h-[400px] xl:h-auto xl:w-[70%] overflow-hidden flex flex-col text-gray-600 text-sm 2xl:text-base"
+            className="relative rounded-xl p-1 w-full h-[300px] lg:h-[400px] xl:h-auto xl:w-[70%] overflow-hidden flex flex-col text-gray-600 text-sm 2xl:text-base"
             style={{
               backgroundImage:
                 "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
             }}
           >
-            {/* {analyticsData &&
-              Array.isArray(analyticsData) &&
-              analyticsData.length > 0 &&
-              (selectedReportOption === "averageData" ? (
-                <div className="flex justify-evenly font-medium flex-wrap">
-                  {avgGraphKeys.length > 0 &&
-                    avgGraphKeys.map((key) => (
-                      <div
-                        key={key}
-                        className="flex items-center gap-1 cursor-pointer"
-                        onClick={() => handleLineSelection(key)}
-                      >
-                        <div
-                          className={`h-2 w-2 mt-1 rounded-full border border-white 
-                        ${
-                          selectedAvgGraphKeys.includes(key)
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
-                        />
-                        {key}
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="flex justify-evenly font-medium flex-wrap">
-                  {graphKeys.length > 0 &&
-                    graphKeys.map((key) => (
-                      <div
-                        key={key}
-                        className="flex items-center gap-1 cursor-pointer"
-                        onClick={() => handleLineSelection(key)}
-                      >
-                        <div
-                          className={`h-2 w-2 rounded-full border border-white 
-                        ${
-                          selectedGraphKeys.includes(key)
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
-                        />
-                        {key}
-                      </div>
-                    ))}
-                </div>
-              ))} */}
-
             <div className="flex-1">
-              {/* <ApexCharts
-                options={lineData.options}
-                series={
-                  analyticsData &&
-                  Array.isArray(analyticsData) &&
-                  analyticsData.length > 0
-                    ? lineData.series
-                    : [{ name: "No Data", data: [] }]
-                }
-                type="line"
-                height="100%"
-              /> */}
-              <Line data={lineData} options={lineOptions} width={"100%"} />
+              {analyticsData &&
+              Array.isArray(analyticsData) &&
+              analyticsData.length > 0 ? (
+                <Line data={lineData} options={lineOptions} width={"100%"} />
+              ) : (
+                <Line
+                  data={{ datasets: [] }}
+                  options={lineOptions}
+                  width={"100%"}
+                />
+              )}
             </div>
+            {loading && (
+              <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-base text-white">
+                <div>Loading line chart!</div>
+                <img src={loadingGif} className="max-w-[40px]" />
+              </div>
+            )}
           </div>
         </div>
       </div>

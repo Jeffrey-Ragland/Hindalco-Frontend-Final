@@ -8,8 +8,10 @@ import { MdOutlineSensors } from "react-icons/md";
 import { TbHash } from "react-icons/tb";
 import { FaFileDownload } from "react-icons/fa";
 import { TbSum } from "react-icons/tb";
+import { AiOutlineFieldTime } from "react-icons/ai";
 import axios from "axios";
 import reportsImg from "../Assets/reports.jpeg";
+import loadingGif from "../Assets/loading.gif";
 
 const Reports = ({dataFromApp}) => {
 
@@ -33,23 +35,18 @@ const Reports = ({dataFromApp}) => {
   const [avgFromDate, setAvgFromDate] = useState('');
   const [avgToDate, setAvgToDate] = useState('');
   const [averageOption, setAverageOption] = useState("minute");
+  const [loading, setLoading] = useState(false);
 
   const projectName = "XY001";
-
-  // console.log('selected sensors', selectedSensors)
 
   // used for displaying the sensor names in sensor wise data option
   useEffect(() => {
     if (dataFromApp) {
-      // const { createdAt, ...filteredData } = dataFromApp;
-      // setParameters(filteredData);
       const filteredData = Object.keys(dataFromApp).filter((key) =>
         key.startsWith("S")); 
       setParameters(filteredData);
     }
   }, [dataFromApp]);
-
-  // console.log('parameters', parameters);
 
   // used for setting unselected sensor
   useEffect(() => {
@@ -58,8 +55,6 @@ const Reports = ({dataFromApp}) => {
       selectedSensors &&
       selectedReportOption === "sensorWiseData"
     ) {
-      // const allSensors = Object.keys(parameters);
-      // console.log('allsensors', allSensors);
       const unselected = parameters.filter(
         (sensor) => !selectedSensors.includes(sensor)
       );
@@ -67,8 +62,6 @@ const Reports = ({dataFromApp}) => {
       setUnselectedSensors(unselected);
     }
   }, [parameters, selectedSensors]);
-
-  // console.log("unselected sensors:", unselectedSensors);
 
   const handleSensorWiseDataSensorSelection = (key) => {
     setSelectedSensors((prevSelectedSensors) => {
@@ -80,10 +73,9 @@ const Reports = ({dataFromApp}) => {
     });
   };
 
-  // console.log('selected sensors', selectedSensors);
-
   const generateExcel = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
         "http://localhost:4000/backend/getHindalcoReport",
@@ -102,6 +94,7 @@ const Reports = ({dataFromApp}) => {
           },
         }
       );
+      setLoading(false);
 
       // console.log("report data", response.data.data);
 
@@ -119,6 +112,7 @@ const Reports = ({dataFromApp}) => {
   };
 
   const generateAverageExcel = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoAverageReport",
@@ -131,6 +125,7 @@ const Reports = ({dataFromApp}) => {
           },
         }
       );
+      setLoading(false);
       console.log('report data', response.data.data);
       const ws = XLSX.utils.json_to_sheet(response.data.data);
       const wb = XLSX.utils.book_new();
@@ -151,7 +146,7 @@ const Reports = ({dataFromApp}) => {
       <div className="h-[10%]">
         <Navbar />
       </div>
-      <div className="h-[90%] flex flex-col justify-center">
+      <div className="relative h-[90%] flex flex-col justify-center">
         <div className="flex gap-2 justify-evenly font-medium">
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
@@ -172,6 +167,27 @@ const Reports = ({dataFromApp}) => {
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
             Average Data
+          </div>
+
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
+              selectedReportOption === "averageData" && "text-[#9cb3d6]"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("averageData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setSensorWiseCount();
+              setSelectedSensors([]);
+              setUnselectedSensors([]);
+              setSensorWiseFromDate("");
+              setSensorWiseToDate("");
+              setEnableCount(false);
+            }}
+          >
+            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Interval Data
           </div>
 
           <div
@@ -533,23 +549,6 @@ const Reports = ({dataFromApp}) => {
                     <TbHash className="text-2xl md:text-5xl" />
                     Count-wise Data
                   </div>
-
-                  {/* <div
-                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-                      selectedSensorWiseReportOption === "overallData" &&
-                      "text-[#9cb3d6]"
-                    }`}
-                    onClick={() => {
-                      setSelectedSensorWiseReportOption("overallData");
-                      setSensorWiseFromDate("");
-                      setSensorWiseToDate("");
-                      setSensorWiseCount();
-                      setEnableSensorWiseCount(false);
-                    }}
-                  >
-                    <BsDatabaseDown className="text-2xl md:text-5xl" />
-                    Overall Data
-                  </div> */}
                 </div>
 
                 {/* sensorwise datepicker option */}
@@ -687,14 +686,6 @@ const Reports = ({dataFromApp}) => {
                   </div>
                 )}
 
-                {/* sensorwise overall data option */}
-                {/* {selectedSensorWiseReportOption === "overallData" && (
-                  <div className="font-medium">
-                    Entire data from the database will be <br />
-                    downloaded!
-                  </div>
-                )} */}
-
                 <div className="flex gap-4">
                   <button
                     className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
@@ -708,6 +699,12 @@ const Reports = ({dataFromApp}) => {
             )}
           </div>
         </div>
+        {loading && (
+          <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center font-semibold text-sm">
+            <div>Your report is being downloaded!</div>
+            <img src={loadingGif} className="max-w-[40px]" />
+          </div>
+        )}
       </div>
     </div>
   );

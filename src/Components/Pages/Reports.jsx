@@ -17,15 +17,13 @@ const Reports = ({dataFromApp}) => {
 
   // console.log('reports page data', dataFromApp);
 
-  const [selectedReportOption, setSelectedReportOption] =
-    useState("averageData");
+  const [selectedReportOption, setSelectedReportOption] = useState("averageData");
   const [count, setCount] = useState(100);
   const [enableCount, setEnableCount] = useState(false);
   const [parameters, setParameters] = useState({}); // for sensor-wise data
   const [selectedSensors, setSelectedSensors] = useState([]); //for sensor wise data
   const [unselectedSensors, setUnselectedSensors] = useState([]);
-  const [selectedSensorWiseReportOption, setSelectedSensorWiseReportOption] =
-    useState("datePicker"); // for sensor wise data
+  const [selectedSensorWiseReportOption, setSelectedSensorWiseReportOption] = useState("datePicker"); // for sensor wise data
   const [sensorWiseCount, setSensorWiseCount] = useState(100); // for sensor-wise data
   const [enableSensorWiseCount, setEnableSensorWiseCount] = useState(false); // for sensor-wise data
   const [fromDate, setFromDate] = useState("");
@@ -35,6 +33,9 @@ const Reports = ({dataFromApp}) => {
   const [avgFromDate, setAvgFromDate] = useState('');
   const [avgToDate, setAvgToDate] = useState('');
   const [averageOption, setAverageOption] = useState("minute");
+  const [intervalFromDate, setIntervalFromDate] = useState('');
+  const [intervalToDate, setIntervalToDate] = useState("");
+  const [intervalOption, setIntervalOption] = useState('hour');
   const [loading, setLoading] = useState(false);
 
   const projectName = "XY001";
@@ -122,6 +123,9 @@ const Reports = ({dataFromApp}) => {
             avgFromDate: avgFromDate,
             avgToDate: avgToDate,
             averageOption: averageOption,
+            intervalFromDate: intervalFromDate,
+            intervalToDate: intervalToDate,
+            intervalOption: intervalOption
           },
         }
       );
@@ -134,7 +138,7 @@ const Reports = ({dataFromApp}) => {
       const info = new Blob([excelBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      saveAs(info, `${projectName}_Average_Report.xlsx`);
+      saveAs(info, `${projectName}_Report.xlsx`);
     } catch (error) {
       console.error(error);
     }
@@ -163,6 +167,8 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
+              setIntervalFromDate('');
+              setIntervalToDate('');
             }}
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -171,10 +177,10 @@ const Reports = ({dataFromApp}) => {
 
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "averageData" && "text-[#9cb3d6]"
+              selectedReportOption === "intervalData" && "text-[#9cb3d6]"
             }`}
             onClick={() => {
-              setSelectedReportOption("averageData");
+              setSelectedReportOption("intervalData");
               setFromDate("");
               setToDate("");
               setCount();
@@ -184,6 +190,8 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
             }}
           >
             <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -205,6 +213,8 @@ const Reports = ({dataFromApp}) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -228,6 +238,8 @@ const Reports = ({dataFromApp}) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -247,6 +259,8 @@ const Reports = ({dataFromApp}) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <MdOutlineSensors className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -269,6 +283,148 @@ const Reports = ({dataFromApp}) => {
                 className="max-w-[150px] md:max-w-[300px] rounded-xl"
               />
             </div>
+
+            {/* averageData option */}
+            {selectedReportOption === "averageData" && (
+              <div className="p-8 flex flex-col items-center justify-center gap-6">
+                <center className="text-xl font-medium">
+                  Select Date Range
+                </center>
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-4 font-medium">
+                    <label>From</label>
+                    <label>To</label>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={avgFromDate}
+                      onChange={(e) => setAvgFromDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={avgToDate}
+                      onChange={(e) => setAvgToDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 items-center text-sm 2xl:text-base font-medium">
+                  <div>Average By:</div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="option1"
+                      name="averageOption"
+                      value={averageOption}
+                      defaultChecked
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setAverageOption("minute")}
+                    />
+                    <label htmlFor="option1" className="mr-2 cursor-pointer">
+                      Minute
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="option2"
+                      name="averageOption"
+                      value={averageOption}
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setAverageOption("hour")}
+                    />
+                    <label htmlFor="option2" className="mr-2 cursor-pointer">
+                      Hour
+                    </label>
+                  </div>
+                </div>
+                <div className="flex justify-center gap-4 font-medium">
+                  <button
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    onClick={generateAverageExcel}
+                  >
+                    <FaFileDownload className="text-lg" />
+                    Download Excel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* interval data */}
+            {selectedReportOption === "intervalData" && (
+              <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
+                <center className="text-xl font-medium">
+                  Select Time Interval
+                </center>
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-4 font-medium">
+                    <label>From</label>
+                    <label>To</label>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={intervalFromDate}
+                      onChange={(e) => setIntervalFromDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="text-gray-600 rounded-md px-0.5"
+                      required
+                      value={intervalToDate}
+                      onChange={(e) => setIntervalToDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>Get 1 data for every</div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="intervaOption1"
+                      name="intervalOptions"
+                      value={intervalOption}
+                      defaultChecked
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setIntervalOption("hour")}
+                    />
+                    <label htmlFor="intervaOption1" className="cursor-pointer">
+                      1 Hour
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="intervaOption2"
+                      name="intervalOptions"
+                      value={intervalOption}
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setIntervalOption("minute")}
+                    />
+                    <label htmlFor="intervaOption2" className="cursor-pointer">
+                      1 Minute
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <button
+                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    onClick={generateAverageExcel}
+                  >
+                    <FaFileDownload className="text-lg" />
+                    Download Excel
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* datepicker option */}
             {selectedReportOption === "datePicker" && (
               <div className="p-4 md:p-8 flex flex-col items-center justify-center gap-6">
@@ -406,76 +562,6 @@ const Reports = ({dataFromApp}) => {
                   <button
                     className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
                     onClick={generateExcel}
-                  >
-                    <FaFileDownload className="text-lg" />
-                    Download Excel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* averageData option */}
-            {selectedReportOption === "averageData" && (
-              <div className="p-8 flex flex-col items-center justify-center gap-6">
-                <center className="text-xl font-medium">
-                  Select Date Range
-                </center>
-                <div className="flex gap-2">
-                  <div className="flex flex-col gap-4 font-medium">
-                    <label>From</label>
-                    <label>To</label>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <input
-                      type="date"
-                      className="text-gray-600 rounded-md px-0.5"
-                      required
-                      value={avgFromDate}
-                      onChange={(e) => setAvgFromDate(e.target.value)}
-                    />
-                    <input
-                      type="date"
-                      className="text-gray-600 rounded-md px-0.5"
-                      required
-                      value={avgToDate}
-                      onChange={(e) => setAvgToDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 items-center text-sm 2xl:text-base font-medium">
-                  <div>Average By:</div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="option1"
-                      name="averageOption"
-                      value={averageOption}
-                      defaultChecked
-                      className="cursor-pointer mt-0.5"
-                      onChange={() => setAverageOption("minute")}
-                    />
-                    <label htmlFor="option1" className="mr-2 cursor-pointer">
-                      Minute
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="option2"
-                      name="averageOption"
-                      value={averageOption}
-                      className="cursor-pointer mt-0.5"
-                      onChange={() => setAverageOption("hour")}
-                    />
-                    <label htmlFor="option2" className="mr-2 cursor-pointer">
-                      Hour
-                    </label>
-                  </div>
-                </div>
-                <div className="flex justify-center gap-4 font-medium">
-                  <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
-                    onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel

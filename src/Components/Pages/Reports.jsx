@@ -35,7 +35,7 @@ const Reports = ({dataFromApp}) => {
   const [averageOption, setAverageOption] = useState("minute");
   const [intervalFromDate, setIntervalFromDate] = useState('');
   const [intervalToDate, setIntervalToDate] = useState("");
-  const [intervalOption, setIntervalOption] = useState('hour');
+  const [intervalOption, setIntervalOption] = useState('minute');
   const [loading, setLoading] = useState(false);
 
   const projectName = "XY001";
@@ -167,8 +167,8 @@ const Reports = ({dataFromApp}) => {
               setSensorWiseFromDate("");
               setSensorWiseToDate("");
               setEnableCount(false);
-              setIntervalFromDate('');
-              setIntervalToDate('');
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -382,34 +382,36 @@ const Reports = ({dataFromApp}) => {
                     />
                   </div>
                 </div>
-                <div>Get 1 data for every</div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="intervaOption1"
-                      name="intervalOptions"
-                      value={intervalOption}
-                      defaultChecked
-                      className="cursor-pointer mt-0.5"
-                      onChange={() => setIntervalOption("hour")}
-                    />
-                    <label htmlFor="intervaOption1" className="cursor-pointer">
-                      1 Hour
-                    </label>
-                  </div>
-
+                <div className="text-sm 2xl:text-base font-medium">
+                  Get 1 data for every -
+                </div>
+                <div className="flex gap-2 text-sm 2xl:text-base font-medium">
                   <div className="flex items-center gap-1">
                     <input
                       type="radio"
                       id="intervaOption2"
                       name="intervalOptions"
                       value={intervalOption}
+                      defaultChecked
                       className="cursor-pointer mt-0.5"
                       onChange={() => setIntervalOption("minute")}
                     />
                     <label htmlFor="intervaOption2" className="cursor-pointer">
-                      1 Minute
+                      Minute
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="intervaOption1"
+                      name="intervalOptions"
+                      value={intervalOption}
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setIntervalOption("hour")}
+                    />
+                    <label htmlFor="intervaOption1" className="cursor-pointer">
+                      Hour
                     </label>
                   </div>
                 </div>

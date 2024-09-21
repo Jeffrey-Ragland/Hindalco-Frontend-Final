@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import { LuCalendarSearch } from "react-icons/lu";
 import { TbHash, TbSum } from "react-icons/tb";
 import { BiScatterChart } from "react-icons/bi";
+import { AiOutlineFieldTime } from "react-icons/ai";
 import loadingGif from "../Assets/loading.gif";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
@@ -43,6 +44,9 @@ const Analytics = () => {
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
   const [averageOption, setAverageOption] = useState('minute');
+  const [intervalFromDate, setIntervalFromDate] = useState("");
+  const [intervalToDate, setIntervalToDate] = useState("");
+  const [intervalOption, setIntervalOption] = useState("minute");
   const [loading, setLoading] = useState(false);
 
   // console.log('average option', averageOption);
@@ -88,7 +92,10 @@ const Analytics = () => {
             projectName: projectName,
             avgFromDate: avgFromDate,
             avgToDate: avgToDate,
-            averageOption: averageOption
+            averageOption: averageOption,
+            intervalFromDate: intervalFromDate,
+            intervalToDate: intervalToDate,
+            intervalOption: intervalOption,
           },
         }
       );
@@ -549,6 +556,24 @@ const Analytics = () => {
           </div>
 
           <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
+              selectedReportOption === "intervalData" && "text-[#9cb3d6]"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("intervalData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
+            }}
+          >
+            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Interval Data
+          </div>
+
+          <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
               selectedReportOption === "datePicker" && "text-[#9cb3d6]"
             }`}
@@ -811,6 +836,85 @@ const Analytics = () => {
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* interval data */}
+              {selectedReportOption === "intervalData" && (
+                <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
+                  <center className="text-xl font-medium">
+                    Select Time Interval
+                  </center>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-4 font-medium">
+                      <label>From</label>
+                      <label>To</label>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <input
+                        type="date"
+                        className="text-gray-600 rounded-md px-0.5"
+                        required
+                        value={intervalFromDate}
+                        onChange={(e) => setIntervalFromDate(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        className="text-gray-600 rounded-md px-0.5"
+                        required
+                        value={intervalToDate}
+                        onChange={(e) => setIntervalToDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-sm 2xl:text-base font-medium">
+                    Get 1 data for every -
+                  </div>
+                  <div className="flex gap-2 text-sm 2xl:text-base font-medium">
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption2"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        defaultChecked
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("minute")}
+                      />
+                      <label
+                        htmlFor="intervaOption2"
+                        className="cursor-pointer"
+                      >
+                        Minute
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption1"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("hour")}
+                      />
+                      <label
+                        htmlFor="intervaOption1"
+                        className="cursor-pointer"
+                      >
+                        Hour
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                      onClick={generateAverageAnalyticsData}
+                    >
+                      <BiScatterChart className="text-lg" />
+                      Download Excel
                     </button>
                   </div>
                 </div>

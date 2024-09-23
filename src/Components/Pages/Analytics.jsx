@@ -48,6 +48,7 @@ const Analytics = () => {
   const [intervalToDate, setIntervalToDate] = useState("");
   const [intervalOption, setIntervalOption] = useState("minute");
   const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
 
   // console.log('average option', averageOption);
 
@@ -63,6 +64,7 @@ const Analytics = () => {
   const generateAnalyticsData = async () => {
     try {
       setLoading(true);
+      setTableLoading(true);
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoReport",
         {
@@ -77,6 +79,7 @@ const Analytics = () => {
         }
       );
       setAnalyticsData(response.data.data);
+      setTableLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -85,6 +88,7 @@ const Analytics = () => {
   const generateAverageAnalyticsData = async () => {
     try {
       setLoading(true);
+      setTableLoading(true);
       const response = await axios.get(
         "http://localhost:4000/backend/getHindalcoAverageReport",
         {
@@ -100,6 +104,7 @@ const Analytics = () => {
         }
       );
       setAnalyticsData(response.data.data);
+      setTableLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -475,12 +480,13 @@ const Analytics = () => {
       plugins: {
         legend: {
           position: "top",
+          align: 'start',
           labels: {
             color: "#4B5563",
             font: {
               size: 8,
             },
-            boxWidth: 20,
+            boxWidth: 12,
             padding: 5,
           },
         },
@@ -549,6 +555,8 @@ const Analytics = () => {
               setCount();
               setEnableCount(false);
               setAnalyticsData([]);
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -567,6 +575,7 @@ const Analytics = () => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setAnalyticsData([]);
             }}
           >
             <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -584,6 +593,8 @@ const Analytics = () => {
               setAvgFromDate("");
               setAvgToDate("");
               setAnalyticsData([]);
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -603,6 +614,8 @@ const Analytics = () => {
               setAvgFromDate("");
               setAvgToDate("");
               setAnalyticsData([]);
+              setIntervalFromDate("");
+              setIntervalToDate("");
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -798,34 +811,60 @@ const Analytics = () => {
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2 items-center text-sm 2xl:text-base font-medium">
-                    <div>Average By:</div>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="option1"
-                        name="averageOption"
-                        value={averageOption}
-                        defaultChecked
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setAverageOption("minute")}
-                      />
-                      <label htmlFor="option1" className="mr-2 cursor-pointer">
-                        Minute
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="option2"
-                        name="averageOption"
-                        value={averageOption}
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setAverageOption("hour")}
-                      />
-                      <label htmlFor="option2" className="mr-2 cursor-pointer">
-                        Hour
-                      </label>
+                  <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
+                    <div className="text-center">Average By:</div>
+                    <div className="flex gap-2 items-center ">
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option1"
+                          name="averageOption"
+                          value={averageOption}
+                          defaultChecked
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("minute")}
+                        />
+                        <label
+                          htmlFor="option1"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Minute
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option2"
+                          name="averageOption"
+                          value={averageOption}
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("hour")}
+                        />
+                        <label
+                          htmlFor="option2"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Hour
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option3"
+                          name="averageOption"
+                          value={averageOption}
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("day")}
+                        />
+                        <label
+                          htmlFor="option3"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Day
+                        </label>
+                      </div>
                     </div>
                   </div>
 
@@ -907,6 +946,23 @@ const Analytics = () => {
                         Hour
                       </label>
                     </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption3"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("day")}
+                      />
+                      <label
+                        htmlFor="intervaOption3"
+                        className="cursor-pointer"
+                      >
+                        Day
+                      </label>
+                    </div>
                   </div>
                   <div>
                     <button
@@ -914,7 +970,7 @@ const Analytics = () => {
                       onClick={generateAverageAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
-                      Download Excel
+                      Plot Graph
                     </button>
                   </div>
                 </div>
@@ -923,7 +979,7 @@ const Analytics = () => {
 
             {/* table */}
             <div
-              className="h-[300px] lg:h-[400px] xl:h-1/3 rounded-xl overflow-auto text-gray-600"
+              className="relative h-[300px] lg:h-[400px] xl:h-1/3 rounded-xl overflow-auto text-gray-600"
               style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: "#1D4ED8 transparent",
@@ -993,6 +1049,12 @@ const Analytics = () => {
                   No Data
                 </div>
               )}
+              {tableLoading && (
+                <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-base text-white">
+                  <div>Loading table data!</div>
+                  <img src={loadingGif} className="max-w-[40px]" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1004,7 +1066,7 @@ const Analytics = () => {
                 "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
             }}
           >
-            <div className="flex-1">
+            <div className="h-full">
               {analyticsData &&
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 ? (
@@ -1013,16 +1075,25 @@ const Analytics = () => {
                 <Line
                   data={{ datasets: [] }}
                   options={lineOptions}
-                  width={"100%"}
+                  height={"100%"}
                 />
               )}
             </div>
             {loading && (
-              <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-base text-white">
+              <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-base text-white z-10">
                 <div>Loading line chart!</div>
                 <img src={loadingGif} className="max-w-[40px]" />
               </div>
             )}
+            {/* no of data points */}
+            {analyticsData &&
+              Array.isArray(analyticsData) &&
+              analyticsData.length > 0 && (
+                <div className="absolute top-1 right-2 text-xs font-medium flex gap-1">
+                  <div>Data Points:</div>
+                  <div className="bg-white px-2 rounded-md">{analyticsData.length}</div>
+                </div>
+              )}
           </div>
         </div>
       </div>

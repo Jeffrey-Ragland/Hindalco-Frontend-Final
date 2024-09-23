@@ -503,12 +503,13 @@ const Dashboard = ({dataFromApp}) => {
       <div className="xl:h-[50%] flex flex-col xl:flex-row gap-2 ">
         {/* 2d image */}
         <div
-          className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2  rounded-xl p-2"
+          className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-white"
           style={{
             backgroundImage:
               "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
           }}
         >
+          {/* background-image: linear-gradient(to left bottom, #90aad1, #9eb3d5, #acbcd8, #bac6dc, #c7cfdf, #ced5e2, #d5dce5, #dde2e8, #e1e6eb, #e6eaee, #eaeef1, #eff2f4); */}
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
             <div className="relative w-full md:w-[55%] flex justify-center items-center p-4">
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
@@ -592,7 +593,7 @@ const Dashboard = ({dataFromApp}) => {
           </div>
           {/* cards */}
           <div
-            className={`xl:h-[45%] grid grid-cols-2 md:grid-cols-5 text-blue-700 ${
+            className={`xl:h-[45%] grid grid-cols-2 md:grid-cols-5 ${
               viewAllCards && "md:grid-cols-8"
             } gap-1 overflow-auto`}
             style={{ scrollbarWidth: "none" }}

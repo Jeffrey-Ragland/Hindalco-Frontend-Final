@@ -312,34 +312,51 @@ const Reports = ({dataFromApp}) => {
                     />
                   </div>
                 </div>
-                <div className="flex gap-2 items-center text-sm 2xl:text-base font-medium">
-                  <div>Average By:</div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="option1"
-                      name="averageOption"
-                      value={averageOption}
-                      defaultChecked
-                      className="cursor-pointer mt-0.5"
-                      onChange={() => setAverageOption("minute")}
-                    />
-                    <label htmlFor="option1" className="mr-2 cursor-pointer">
-                      Minute
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="option2"
-                      name="averageOption"
-                      value={averageOption}
-                      className="cursor-pointer mt-0.5"
-                      onChange={() => setAverageOption("hour")}
-                    />
-                    <label htmlFor="option2" className="mr-2 cursor-pointer">
-                      Hour
-                    </label>
+                <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
+                  <div className="text-center ">Average By:</div>
+                  <div className="flex gap-2 items-center">
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="option1"
+                        name="averageOption"
+                        value={averageOption}
+                        defaultChecked
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setAverageOption("minute")}
+                      />
+                      <label htmlFor="option1" className="mr-2 cursor-pointer">
+                        Minute
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="option2"
+                        name="averageOption"
+                        value={averageOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setAverageOption("hour")}
+                      />
+                      <label htmlFor="option2" className="mr-2 cursor-pointer">
+                        Hour
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="option3"
+                        name="averageOption"
+                        value={averageOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setAverageOption("day")}
+                      />
+                      <label htmlFor="option3" className="mr-2 cursor-pointer">
+                        Day
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
@@ -354,9 +371,9 @@ const Reports = ({dataFromApp}) => {
               </div>
             )}
 
-            {/* interval data */}
+            {/* interval option */}
             {selectedReportOption === "intervalData" && (
-              <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
+              <div className="flex flex-col gap-6 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
                 <center className="text-xl font-medium">
                   Select Time Interval
                 </center>
@@ -412,6 +429,20 @@ const Reports = ({dataFromApp}) => {
                     />
                     <label htmlFor="intervaOption1" className="cursor-pointer">
                       Hour
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="intervaOption3"
+                      name="intervalOptions"
+                      value={intervalOption}
+                      className="cursor-pointer mt-0.5"
+                      onChange={() => setIntervalOption("day")}
+                    />
+                    <label htmlFor="intervaOption3" className="cursor-pointer">
+                      Day
                     </label>
                   </div>
                 </div>

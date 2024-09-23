@@ -545,8 +545,9 @@ const Analytics = () => {
       <div className="xl:h-[90%] flex flex-col gap-2 justify-center">
         <div className="flex gap-2 justify-evenly font-medium xl:h-[15%]">
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "averageData" && "text-[#9cb3d6]"
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "averageData" &&
+              "text-[#9cb3d6] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("averageData");
@@ -564,8 +565,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "intervalData" && "text-[#9cb3d6]"
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "intervalData" &&
+              "text-[#9cb3d6] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("intervalData");
@@ -583,8 +585,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base ${
-              selectedReportOption === "datePicker" && "text-[#9cb3d6]"
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "datePicker" &&
+              "text-[#9cb3d6] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("datePicker");
@@ -602,8 +605,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] text-xs md:text-base text-center ${
-              selectedReportOption === "countWiseData" && "text-[#9cb3d6]"
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "countWiseData" &&
+              "text-[#9cb3d6] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("countWiseData");
@@ -1091,7 +1095,9 @@ const Analytics = () => {
               analyticsData.length > 0 && (
                 <div className="absolute top-1 right-2 text-xs font-medium flex gap-1">
                   <div>Data Points:</div>
-                  <div className="bg-white px-2 rounded-md">{analyticsData.length}</div>
+                  <div className="bg-white px-2 rounded-md">
+                    {analyticsData.length}
+                  </div>
                 </div>
               )}
           </div>

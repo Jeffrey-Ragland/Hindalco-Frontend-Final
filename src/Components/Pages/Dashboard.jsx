@@ -1,12 +1,13 @@
 import React from 'react';
+import { useMemo, useState, useEffect } from "react";
 import potline from '../Assets/potline.png';
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
-import { useMemo, useState, useEffect } from "react";
-import { MdOutlineUpdate } from "react-icons/md";
-import { BsThermometerSun } from "react-icons/bs";
+import { MdOutlineUpdate, MdSystemSecurityUpdateWarning } from "react-icons/md";
+import { BsThermometerSun, BsDatabaseFillCheck } from "react-icons/bs";
 import { LiaRulerVerticalSolid } from "react-icons/lia";
+import { IoWarningSharp } from "react-icons/io5";
 import ApexCharts from "react-apexcharts";
 import Navbar from './Navbar';
 import "react-tooltip/dist/react-tooltip.css";
@@ -117,7 +118,11 @@ const Dashboard = ({dataFromApp}) => {
     options: {
       chart: {
         type: "bar",
+        toolbar: {
+          show: false,
+        },
       },
+
       xaxis: {
         categories: [],
         labels: {
@@ -142,7 +147,7 @@ const Dashboard = ({dataFromApp}) => {
       plotOptions: {
         bar: {
           horizontal: false,
-          columnWidth: "15%",
+          columnWidth: "25%",
           endingShape: "rounded",
           distributed: true,
           dataLabels: {
@@ -157,7 +162,9 @@ const Dashboard = ({dataFromApp}) => {
           colors: ["#4a5568"],
           fontSize: "8px",
         },
-        formatter: (val) => `${val}°C`,
+        formatter: (val) => {
+          return val === null ? "N/A" : `${val}°C`;
+        },
       },
       stroke: {
         show: true,
@@ -170,11 +177,13 @@ const Dashboard = ({dataFromApp}) => {
       tooltip: {
         theme: "dark",
         y: {
-          formatter: (val) => `${val}°C`,
+          formatter: (val) => {
+            return val === null ? "N/A" : `${val}°C`;
+          },
         },
       },
       legend: {
-        show: false, 
+        show: false,
       },
     },
   });
@@ -184,12 +193,31 @@ const Dashboard = ({dataFromApp}) => {
     datasets: [],
   });
 
+  const [activeStatus, setActiveStatus] = useState("");
+  // console.log('active status', activeStatus);
+
   // chart data assignment
   useEffect(() => {
     if (Array.isArray(dataFromApp) && dataFromApp.length > 0) {
       const barCategories = [];
       const barSeries = [];
       const barColors = [];
+
+      // for activity status 
+      const currentDate = new Date();
+      const lastDataEntry = dataFromApp[0];
+
+      if (lastDataEntry && lastDataEntry.Time) {
+        const lastDataTime = new Date(lastDataEntry.Time.replace(',', 'T'));
+         const timeDifference = currentDate.getTime() - lastDataTime.getTime();
+         const differenceInMinutes = timeDifference / (1000 * 60);
+
+         if (differenceInMinutes < 2) {
+           setActiveStatus("Active");
+         } else {
+           setActiveStatus("Inactive");
+         }
+      };
 
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
@@ -203,7 +231,12 @@ const Dashboard = ({dataFromApp}) => {
             key !== "DeviceSignal"
           ) {
             barCategories.push(key);
-            barSeries.push(parseFloat(dataFromApp[0][key]));
+            // barSeries.push(parseFloat(dataFromApp[0][key]));
+            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
+              barSeries.push(null); 
+            } else {
+              barSeries.push(parseFloat(dataFromApp[0][key]));
+            }
             if (alertKeys.includes(key)) {
               barColors.push("#FF0000");
             } else {
@@ -226,7 +259,12 @@ const Dashboard = ({dataFromApp}) => {
             key !== "S15"
           ) {
             barCategories.push(key);
-            barSeries.push(parseFloat(dataFromApp[0][key]));
+            // barSeries.push(parseFloat(dataFromApp[0][key]));
+            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
+              barSeries.push(null);
+            } else {
+              barSeries.push(parseFloat(dataFromApp[0][key]));
+            }
             if (alertKeys.includes(key)) {
               barColors.push("#FF0000");
             } else {
@@ -564,6 +602,25 @@ const Dashboard = ({dataFromApp}) => {
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceBattery}%
                   </div>
                 </div>
+
+                {/* activity status */}
+                {activeStatus === "Active" ? (
+                  <div
+                    className="text-green-600"
+                    data-tooltip-id="tooltip-style"
+                    data-tooltip-content="Data is being recieved!"
+                  >
+                    <BsDatabaseFillCheck className="text-xl 2xl:text-2xl" />
+                  </div>
+                ) : (
+                  <div
+                    className="status-indicator"
+                    data-tooltip-id="tooltip-style"
+                    data-tooltip-content="No data is being recieved for more than 5 minutes"
+                  >
+                    <IoWarningSharp className="text-xl 2xl:text-2xl" />
+                  </div>
+                )}
               </div>
               <div className="h-[150px] md:h-auto flex items-center">
                 <img
@@ -577,9 +634,26 @@ const Dashboard = ({dataFromApp}) => {
                 className="absolute bottom-1 left-1 hover:scale-110 duration-200"
                 onClick={handleViewCards}
               >
-                <button className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5">
+                {/* <button className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5">
                   {viewAllCards === true ? "View Less -" : "View All +"}
-                </button>
+                </button> */}
+                {viewAllCards === true ? (
+                  <button
+                    className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5"
+                    data-tooltip-id="tooltip-style"
+                    data-tooltip-content="View 10 sensor cards"
+                  >
+                    View Less -
+                  </button>
+                ) : (
+                  <button
+                    className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5"
+                    data-tooltip-id="tooltip-style"
+                    data-tooltip-content="View 15 sensor cards"
+                  >
+                    View All +
+                  </button>
+                )}
               </div>
             </div>
             <div className="w-full md:w-[45%] flex flex-col gap-2 p-1">
@@ -1173,6 +1247,8 @@ const Dashboard = ({dataFromApp}) => {
             <button
               type="submit"
               className="bg-gradient-to-tr from-green-700 via-green-500 to-green-400 hover:scale-[1.03] duration-200 text-white p-1 px-2 rounded-md"
+              data-tooltip-id="tooltip-style"
+              data-tooltip-content="Set new alert limit"
             >
               Set
             </button>
@@ -1192,7 +1268,11 @@ const Dashboard = ({dataFromApp}) => {
           </div>
           <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
             <div className="mr-2 text-center font-medium">Data&nbsp;Limit</div>
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-tooltip-id="tooltip-style"
+              data-tooltip-content="Plot last 100 data"
+            >
               <input
                 type="radio"
                 id="option1"
@@ -1207,7 +1287,11 @@ const Dashboard = ({dataFromApp}) => {
               </label>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-tooltip-id="tooltip-style"
+              data-tooltip-content="Plot last 300 data"
+            >
               <input
                 type="radio"
                 id="option2"
@@ -1222,7 +1306,11 @@ const Dashboard = ({dataFromApp}) => {
               </label>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-tooltip-id="tooltip-style"
+              data-tooltip-content="Plot last 500 data"
+            >
               <input
                 type="radio"
                 id="option3"
@@ -1237,7 +1325,11 @@ const Dashboard = ({dataFromApp}) => {
               </label>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-tooltip-id="tooltip-style"
+              data-tooltip-content="Plot last 1000 data"
+            >
               <input
                 type="radio"
                 id="option4"

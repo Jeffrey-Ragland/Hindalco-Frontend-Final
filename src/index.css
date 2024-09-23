@@ -169,28 +169,43 @@ body {
 @keyframes blink {
    0%
     {
-        /* color: red;
-        border-color: red; */
         background-color: red;
         color: white;
     }
     50%
     {
-        /* color: gray;
-        border-color: gray; */
         background-color: gray;
         color: white;
     }
     100%
     {
-        /* color: red;
-        border-color: red; */
         background-color: red;
         color: white;
     }
 }
 
+/* activity status blink */
+@keyframes blink-second {
+   0%
+    {
+        color: red;
+    }
+    50%
+    {
+        color: gray;
+    }
+    100%
+    {
+        color: red;
+    }
+}
+
 .card-indicator {
   animation: blink 1s infinite; 
+}
+
+.status-indicator {
+  animation: blink-second 1s infinite; 
+  background-color: inherit;
 }
 

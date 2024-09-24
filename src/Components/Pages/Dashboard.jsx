@@ -212,7 +212,7 @@ const Dashboard = ({dataFromApp}) => {
          const timeDifference = currentDate.getTime() - lastDataTime.getTime();
          const differenceInMinutes = timeDifference / (1000 * 60);
 
-         if (differenceInMinutes < 2) {
+         if (differenceInMinutes < 5) {
            setActiveStatus("Active");
          } else {
            setActiveStatus("Inactive");
@@ -240,7 +240,7 @@ const Dashboard = ({dataFromApp}) => {
             if (alertKeys.includes(key)) {
               barColors.push("#FF0000");
             } else {
-              barColors.push("#00FF00");
+              barColors.push("#23439B");
             }
           }
         } else if (viewAllCards === false) {
@@ -268,7 +268,7 @@ const Dashboard = ({dataFromApp}) => {
             if (alertKeys.includes(key)) {
               barColors.push("#FF0000");
             } else {
-              barColors.push("#00FF00");
+              barColors.push("#23439B");
             }
           }
         }
@@ -311,6 +311,8 @@ const Dashboard = ({dataFromApp}) => {
       const sensor14Data = reversedData.map((item) => item.S14);
       const sensor15Data = reversedData.map((item) => item.S15);
 
+      
+
       setLineData({
         labels: lineLabels,
         datasets: [
@@ -322,6 +324,19 @@ const Dashboard = ({dataFromApp}) => {
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
+            // segment: {
+            //   borderColor: (ctx) => {
+            //     // Check if the value exceeds the limit
+            //     return ctx.p0.parsed.y < 60 || ctx.p1.parsed.y < 60
+            //       ? "rgb(255, 165, 0)" // Color for values exceeding the limit
+            //       : "rgb(240, 5, 5)"; // Default color
+            //   },
+            //   // backgroundColor: (ctx) => {
+            //   //   return ctx.p0.parsed.y < 60 || ctx.p1.parsed.y < 60
+            //   //     ? "rgba(255, 165, 0, 0.2)" // Background for exceeded limit
+            //   //     : "rgba(240, 5, 5, 0.2)"; // Default background
+            //   // },
+            // },
           },
           {
             label: "S2",
@@ -468,6 +483,53 @@ const Dashboard = ({dataFromApp}) => {
     }
   }, [dataFromApp, viewAllCards]);
 
+  const limit = 60; // Define the limit
+
+  const customPlugin = {
+    id: "customLineSegment",
+    beforeDatasetDraw(chart, args, options) {
+      const {
+        ctx,
+        chartArea: { top, bottom },
+        scales: { x, y },
+      } = chart;
+      const dataset = chart.data.datasets[args.index];
+      const meta = chart.getDatasetMeta(args.index);
+      const data = dataset.data;
+
+      ctx.save();
+
+      for (let i = 0; i < data.length - 1; i++) {
+        const currPoint = meta.data[i];
+        const nextPoint = meta.data[i + 1];
+
+        const currValue = data[i];
+        const nextValue = data[i + 1];
+
+        // Coordinates for current and next points
+        const xCurr = currPoint.x;
+        const yCurr = y.getPixelForValue(currValue);
+        const xNext = nextPoint.x;
+        const yNext = y.getPixelForValue(nextValue);
+
+        // Define colors for each segment
+        const color =
+          currValue > limit || nextValue > limit
+            ? "rgb(255, 165, 0)"
+            : "rgb(240, 5, 5)";
+
+        ctx.beginPath();
+        ctx.moveTo(xCurr, yCurr);
+        ctx.lineTo(xNext, yNext);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.25;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    },
+  };
+
   const lineOptions = useMemo(
     () => ({
       responsive: true,
@@ -480,10 +542,9 @@ const Dashboard = ({dataFromApp}) => {
             font: {
               size: 8,
             },
-             boxWidth: 20,
-             padding: 5,
+            boxWidth: 20,
+            padding: 5,
           },
-         
         },
         zoom: {
           pan: {
@@ -501,6 +562,7 @@ const Dashboard = ({dataFromApp}) => {
             },
           },
         },
+        customLineSegment: {},
       },
       scales: {
         x: {
@@ -530,8 +592,10 @@ const Dashboard = ({dataFromApp}) => {
     []
   );
 
+  console.log('hindalco alert limit', hindalcoAlertLimit);
+
   return (
-    <div className="xl:h-screen text-gray-600 p-4 flex flex-col gap-2 ">
+    <div className="xl:h-screen p-4 flex flex-col gap-2 ">
       {/* top bar - h-[10%] */}
       <div className="xl:h-[10%]">
         <Navbar />
@@ -541,29 +605,23 @@ const Dashboard = ({dataFromApp}) => {
       <div className="xl:h-[50%] flex flex-col xl:flex-row gap-2 ">
         {/* 2d image */}
         <div
-          className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-white"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          }}
+          className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]"
+          // style={{
+          //   backgroundImage:
+          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+          // }}
         >
-          {/* background-image: linear-gradient(to left bottom, #90aad1, #9eb3d5, #acbcd8, #bac6dc, #c7cfdf, #ced5e2, #d5dce5, #dde2e8, #e1e6eb, #e6eaee, #eaeef1, #eff2f4); */}
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
             <div className="relative w-full md:w-[55%] flex justify-center items-center p-4">
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
-                  className={`flex items-center gap-0.5 ${
-                    (dataFromApp.length > 0 &&
-                      dataFromApp[0].DeviceTemperature) >= 75
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}
+                  className="flex items-center gap-0.5 text-[#23439b]"
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Device Temperature"
                 >
                   <FaMobileScreenButton className="text-lg 2xl:text-xl" />
-                  <div className="font-medium">
+                  <div className="font-medium text-black">
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceTemperature}
                     °C
                   </div>
@@ -571,34 +629,24 @@ const Dashboard = ({dataFromApp}) => {
 
                 {/* signal strength */}
                 <div
-                  className={`flex items-center gap-0.5 ${
-                    (dataFromApp.length > 0 && dataFromApp[0].DeviceSignal) >=
-                    25
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
+                  className="flex items-center gap-0.5 text-[#23439b]"
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Signal Strength"
                 >
                   <LuRadioTower className="text-lg 2xl:text-xl" />
-                  <div className="font-medium">
+                  <div className="font-medium text-black">
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceSignal}%
                   </div>
                 </div>
 
                 {/* battery */}
                 <div
-                  className={`flex items-center gap-0.5 ${
-                    (dataFromApp.length > 0 && dataFromApp[0].DeviceBattery) >=
-                    25
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
+                  className="flex items-center gap-0.5 text-[#23439b]"
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Battery Percentage"
                 >
                   <FaBatteryFull className="text-lg 2xl:text-xl" />
-                  <div className="font-medium">
+                  <div className="font-medium text-black">
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceBattery}%
                   </div>
                 </div>
@@ -606,7 +654,7 @@ const Dashboard = ({dataFromApp}) => {
                 {/* activity status */}
                 {activeStatus === "Active" ? (
                   <div
-                    className="text-green-600"
+                    className="text-[#23439b]"
                     data-tooltip-id="tooltip-style"
                     data-tooltip-content="Data is being recieved!"
                   >
@@ -631,15 +679,12 @@ const Dashboard = ({dataFromApp}) => {
               </div>
               {/* view all cards */}
               <div
-                className="absolute bottom-1 left-1 hover:scale-110 duration-200"
+                className="absolute bottom-1 left-1 hover:scale-110 duration-200 text-black"
                 onClick={handleViewCards}
               >
-                {/* <button className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5">
-                  {viewAllCards === true ? "View Less -" : "View All +"}
-                </button> */}
                 {viewAllCards === true ? (
                   <button
-                    className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5"
+                    className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5"
                     data-tooltip-id="tooltip-style"
                     data-tooltip-content="View 10 sensor cards"
                   >
@@ -647,7 +692,7 @@ const Dashboard = ({dataFromApp}) => {
                   </button>
                 ) : (
                   <button
-                    className="bg-gradient-to-tr from-green-600 via-green-500 to-green-400 text-xs 2xl:text-base text-white font-medium rounded-md px-1 py-0.5"
+                    className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5"
                     data-tooltip-id="tooltip-style"
                     data-tooltip-content="View 15 sensor cards"
                   >
@@ -673,21 +718,24 @@ const Dashboard = ({dataFromApp}) => {
             style={{ scrollbarWidth: "none" }}
           >
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (dataFromApp.length > 0 && dataFromApp[0].S1) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S1 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S1 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;1
                 </div>
@@ -706,19 +754,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S2) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S2 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S2 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;2
                 </div>
@@ -737,19 +788,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S3) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S3 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S3 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;3
                 </div>
@@ -768,19 +822,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S4) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S4 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S4 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;4
                 </div>
@@ -799,19 +856,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S5) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S5 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S5 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;5
                 </div>
@@ -830,19 +890,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S6) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S6 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S6 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;6
                 </div>
@@ -861,19 +924,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S7) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S7 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S7 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;7
                 </div>
@@ -892,19 +958,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S8) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S8 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S8 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;8
                 </div>
@@ -923,19 +992,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S9) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S9 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S9 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;9
                 </div>
@@ -954,19 +1026,22 @@ const Dashboard = ({dataFromApp}) => {
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].S10) === "N/A"
-                  ? "border border-gray-500 text-gray-500"
+                  ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : dataFromApp.length > 0 &&
                     dataFromApp[0].S10 >= alertLimitFromLS
                   ? "card-indicator"
-                  : "text-blue-700 border border-blue-800"
+                  : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
               <BsThermometerSun className="text-2xl 2xl:text-5xl" />
               <div>
                 <div
-                  className={`text-center ${
-                    viewAllCards && "text-xs 2xl:text-sm"
-                  }`}
+                  className={`${
+                    dataFromApp.length > 0 &&
+                    dataFromApp[0].S10 >= alertLimitFromLS
+                      ? "text-white"
+                      : "text-black"
+                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   Sensor&nbsp;10
                 </div>
@@ -988,19 +1063,22 @@ const Dashboard = ({dataFromApp}) => {
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].S11) === "N/A"
-                      ? "border border-gray-500 text-gray-500"
+                      ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : dataFromApp.length > 0 &&
                         dataFromApp[0].S11 >= alertLimitFromLS
                       ? "card-indicator"
-                      : "text-blue-700 border border-blue-800"
+                      : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
                   <BsThermometerSun className="text-2xl 2xl:text-5xl" />
                   <div>
                     <div
-                      className={`text-center ${
-                        viewAllCards && "text-xs 2xl:text-sm"
-                      }`}
+                      className={`${
+                        dataFromApp.length > 0 &&
+                        dataFromApp[0].S11 >= alertLimitFromLS
+                          ? "text-white"
+                          : "text-black"
+                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       Sensor&nbsp;11
                     </div>
@@ -1019,19 +1097,22 @@ const Dashboard = ({dataFromApp}) => {
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].S12) === "N/A"
-                      ? "border border-gray-500 text-gray-500"
+                      ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : dataFromApp.length > 0 &&
                         dataFromApp[0].S12 >= alertLimitFromLS
                       ? "card-indicator"
-                      : "text-blue-700 border border-blue-800"
+                      : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
                   <BsThermometerSun className="text-2xl 2xl:text-5xl" />
                   <div>
                     <div
-                      className={`text-center ${
-                        viewAllCards && "text-xs 2xl:text-sm"
-                      }`}
+                      className={`${
+                        dataFromApp.length > 0 &&
+                        dataFromApp[0].S12 >= alertLimitFromLS
+                          ? "text-white"
+                          : "text-black"
+                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       Sensor&nbsp;12
                     </div>
@@ -1050,19 +1131,22 @@ const Dashboard = ({dataFromApp}) => {
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].S13) === "N/A"
-                      ? "border border-gray-500 text-gray-500"
+                      ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : dataFromApp.length > 0 &&
                         dataFromApp[0].S13 >= alertLimitFromLS
                       ? "card-indicator"
-                      : "text-blue-700 border border-blue-800"
+                      : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
                   <BsThermometerSun className="text-2xl 2xl:text-5xl" />
                   <div>
                     <div
-                      className={`text-center ${
-                        viewAllCards && "text-xs 2xl:text-sm"
-                      }`}
+                      className={`${
+                        dataFromApp.length > 0 &&
+                        dataFromApp[0].S13 >= alertLimitFromLS
+                          ? "text-white"
+                          : "text-black"
+                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       Sensor&nbsp;13
                     </div>
@@ -1081,19 +1165,22 @@ const Dashboard = ({dataFromApp}) => {
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].S14) === "N/A"
-                      ? "border border-gray-500 text-gray-500"
+                      ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : dataFromApp.length > 0 &&
                         dataFromApp[0].S14 >= alertLimitFromLS
                       ? "card-indicator"
-                      : "text-blue-700 border border-blue-800"
+                      : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
                   <BsThermometerSun className="text-2xl 2xl:text-5xl" />
                   <div>
                     <div
-                      className={`text-center ${
-                        viewAllCards && "text-xs 2xl:text-sm"
-                      }`}
+                      className={`${
+                        dataFromApp.length > 0 &&
+                        dataFromApp[0].S14 >= alertLimitFromLS
+                          ? "text-white"
+                          : "text-black"
+                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       Sensor&nbsp;14
                     </div>
@@ -1112,19 +1199,22 @@ const Dashboard = ({dataFromApp}) => {
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].S15) === "N/A"
-                      ? "border border-gray-500 text-gray-500"
+                      ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : dataFromApp.length > 0 &&
                         dataFromApp[0].S15 >= alertLimitFromLS
                       ? "card-indicator"
-                      : "text-blue-700 border border-blue-800"
+                      : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
                   <BsThermometerSun className="text-2xl 2xl:text-5xl" />
                   <div>
                     <div
-                      className={`text-center ${
-                        viewAllCards && "text-xs 2xl:text-sm"
-                      }`}
+                      className={`${
+                        dataFromApp.length > 0 &&
+                        dataFromApp[0].S15 >= alertLimitFromLS
+                          ? "text-white"
+                          : "text-black"
+                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       Sensor&nbsp;15
                     </div>
@@ -1146,14 +1236,14 @@ const Dashboard = ({dataFromApp}) => {
 
         {/* alert box */}
         <div
-          className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          }}
+          className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1]"
+          // style={{
+          //   backgroundImage:
+          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+          // }}
         >
           <div className="flex justify-center gap-2 rounded-t-md items-center py-1 px-2 font-bold">
-            <div className="text-red-500 2xl:text-xl">Alerts</div>
+            <div className="text-[#23439b] 2xl:text-xl">Alerts</div>
           </div>
           <div
             className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto rounded-b-md"
@@ -1163,15 +1253,13 @@ const Dashboard = ({dataFromApp}) => {
             }}
           >
             <div className="flex w-full justify-between items-center sticky  top-0 mb-2 xl:mb-4 py-1">
-              <div
-                className={`text-sm 2xl:text-base font-bold px-2 rounded-md border-2  bg-white flex items-center gap-1 shadow-md ${
-                  alertsArray.length > 0
-                    ? "text-red-500 border-red-500"
-                    : "text-green-500 border-green-500"
-                }`}
-              >
+              <div className="text-sm 2xl:text-base font-bold px-2 rounded-md bg-[#f5ffff] border border-gray-400 flex items-center gap-1 shadow-md text-[#23439b]">
                 {alertsArray.length}&nbsp;Alerts
-                <FaBell className="2xl:text-lg" />
+                <FaBell
+                  className={`2xl:text-lg ${
+                    alertsArray.length > 0 ? "text-red-500" : "text-[#23439b]"
+                  }`}
+                />
               </div>
             </div>
 
@@ -1186,7 +1274,7 @@ const Dashboard = ({dataFromApp}) => {
                 </div>
               ))
             ) : (
-              <div className="absolute inset-0 flex justify-center items-center text-gray-700 text-sm ">
+              <div className="absolute inset-0 flex justify-center items-center text-sm ">
                 No new Alerts
               </div>
             )}
@@ -1199,13 +1287,13 @@ const Dashboard = ({dataFromApp}) => {
         <div className="w-full md:w-[20%] flex flex-col gap-2 ">
           {/* last update */}
           <div
-            className="flex flex-row items-center md:flex-col justify-evenly rounded-md h-[25%] p-1"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            }}
+            className="flex flex-row items-center md:flex-col justify-evenly rounded-md h-[25%] p-1 bg-[#dde3f1]"
+            // style={{
+            //   backgroundImage:
+            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            // }}
           >
-            <div className="flex items-center gap-2 font-medium text-green-600 2xl:text-xl">
+            <div className="flex items-center gap-2 font-medium text-[#23439b] 2xl:text-xl">
               <MdOutlineUpdate className="text-2xl 2xl:text-3xl" />
               <div>Last Updated Data: </div>
             </div>
@@ -1216,14 +1304,14 @@ const Dashboard = ({dataFromApp}) => {
 
           {/* settings */}
           <form
-            className=" rounded-md flex flex-col justify-evenly gap-4 md:gap-0 h-[75%] p-1"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            }}
+            className=" rounded-md flex flex-col justify-evenly gap-4 md:gap-0 h-[75%] p-1 bg-[#dde3f1]"
+            // style={{
+            //   backgroundImage:
+            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            // }}
             onSubmit={handleAlertLimit}
           >
-            <div className="flex items-center justify-center text-red-500">
+            <div className="flex items-center justify-center text-[#23439b]">
               <LiaRulerVerticalSolid className="text-2xl 2xl:text-3xl" />
               <div className="font-medium">Alert&nbsp;limit</div>
             </div>
@@ -1246,7 +1334,7 @@ const Dashboard = ({dataFromApp}) => {
             </div>
             <button
               type="submit"
-              className="bg-gradient-to-tr from-green-700 via-green-500 to-green-400 hover:scale-[1.03] duration-200 text-white p-1 px-2 rounded-md"
+              className="bg-[#e4ba4c] hover:scale-[1.03] duration-200 font-medium p-1 px-2 rounded-md"
               data-tooltip-id="tooltip-style"
               data-tooltip-content="Set new alert limit"
             >
@@ -1257,17 +1345,19 @@ const Dashboard = ({dataFromApp}) => {
 
         {/* line chart card */}
         <div
-          className=" overflow-hidden p-2 w-full md:w-[80%] md:h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          }}
+          className=" overflow-hidden p-2 w-full md:w-[80%] md:h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]"
+          // style={{
+          //   backgroundImage:
+          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+          // }}
         >
           <div className="w-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
           <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
-            <div className="mr-2 text-center font-medium">Data&nbsp;Limit</div>
+            <div className="mr-2 text-center font-medium text-[#23439b]">
+              Data&nbsp;Limit
+            </div>
             <div
               className="flex items-center gap-1"
               data-tooltip-id="tooltip-style"

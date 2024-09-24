@@ -46,14 +46,14 @@ const Navbar = () => {
               <div
                 className={`flex flex-col items-center ${
                   location.pathname === "/"
-                    ? "text-[#9cb3d6] font-semibold text-xl"
-                    : "hover:scale-110 duration-200 hover:text-[#9cb3d6] "
+                    ? "text-[#e4ba4c] font-semibold text-xl"
+                    : "hover:scale-110 duration-200 hover:text-[#e4ba4c] "
                 } `}
               >
                 Dashboard
                 {location.pathname === "/" && (
                   <div className="relative w-full h-[6px] overflow-hidden flex justify-center items-center">
-                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#9cb3d6]"></div>
+                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#e4ba4c]"></div>
                   </div>
                 )}
               </div>
@@ -65,14 +65,14 @@ const Navbar = () => {
               <div
                 className={`flex flex-col items-center ${
                   location.pathname === "/Reports"
-                    ? "text-[#9cb3d6] font-semibold text-xl"
-                    : "hover:scale-110 duration-200 hover:text-[#9cb3d6] "
+                    ? "text-[#e4ba4c] font-semibold text-xl"
+                    : "hover:scale-110 duration-200 hover:text-[#e4ba4c] "
                 }`}
               >
                 Reports
                 {location.pathname === "/Reports" && (
                   <div className="relative w-full h-[6px] overflow-hidden flex justify-center items-center">
-                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#9cb3d6]"></div>
+                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#e4ba4c]"></div>
                   </div>
                 )}
               </div>
@@ -84,14 +84,14 @@ const Navbar = () => {
               <div
                 className={`flex flex-col items-center ${
                   location.pathname === "/Analytics"
-                    ? "text-[#9cb3d6] font-semibold text-xl"
-                    : "hover:scale-110 duration-200 hover:text-[#9cb3d6] "
+                    ? "text-[#e4ba4c] font-semibold text-xl"
+                    : "hover:scale-110 duration-200 hover:text-[#e4ba4c] "
                 }`}
               >
                 Analytics
                 {location.pathname === "/Analytics" && (
                   <div className="relative w-full h-[6px] overflow-hidden flex justify-center items-center">
-                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#9cb3d6]"></div>
+                    <div className="absolute bottom-0 w-4 h-8 rounded-full bg-[#e4ba4c]"></div>
                   </div>
                 )}
               </div>

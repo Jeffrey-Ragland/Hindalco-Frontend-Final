@@ -38,6 +38,8 @@ const Reports = ({dataFromApp}) => {
   const [intervalOption, setIntervalOption] = useState('minute');
   const [loading, setLoading] = useState(false);
 
+  // console.log('avg opt', averageOption);
+
   const projectName = "XY001";
 
   // used for displaying the sensor names in sensor wise data option
@@ -125,12 +127,12 @@ const Reports = ({dataFromApp}) => {
             averageOption: averageOption,
             intervalFromDate: intervalFromDate,
             intervalToDate: intervalToDate,
-            intervalOption: intervalOption
+            intervalOption: intervalOption,
           },
         }
       );
       setLoading(false);
-      console.log('report data', response.data.data);
+      console.log("report data", response.data.data);
       const ws = XLSX.utils.json_to_sheet(response.data.data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -144,6 +146,7 @@ const Reports = ({dataFromApp}) => {
     }
   };
 
+
   return (
     <div className="h-screen text-white p-4 flex flex-col gap-2">
       {/* top bar - h-[10%] */}
@@ -153,9 +156,9 @@ const Reports = ({dataFromApp}) => {
       <div className="relative h-[90%] flex flex-col justify-center">
         <div className="flex gap-2 justify-evenly font-medium">
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "averageData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("averageData");
@@ -177,9 +180,9 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "intervalData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("intervalData");
@@ -201,9 +204,9 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("datePicker");
@@ -225,9 +228,9 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "countWiseData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("countWiseData");
@@ -251,9 +254,9 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "sensorWiseData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("sensorWiseData");
@@ -275,11 +278,11 @@ const Reports = ({dataFromApp}) => {
 
         <div className="flex-1 flex items-center justify-center">
           <div
-            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-gray-600"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            }}
+            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-gray-600 bg-[#dde3f1]"
+            // style={{
+            //   backgroundImage:
+            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            // }}
           >
             <div className="p-2 md:p-4 flex items-center justify-center">
               <img

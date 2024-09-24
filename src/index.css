@@ -2,25 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* black gradient */
-/* body {
-  background-image: linear-gradient(to right top, #000000, #0c0b0b, #141314, #1b191a, #211f21, #2d2b2d, #3a383a, #474548, #5e5d5f, #777678, #909091, #ababab);
-} */
 
 /* body {
-  background-image: linear-gradient(to right, #0e1218, #11151b, #191e25, #252b33, #3d4653, #434d5a, #495362, #4f5a69, #525e6d, #626e80, #6b798d, #6b798b);
-} */
-
-/* body {
-  background-image: linear-gradient(to right top, #9f6d1f, #aa7729, #b48032, #bf8a3c, #ca9445, #d29d4d, #dba556, #e3ae5e, #eab868, #f1c272, #f8cd7c, #ffd786);
-} */
-
-/* body {
-  background-image: linear-gradient(to right top, #9d76db, #9a88e3, #9a99e9, #9ea9ec, #a6b8ed, #a8c3ef, #afcef1, #b9d8f1, #bfe2f3, #c9ebf4, #d6f3f6, #e4fbf9);
+  background-image: linear-gradient(to right, #151c26, #1f2631, #28303c, #333b47, #3d4653, #434d5a, #495362, #4f5a69, #525e6d, #566171, #596576, #5d697a);
 } */
 
 body {
-  background-image: linear-gradient(to right, #151c26, #1f2631, #28303c, #333b47, #3d4653, #434d5a, #495362, #4f5a69, #525e6d, #566171, #596576, #5d697a);
+  background-color: #0f1e47;
 }
 
 

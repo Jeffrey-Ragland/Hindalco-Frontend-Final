@@ -16,7 +16,7 @@ const Login = () => {
   const handleLoginFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:4000/backend/login", {
+      const response = await fetch("http://13.202.211.76:4000/backend/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

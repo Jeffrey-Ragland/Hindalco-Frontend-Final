@@ -1068,7 +1068,7 @@ const Analytics = () => {
             //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
             // }}
           >
-            <div className="h-full">
+            <div className="h-full w-full">
               {analyticsData &&
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 ? (
@@ -1077,7 +1077,7 @@ const Analytics = () => {
                 <Line
                   data={{ datasets: [] }}
                   options={lineOptions}
-                  height={"100%"}
+                  width={"100%"}
                 />
               )}
             </div>
@@ -1091,7 +1091,7 @@ const Analytics = () => {
             {analyticsData &&
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 && (
-                <div className="absolute top-1 right-2 text-xs font-medium flex items-center gap-1 text-[#23439b]">
+                <div className="absolute top-1 right-2 text-xs font-medium md:flex items-center gap-1 text-[#23439b] hidden">
                   <div>Data Points:</div>
                   <div className="bg-white px-2 rounded-md text-black border border-gray-300">
                     {analyticsData.length}

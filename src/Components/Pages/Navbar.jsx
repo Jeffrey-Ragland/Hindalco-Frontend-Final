@@ -124,13 +124,13 @@ const Navbar = () => {
           onClick={() => setHamburgerPopup(!hamburgerPopup)}
         >
           {hamburgerPopup === false ? (
-            <IoMenu className="text-3xl" />
+            <IoMenu className="text-3xl text-[#e4ba4c]" />
           ) : (
-            <IoCloseSharp className="text-3xl" />
+            <IoCloseSharp className="text-3xl text-[#e4ba4c]" />
           )}
 
           {hamburgerPopup && (
-            <div className="rounded-sm border border-gray-300 absolute right-0 flex flex-col gap-4 bg-stone-200 p-2 text-gray-600 text-sm font-medium">
+            <div className="rounded-sm border border-gray-300 absolute right-0 flex flex-col gap-4 bg-stone-200 p-2 text-[#23439b] text-sm font-medium">
               <Link to="/">
                 <div className="border border-b-gray-400 flex items-center gap-1">
                   <LuLayoutDashboard className="text-lg" />

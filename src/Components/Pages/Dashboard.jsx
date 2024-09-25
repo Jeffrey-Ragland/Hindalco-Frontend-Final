@@ -1345,13 +1345,13 @@ const Dashboard = ({dataFromApp}) => {
 
         {/* line chart card */}
         <div
-          className=" overflow-hidden p-2 w-full md:w-[80%] md:h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]"
+          className=" overflow-hidden p-2 w-full md:w-[80%] h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]"
           // style={{
           //   backgroundImage:
           //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
           // }}
         >
-          <div className="w-full">
+          <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
           <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">

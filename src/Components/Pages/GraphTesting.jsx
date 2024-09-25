@@ -1,159 +1,56 @@
-// import * as React from "react";
-// import { LineChart } from "@mui/x-charts";
-// import Stack from "@mui/material/Stack";
-// import TextField from "@mui/material/TextField";
-// import MenuItem from "@mui/material/MenuItem";
-// import { HighlightedCode } from "@mui/docs/HighlightedCode";
+import React from 'react';
+import { LineChart } from "@mui/x-charts";
+import { ChartsReferenceLine } from "@mui/x-charts/ChartsReferenceLine";
 
-// const GraphTesting = () => {
-//    const [colorX, setColorX] = React.useState("None");
-//    const [colorY, setColorY] = React.useState("piecewise");
 
-//   return (
-//     <div className="text-white h-screen p-4 flex justify-center items-center">
-//       <div className="h-[400px] w-[600px]">
-//         <Stack
-//           direction="column"
-//           spacing={1}
-//           sx={{ width: "100%", maxWidth: 600 }}
-//         >
-//           <Stack direction="row" spacing={1}>
-//             <TextField
-//               select
-//               sx={{ minWidth: 150 }}
-//               label="x-axis colorMap"
-//               value={colorX}
-//               onChange={(event) => setColorX(event.target.value)}
-//             >
-//               <MenuItem value="None">None</MenuItem>
-//               <MenuItem value="piecewise">piecewise</MenuItem>
-//               <MenuItem value="continuous">continuous</MenuItem>
-//             </TextField>
-//             <TextField
-//               select
-//               sx={{ minWidth: 150 }}
-//               label="y-axis colorMap"
-//               value={colorY}
-//               onChange={(event) => setColorY(event.target.value)}
-//             >
-//               <MenuItem value="None">None</MenuItem>
-//               <MenuItem value="piecewise">piecewise</MenuItem>
-//               <MenuItem value="continuous">continuous</MenuItem>
-//             </TextField>
-//           </Stack>
+const GraphTesting = () => {
 
-//           <LineChart
-//             height={300}
-//             grid={{ horizontal: true }}
-//             series={[{ data: [-2, -9, 12, 11, 6, -4], area: true }]}
-//             margin={{ top: 10, bottom: 20 }}
-//             yAxis={[
-//               {
-//                 colorMap:
-//                   (colorY === "continuous" && {
-//                     type: "continuous",
-//                     min: -10,
-//                     max: 10,
-//                     color: ["red", "green"],
-//                   }) ||
-//                   (colorY === "piecewise" && {
-//                     type: "piecewise",
-//                     thresholds: [0, 10],
-//                     colors: ["red", "green", "blue"],
-//                   }) ||
-//                   undefined,
-//               },
-//             ]}
-//             xAxis={[
-//               {
-//                 scaleType: "time",
-//                 data: [
-//                   new Date(2019, 0, 1),
-//                   new Date(2020, 0, 1),
-//                   new Date(2021, 0, 1),
-//                   new Date(2022, 0, 1),
-//                   new Date(2023, 0, 1),
-//                   new Date(2024, 0, 1),
-//                 ],
-//                 valueFormatter: (value) => value.getFullYear().toString(),
-//                 colorMap:
-//                   (colorX === "continuous" && {
-//                     type: "continuous",
-//                     min: new Date(2019, 1, 1),
-//                     max: new Date(2024, 1, 1),
-//                     color: ["green", "orange"],
-//                   }) ||
-//                   (colorX === "piecewise" && {
-//                     type: "piecewise",
-//                     thresholds: [new Date(2021, 1, 1), new Date(2023, 1, 1)],
-//                     colors: ["blue", "red", "blue"],
-//                   }) ||
-//                   undefined,
-//               },
-//             ]}
-//           />
+const actualXAxisData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Example x-axis data
+  const actualSeriesData = [
+    25, 32, 60, 45, 78, 55, 85, 40, 20, 50 // Example series data with values in and out of thresholds
+  ];
 
-//           <HighlightedCode
-//             code={[
-//               `<ScatterChart`,
-//               "  /* ... */",
-//               ...(colorX === "None" ? ["  xAxis={[{}]}"] : []),
-//               ...(colorX === "continuous"
-//                 ? [
-//                     "  xAxis={[{",
-//                     `    colorMap: {`,
-//                     `      type: 'continuous',`,
-//                     `      min: new Date(2019, 1, 1),`,
-//                     `      max: new Date(2024, 1, 1),`,
-//                     `      color: ['green', 'orange']`,
-//                     `    }`,
-//                     "  }]}",
-//                   ]
-//                 : []),
-//               ...(colorX === "piecewise"
-//                 ? [
-//                     "  xAxis={[{",
-//                     `    colorMap: {`,
-//                     `      type: 'piecewise',`,
-//                     `      thresholds: [new Date(2021, 1, 1), new Date(2023, 1, 1)],`,
-//                     `      colors: ['blue', 'red', 'blue'],`,
-//                     `    }`,
-//                     "  }]}",
-//                   ]
-//                 : []),
-//               ...(colorY === "None" ? ["  yAxis={[{}]}"] : []),
-//               ...(colorY === "continuous"
-//                 ? [
-//                     "  yAxis={[{",
-//                     `    colorMap: {`,
-//                     `      type: 'continuous',`,
-//                     `      min: -10,`,
-//                     `      max: 10,`,
-//                     `      color: ['red', 'green'],`,
-//                     `    }`,
-//                     "  }]}",
-//                   ]
-//                 : []),
-//               ...(colorY === "piecewise"
-//                 ? [
-//                     "  yAxis={[{",
-//                     `    colorMap: {`,
-//                     `      type: 'piecewise',`,
-//                     `      thresholds: [0, 10],`,
-//                     `      colors: ['red', 'green', 'blue'],`,
-//                     `    }`,
-//                     "  }]}",
-//                   ]
-//                 : []),
-//               `/>`,
-//             ].join("\n")}
-//             language="jsx"
-//             copyButtonHidden
-//           />
-//         </Stack>
-//       </div>
-//     </div>
-//   );
-// };
+  // Define the threshold values
+  const minThreshold = 40; // Minimum threshold
+  const maxThreshold = 70; // Maximum threshold
+  const thresholds = [minThreshold, maxThreshold]; // Array of thresholds
+  const colors = ['red', 'green', 'red'];
+   
 
-// export default GraphTesting;
+  return (
+    <div className="text-white h-screen p-4 flex justify-center items-center">
+      <div className="h-[400px] w-[600px]">
+        <LineChart
+          xAxis={[{ data: actualXAxisData }]} // Using actual x-axis data
+          series={[
+            {
+              data: actualSeriesData,
+            },
+          ]}
+          width={600}
+          height={400}
+          yAxis={[
+            {
+              colorMap: {
+                type: "piecewise",
+                thresholds: thresholds,
+                colors: colors,
+              },
+            },
+          ]}
+        >
+          <ChartsReferenceLine
+            y={40}
+            lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
+          />
+          <ChartsReferenceLine
+            y={70}
+            lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
+          />
+        </LineChart>
+      </div>
+    </div>
+  );
+}
+
+export default GraphTesting

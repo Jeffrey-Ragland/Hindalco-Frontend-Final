@@ -7,7 +7,7 @@ import { Route, Routes } from "react-router-dom";
 import Dashboard from './Components/Pages/Dashboard';
 import Reports from './Components/Pages/Reports';
 import Analysis from './Components/Pages/Analytics';
-// import GraphTesting from './Components/Pages/GraphTesting';
+import GraphTesting from './Components/Pages/GraphTesting';
 
 const App = () => {
 
@@ -105,7 +105,7 @@ const App = () => {
           <Route index element={<Dashboard dataFromApp={hindalcoData} />} />
           <Route path="Reports" element={<Reports dataFromApp={hindalcoData[0]} />} />
           <Route path="Analytics" element={<Analysis />} />
-          {/* <Route path="Graphs" element={<GraphTesting />} /> */}
+          <Route path="Graphs" element={<GraphTesting />} />
         </Route>
       </Routes>
     </>

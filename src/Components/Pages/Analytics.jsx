@@ -545,9 +545,9 @@ const Analytics = () => {
       <div className="xl:h-[90%] flex flex-col gap-2 justify-center">
         <div className="flex gap-2 justify-evenly font-medium xl:h-[15%]">
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "averageData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("averageData");
@@ -565,9 +565,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "intervalData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("intervalData");
@@ -585,9 +585,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("datePicker");
@@ -605,9 +605,9 @@ const Analytics = () => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#9cb3d6] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "countWiseData" &&
-              "text-[#9cb3d6] bg-white/10"
+              "text-[#e4ba4c] bg-white/10"
             }`}
             onClick={() => {
               setSelectedReportOption("countWiseData");
@@ -632,11 +632,11 @@ const Analytics = () => {
           <div className="w-full xl:w-[30%] flex flex-col gap-2">
             {/* selector */}
             <div
-              className="p-4 rounded-xl h-[300px] lg:h-[400px] xl:h-2/3 flex justify-center items-center text-gray-600 2xl:text-2xl"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-              }}
+              className="p-4 rounded-xl h-[300px] lg:h-[400px] xl:h-2/3 flex justify-center items-center 2xl:text-2xl text-[#23439b] bg-[#dde3f1]"
+              // style={{
+              //   backgroundImage:
+              //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+              // }}
             >
               {/* datepicker option */}
               {selectedReportOption === "datePicker" && (
@@ -652,14 +652,14 @@ const Analytics = () => {
                     <div className="flex flex-col gap-4">
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={fromDate}
                         onChange={(e) => setFromDate(e.target.value)}
                       />
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={toDate}
                         onChange={(e) => setToDate(e.target.value)}
@@ -668,7 +668,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex justify-center gap-4 font-medium">
                     <button
-                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
                       onClick={generateAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
@@ -684,7 +684,7 @@ const Analytics = () => {
                   <center className="text-xl 2xl:text-2xl font-medium">
                     Select Count
                   </center>
-                  <div className="grid grid-cols-2 gap-2 md:gap-4">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4 text-black">
                     <div className="flex items-center">
                       <input
                         type="radio"
@@ -767,7 +767,7 @@ const Analytics = () => {
                           type="number"
                           id="count"
                           value={count}
-                          className="text-gray-600 w-32 rounded-md px-2"
+                          className="text-black w-32 rounded-md px-2"
                           onChange={(e) =>
                             setCount(parseInt(e.target.value) || 0)
                           }
@@ -777,7 +777,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex gap-4">
                     <button
-                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
                       onClick={generateAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
@@ -801,14 +801,14 @@ const Analytics = () => {
                     <div className="flex flex-col gap-4">
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={avgFromDate}
                         onChange={(e) => setAvgFromDate(e.target.value)}
                       />
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={avgToDate}
                         onChange={(e) => setAvgToDate(e.target.value)}
@@ -817,7 +817,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
                     <div className="text-center">Average By:</div>
-                    <div className="flex gap-2 items-center ">
+                    <div className="flex gap-2 items-center text-black">
                       <div className="flex items-center gap-1">
                         <input
                           type="radio"
@@ -874,7 +874,7 @@ const Analytics = () => {
 
                   <div className="flex justify-center gap-4 font-medium">
                     <button
-                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
                       onClick={generateAverageAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
@@ -898,14 +898,14 @@ const Analytics = () => {
                     <div className="flex flex-col gap-4">
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={intervalFromDate}
                         onChange={(e) => setIntervalFromDate(e.target.value)}
                       />
                       <input
                         type="date"
-                        className="text-gray-600 rounded-md px-0.5"
+                        className="text-black rounded-md px-0.5"
                         required
                         value={intervalToDate}
                         onChange={(e) => setIntervalToDate(e.target.value)}
@@ -915,7 +915,7 @@ const Analytics = () => {
                   <div className="text-sm 2xl:text-base font-medium">
                     Get 1 data for every -
                   </div>
-                  <div className="flex gap-2 text-sm 2xl:text-base font-medium">
+                  <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
                     <div className="flex items-center gap-1">
                       <input
                         type="radio"
@@ -970,7 +970,7 @@ const Analytics = () => {
                   </div>
                   <div>
                     <button
-                      className="rounded-md bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
                       onClick={generateAverageAnalyticsData}
                     >
                       <BiScatterChart className="text-lg" />
@@ -983,19 +983,17 @@ const Analytics = () => {
 
             {/* table */}
             <div
-              className="relative h-[300px] lg:h-[400px] xl:h-1/3 rounded-xl overflow-auto text-gray-600"
+              className="relative h-[300px] lg:h-[400px] xl:h-1/3 rounded-xl overflow-auto text-black bg-[#dde3f1]"
               style={{
                 scrollbarWidth: "thin",
-                scrollbarColor: "#1D4ED8 transparent",
-                backgroundImage:
-                  "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+                scrollbarColor: "#23439b transparent",
               }}
             >
               {analyticsData &&
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 ? (
                 <table className="w-full text-center">
-                  <thead className="sticky top-0 text-sm backdrop-blur-sm">
+                  <thead className="sticky top-0 text-sm backdrop-blur-sm text-[#23439b]">
                     <tr>
                       {analyticsData &&
                         Array.isArray(analyticsData) &&
@@ -1064,11 +1062,11 @@ const Analytics = () => {
 
           {/* right half graph */}
           <div
-            className="relative rounded-xl p-1 w-full h-[300px] lg:h-[400px] xl:h-auto xl:w-[70%] overflow-hidden flex flex-col text-gray-600 text-sm 2xl:text-base"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            }}
+            className="relative rounded-xl p-1 w-full h-[300px] lg:h-[400px] xl:h-auto xl:w-[70%] overflow-hidden flex flex-col text-black text-sm 2xl:text-base bg-[#dde3f1]"
+            // style={{
+            //   backgroundImage:
+            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
+            // }}
           >
             <div className="h-full">
               {analyticsData &&
@@ -1093,9 +1091,9 @@ const Analytics = () => {
             {analyticsData &&
               Array.isArray(analyticsData) &&
               analyticsData.length > 0 && (
-                <div className="absolute top-1 right-2 text-xs font-medium flex gap-1">
+                <div className="absolute top-1 right-2 text-xs font-medium flex items-center gap-1 text-[#23439b]">
                   <div>Data Points:</div>
-                  <div className="bg-white px-2 rounded-md">
+                  <div className="bg-white px-2 rounded-md text-black border border-gray-300">
                     {analyticsData.length}
                   </div>
                 </div>

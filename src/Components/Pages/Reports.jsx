@@ -276,9 +276,9 @@ const Reports = ({dataFromApp}) => {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center ">
           <div
-            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-gray-600 bg-[#dde3f1]"
+            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-[#23439b] bg-[#dde3f1]"
             // style={{
             //   backgroundImage:
             //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
@@ -306,14 +306,14 @@ const Reports = ({dataFromApp}) => {
                   <div className="flex flex-col gap-4">
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={avgFromDate}
                       onChange={(e) => setAvgFromDate(e.target.value)}
                     />
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={avgToDate}
                       onChange={(e) => setAvgToDate(e.target.value)}
@@ -322,7 +322,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
                   <div className="text-center ">Average By:</div>
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center text-black">
                     <div className="flex items-center gap-1">
                       <input
                         type="radio"
@@ -369,7 +369,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
                     onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -393,14 +393,14 @@ const Reports = ({dataFromApp}) => {
                   <div className="flex flex-col gap-4">
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={intervalFromDate}
                       onChange={(e) => setIntervalFromDate(e.target.value)}
                     />
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={intervalToDate}
                       onChange={(e) => setIntervalToDate(e.target.value)}
@@ -410,7 +410,7 @@ const Reports = ({dataFromApp}) => {
                 <div className="text-sm 2xl:text-base font-medium">
                   Get 1 data for every -
                 </div>
-                <div className="flex gap-2 text-sm 2xl:text-base font-medium">
+                <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
                   <div className="flex items-center gap-1">
                     <input
                       type="radio"
@@ -456,7 +456,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div>
                   <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
                     onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -478,14 +478,14 @@ const Reports = ({dataFromApp}) => {
                   <div className="flex flex-col gap-4">
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={fromDate}
                       onChange={(e) => setFromDate(e.target.value)}
                     />
                     <input
                       type="date"
-                      className="text-gray-600 rounded-md px-0.5"
+                      className="text-black rounded-md px-0.5"
                       required
                       value={toDate}
                       onChange={(e) => setToDate(e.target.value)}
@@ -494,7 +494,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -508,7 +508,7 @@ const Reports = ({dataFromApp}) => {
             {selectedReportOption === "countWiseData" && (
               <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
                 <center className="text-xl font-medium">Select Count</center>
-                <div className="flex flex-col gap-2 md:gap-4">
+                <div className="flex flex-col gap-2 md:gap-4 text-black">
                   <div className="flex items-center">
                     <input
                       type="radio"
@@ -591,7 +591,7 @@ const Reports = ({dataFromApp}) => {
                         type="number"
                         id="count"
                         value={count}
-                        className="text-gray-600 w-32 rounded-md px-2"
+                        className="text-black w-32 rounded-md px-2"
                         onChange={(e) =>
                           setCount(parseInt(e.target.value) || 0)
                         }
@@ -601,7 +601,7 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
@@ -644,10 +644,10 @@ const Reports = ({dataFromApp}) => {
 
                 <div className="flex gap-4 font-medium">
                   <div
-                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#23439b] text-xs md:text-base ${
                       selectedSensorWiseReportOption === "datePicker"
-                        ? "text-gray-700"
-                        : "text-white"
+                        ? "text-[#23439b]"
+                        : "text-gray-400"
                     }`}
                     onClick={() => {
                       setSelectedSensorWiseReportOption("datePicker");
@@ -660,10 +660,10 @@ const Reports = ({dataFromApp}) => {
                   </div>
 
                   <div
-                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-gray-700 text-xs md:text-base ${
+                    className={`flex flex-col gap-1 items-center hover:scale-110 duration-200 cursor-pointer hover:text-[#23439b] text-xs md:text-base ${
                       selectedSensorWiseReportOption === "countWiseData"
-                        ? "text-gray-700"
-                        : " text-white"
+                        ? "text-[#23439b]"
+                        : " text-gray-400"
                     }`}
                     onClick={() => {
                       setSelectedSensorWiseReportOption("countWiseData");
@@ -692,7 +692,7 @@ const Reports = ({dataFromApp}) => {
                       <div className="flex flex-col gap-2">
                         <input
                           type="date"
-                          className="text-gray-600 rounded-md px-0.5"
+                          className="text-black rounded-md px-0.5"
                           required
                           value={sensorWiseFromDate}
                           onChange={(e) =>
@@ -701,7 +701,7 @@ const Reports = ({dataFromApp}) => {
                         />
                         <input
                           type="date"
-                          className="text-gray-600 rounded-md px-0.5"
+                          className="text-black rounded-md px-0.5"
                           required
                           value={sensorWiseToDate}
                           onChange={(e) => setSensorWiseToDate(e.target.value)}
@@ -815,7 +815,7 @@ const Reports = ({dataFromApp}) => {
 
                 <div className="flex gap-4">
                   <button
-                    className="rounded-md bg-gradient-to-tr from-green-700 via-green-600 to-green-400 hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-white"
+                    className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
                     onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />

@@ -9,7 +9,7 @@ const ProtectedRoute = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:4000/backend/validateToken", {
+      fetch("http://13.202.211.76:4000/backend/validateToken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

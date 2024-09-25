@@ -1,61 +1,159 @@
-import React from 'react';
-import { LineChart } from "@mui/x-charts";
+// import * as React from "react";
+// import { LineChart } from "@mui/x-charts";
+// import Stack from "@mui/material/Stack";
+// import TextField from "@mui/material/TextField";
+// import MenuItem from "@mui/material/MenuItem";
+// import { HighlightedCode } from "@mui/docs/HighlightedCode";
 
+// const GraphTesting = () => {
+//    const [colorX, setColorX] = React.useState("None");
+//    const [colorY, setColorY] = React.useState("piecewise");
 
-const GraphTesting = () => {
+//   return (
+//     <div className="text-white h-screen p-4 flex justify-center items-center">
+//       <div className="h-[400px] w-[600px]">
+//         <Stack
+//           direction="column"
+//           spacing={1}
+//           sx={{ width: "100%", maxWidth: 600 }}
+//         >
+//           <Stack direction="row" spacing={1}>
+//             <TextField
+//               select
+//               sx={{ minWidth: 150 }}
+//               label="x-axis colorMap"
+//               value={colorX}
+//               onChange={(event) => setColorX(event.target.value)}
+//             >
+//               <MenuItem value="None">None</MenuItem>
+//               <MenuItem value="piecewise">piecewise</MenuItem>
+//               <MenuItem value="continuous">continuous</MenuItem>
+//             </TextField>
+//             <TextField
+//               select
+//               sx={{ minWidth: 150 }}
+//               label="y-axis colorMap"
+//               value={colorY}
+//               onChange={(event) => setColorY(event.target.value)}
+//             >
+//               <MenuItem value="None">None</MenuItem>
+//               <MenuItem value="piecewise">piecewise</MenuItem>
+//               <MenuItem value="continuous">continuous</MenuItem>
+//             </TextField>
+//           </Stack>
 
-   const thresholds = [0, 10]; // Define your thresholds
-   const colors = ["red", "green", "blue"]; // Define corresponding colors
+//           <LineChart
+//             height={300}
+//             grid={{ horizontal: true }}
+//             series={[{ data: [-2, -9, 12, 11, 6, -4], area: true }]}
+//             margin={{ top: 10, bottom: 20 }}
+//             yAxis={[
+//               {
+//                 colorMap:
+//                   (colorY === "continuous" && {
+//                     type: "continuous",
+//                     min: -10,
+//                     max: 10,
+//                     color: ["red", "green"],
+//                   }) ||
+//                   (colorY === "piecewise" && {
+//                     type: "piecewise",
+//                     thresholds: [0, 10],
+//                     colors: ["red", "green", "blue"],
+//                   }) ||
+//                   undefined,
+//               },
+//             ]}
+//             xAxis={[
+//               {
+//                 scaleType: "time",
+//                 data: [
+//                   new Date(2019, 0, 1),
+//                   new Date(2020, 0, 1),
+//                   new Date(2021, 0, 1),
+//                   new Date(2022, 0, 1),
+//                   new Date(2023, 0, 1),
+//                   new Date(2024, 0, 1),
+//                 ],
+//                 valueFormatter: (value) => value.getFullYear().toString(),
+//                 colorMap:
+//                   (colorX === "continuous" && {
+//                     type: "continuous",
+//                     min: new Date(2019, 1, 1),
+//                     max: new Date(2024, 1, 1),
+//                     color: ["green", "orange"],
+//                   }) ||
+//                   (colorX === "piecewise" && {
+//                     type: "piecewise",
+//                     thresholds: [new Date(2021, 1, 1), new Date(2023, 1, 1)],
+//                     colors: ["blue", "red", "blue"],
+//                   }) ||
+//                   undefined,
+//               },
+//             ]}
+//           />
 
-   const data = [
-     { x: 1, y: 2 },
-     { x: 2, y: 5.5 },
-     { x: 3, y: 12 },
-     { x: 4, y: 8.5 },
-     { x: 5, y: 15 },
-     { x: 6, y: 5 },
-   ];
+//           <HighlightedCode
+//             code={[
+//               `<ScatterChart`,
+//               "  /* ... */",
+//               ...(colorX === "None" ? ["  xAxis={[{}]}"] : []),
+//               ...(colorX === "continuous"
+//                 ? [
+//                     "  xAxis={[{",
+//                     `    colorMap: {`,
+//                     `      type: 'continuous',`,
+//                     `      min: new Date(2019, 1, 1),`,
+//                     `      max: new Date(2024, 1, 1),`,
+//                     `      color: ['green', 'orange']`,
+//                     `    }`,
+//                     "  }]}",
+//                   ]
+//                 : []),
+//               ...(colorX === "piecewise"
+//                 ? [
+//                     "  xAxis={[{",
+//                     `    colorMap: {`,
+//                     `      type: 'piecewise',`,
+//                     `      thresholds: [new Date(2021, 1, 1), new Date(2023, 1, 1)],`,
+//                     `      colors: ['blue', 'red', 'blue'],`,
+//                     `    }`,
+//                     "  }]}",
+//                   ]
+//                 : []),
+//               ...(colorY === "None" ? ["  yAxis={[{}]}"] : []),
+//               ...(colorY === "continuous"
+//                 ? [
+//                     "  yAxis={[{",
+//                     `    colorMap: {`,
+//                     `      type: 'continuous',`,
+//                     `      min: -10,`,
+//                     `      max: 10,`,
+//                     `      color: ['red', 'green'],`,
+//                     `    }`,
+//                     "  }]}",
+//                   ]
+//                 : []),
+//               ...(colorY === "piecewise"
+//                 ? [
+//                     "  yAxis={[{",
+//                     `    colorMap: {`,
+//                     `      type: 'piecewise',`,
+//                     `      thresholds: [0, 10],`,
+//                     `      colors: ['red', 'green', 'blue'],`,
+//                     `    }`,
+//                     "  }]}",
+//                   ]
+//                 : []),
+//               `/>`,
+//             ].join("\n")}
+//             language="jsx"
+//             copyButtonHidden
+//           />
+//         </Stack>
+//       </div>
+//     </div>
+//   );
+// };
 
-   // Function to get color based on thresholds
-   const getColor = (value) => {
-     if (value < thresholds[0]) return colors[0]; // Color for values below the first threshold
-     if (value < thresholds[1]) return colors[1]; // Color for values between the first and second threshold
-     return colors[2]; // Color for values above the second threshold
-   };
-
-  return (
-    <div className="text-white h-screen p-4 flex justify-center items-center">
-      <div className="h-[400px] w-[600px]">
-        {/* <LineChart
-          xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
-          series={[
-            {
-              data: [2, 5.5, 2, 8.5, 1.5, 5],
-            },
-          ]}
-          width={500}
-          height={300}
-        /> */}
-        <LineChart
-          xAxis={{ data: data.map((point) => point.x) }} // x-axis values
-          yAxis={{ title: "Value" }} // y-axis definition
-          series={[
-            {
-              name: "Value Series",
-              data: data.map((point) => ({
-                x: point.x,
-                y: point.y,
-                // Set line color dynamically based on the y value
-                lineStyle: { color: getColor(point.y) },
-              })),
-            },
-          ]}
-          width={500}
-          height={300}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default GraphTesting
+// export default GraphTesting;

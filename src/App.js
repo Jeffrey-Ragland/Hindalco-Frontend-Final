@@ -17,6 +17,7 @@ const App = () => {
   //   const storedLimit = localStorage.getItem("HindalcoLimit");
   //   return storedLimit ? 1 : 0;
   // };
+  //add
 
   // const [hindalcoCondition, setHindalcoCondition] = useState(
   //   getInitialHindalcoCondition

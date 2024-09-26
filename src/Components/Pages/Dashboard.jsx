@@ -119,79 +119,85 @@ const Dashboard = ({dataFromApp}) => {
   // console.log('alert keys', alertKeys);
 
   // bar chart options
-  const [barData, setBarData] = useState({
-    series: [],
-    options: {
-      chart: {
-        type: "bar",
-        toolbar: {
-          show: false,
-        },
-      },
+  const [barData, setBarData] = useState(() => {
 
-      xaxis: {
-        categories: [],
-        labels: {
+    const screenWidth = window.innerWidth;
+    const axisFontSize = screenWidth < 1536 ? '6px' : '8px'; 
+
+    return {
+      series: [],
+      options: {
+        chart: {
+          type: "bar",
+          toolbar: {
+            show: false,
+          },
+        },
+
+        xaxis: {
+          categories: [],
+          labels: {
+            style: {
+              fontSize: axisFontSize,
+              colors: "#4a5568",
+            },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: {
+              fontSize: axisFontSize,
+              colors: "#4a5568",
+            },
+          },
+        },
+        grid: {
+          show: true,
+          borderColor: "#9CA3AF",
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: "25%",
+            endingShape: "rounded",
+            distributed: true,
+            dataLabels: {
+              position: "top",
+            },
+          },
+        },
+        dataLabels: {
+          enabled: true,
+          offsetY: -10,
           style: {
-            fontSize: "6px",
-            colors: "#4a5568",
+            colors: ["#4a5568"],
+            fontSize: "8px",
           },
-        },
-      },
-      yaxis: {
-        labels: {
-          style: {
-            fontSize: "6px",
-            colors: "#4a5568",
-          },
-        },
-      },
-      grid: {
-        show: true,
-        borderColor: "#9CA3AF",
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: "25%",
-          endingShape: "rounded",
-          distributed: true,
-          dataLabels: {
-            position: "top",
-          },
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        offsetY: -10,
-        style: {
-          colors: ["#4a5568"],
-          fontSize: "8px",
-        },
-        formatter: (val) => {
-          return val === null ? "N/A" : `${val}°C`;
-        },
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ["transparent"],
-      },
-      fill: {
-        opacity: 1,
-      },
-      tooltip: {
-        theme: "dark",
-        y: {
           formatter: (val) => {
             return val === null ? "N/A" : `${val}°C`;
           },
         },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ["transparent"],
+        },
+        fill: {
+          opacity: 1,
+        },
+        tooltip: {
+          theme: "dark",
+          y: {
+            formatter: (val) => {
+              return val === null ? "N/A" : `${val}°C`;
+            },
+          },
+        },
+        legend: {
+          show: false,
+        },
       },
-      legend: {
-        show: false,
-      },
-    },
+    };
   });
 
   const [lineData, setLineData] = useState({
@@ -325,30 +331,17 @@ const Dashboard = ({dataFromApp}) => {
           {
             label: "S1",
             data: sensor1Data,
-            borderColor: "rgb(240, 5, 5)", // Vibrant Red
-            backgroundColor: "rgba(240, 5, 5, 0.2)",
+            borderColor: "rgb(35, 67, 155)", // Vibrant Red
+            backgroundColor: "rgba(35, 67, 155, 0.2)",
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
-            // segment: {
-            //   borderColor: (ctx) => {
-            //     // Check if the value exceeds the limit
-            //     return ctx.p0.parsed.y < 60 || ctx.p1.parsed.y < 60
-            //       ? "rgb(255, 165, 0)" // Color for values exceeding the limit
-            //       : "rgb(240, 5, 5)"; // Default color
-            //   },
-            //   // backgroundColor: (ctx) => {
-            //   //   return ctx.p0.parsed.y < 60 || ctx.p1.parsed.y < 60
-            //   //     ? "rgba(255, 165, 0, 0.2)" // Background for exceeded limit
-            //   //     : "rgba(240, 5, 5, 0.2)"; // Default background
-            //   // },
-            // },
           },
           {
             label: "S2",
             data: sensor2Data,
-            borderColor: "rgb(0, 123, 255)", // Bright Blue
-            backgroundColor: "rgba(0, 123, 255, 0.2)",
+            borderColor: "rgb(240,5,5)", // Bright Blue
+            backgroundColor: "rgba(240,5,5, 0.2)",
             pointRadius: 0,
             pointHoverRadius: 0,
             borderWidth: 1.25,
@@ -489,55 +482,75 @@ const Dashboard = ({dataFromApp}) => {
     }
   }, [dataFromApp, viewAllCards]);
 
-  const limit = 60; // Define the limit
 
-  const customPlugin = {
-    id: "customLineSegment",
-    beforeDatasetDraw(chart, args, options) {
-      const {
-        ctx,
-        chartArea: { top, bottom },
-        scales: { x, y },
-      } = chart;
-      const dataset = chart.data.datasets[args.index];
-      const meta = chart.getDatasetMeta(args.index);
-      const data = dataset.data;
+  // const lineOptions = useMemo(
+  //   () => ({
+  //     responsive: true,
+  //     maintainAspectRatio: false,
+  //     plugins: {
+  //       legend: {
+  //         position: "top",
+  //         labels: {
+  //           color: "#4B5563",
+  //           font: {
+  //             size: 8,
+  //           },
+  //           boxWidth: 20,
+  //           padding: 5,
+  //         },
+  //       },
+  //       zoom: {
+  //         pan: {
+  //           enabled: true,
+  //           mode: "x",
+  //         },
+  //         zoom: {
+  //           enabled: true,
+  //           mode: "x",
+  //           wheel: {
+  //             enabled: true,
+  //           },
+  //           pinch: {
+  //             enabled: true,
+  //           },
+  //         },
+  //       },
+  //       customLineSegment: {},
+  //     },
+  //     scales: {
+  //       x: {
+  //         grid: {
+  //           display: false,
+  //         },
+  //         ticks: {
+  //           color: "#4B5563",
+  //           font: {
+  //             size: 6,
+  //           },
+  //         },
+  //       },
+  //       y: {
+  //         grid: {
+  //           display: true,
+  //         },
+  //         ticks: {
+  //           color: "#4B5563",
+  //           font: {
+  //             size: 6,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   }),
+  //   []
+  // );
 
-      ctx.save();
+  const lineOptions = useMemo(() => {
+    
+    const screenWidth = window.innerWidth;
+    const axisFontSize = screenWidth < 1536 ? 6 : 8; 
 
-      for (let i = 0; i < data.length - 1; i++) {
-        const currPoint = meta.data[i];
-        const nextPoint = meta.data[i + 1];
-
-        const currValue = data[i];
-        const nextValue = data[i + 1];
-
-        // Coordinates for current and next points
-        const xCurr = currPoint.x;
-        const yCurr = y.getPixelForValue(currValue);
-        const xNext = nextPoint.x;
-        const yNext = y.getPixelForValue(nextValue);
-
-        // Define colors for each segment
-        const color =
-          currValue > limit || nextValue > limit
-            ? "rgb(255, 165, 0)"
-            : "rgb(240, 5, 5)";
-
-        ctx.beginPath();
-        ctx.moveTo(xCurr, yCurr);
-        ctx.lineTo(xNext, yNext);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.25;
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    },
-  };
-
-  const lineOptions = useMemo(
-    () => ({
+    return {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -578,7 +591,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: 6,
+              size: axisFontSize, // Dynamically set the font size based on screen size
             },
           },
         },
@@ -589,21 +602,15 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: 6,
+              size: axisFontSize, // Dynamically set the font size based on screen size
             },
           },
         },
       },
-    }),
-    []
-  );
+    };
+  }, []);
 
-  // min max graph
-  // const actualXAxisData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
-  // const actualSeriesData = [25, 32, 60, 45, 78, 55, 85, 40, 20, 50 ];
-
-  // const actualXAxisData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
-
+ 
   const minThreshold = 40; 
   const maxThreshold = 75; 
   const thresholds = [minThreshold, maxThreshold]; 
@@ -617,15 +624,15 @@ const Dashboard = ({dataFromApp}) => {
     return timePart[1];
   }); 
   const actualSeriesData1 = first10DataPoints.map(point => point.S1 !== "N/A" ? Number(point.S1) : null); 
-  const actualSeriesData2 = first10DataPoints.map(point => point.S2 !== "N/A" ? Number(point.S2) : null); 
-  const actualSeriesData3 = first10DataPoints.map(point => point.S3 !== "N/A" ? Number(point.S3) : null); 
+  // const actualSeriesData2 = first10DataPoints.map(point => point.S2 !== "N/A" ? Number(point.S2) : null); 
+  // const actualSeriesData3 = first10DataPoints.map(point => point.S3 !== "N/A" ? Number(point.S3) : null); 
 
   // console.log("actualXAxisData", actualXAxisData);
   // console.log("actualSeriesData", actualSeriesData);
 
 
   return (
-    <div className="xl:h-screen p-4 flex flex-col gap-2 ">
+    <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
       {/* top bar - h-[10%] */}
       <div className="xl:h-[10%]">
         <Navbar />
@@ -1287,17 +1294,20 @@ const Dashboard = ({dataFromApp}) => {
             ]}
             series={[
               {
-                name: "S1",
+                // label: "S1",
                 data: actualSeriesData1,
+                showMark: false,
               },
-              {
-                name: "S2",
-                data: actualSeriesData2,
-              },
-              {
-                name: "S3",
-                data: actualSeriesData3,
-              },
+              // {
+              //   label: "S2",
+              //   data: actualSeriesData2,
+              //   showMark: false,
+              // },
+              // {
+              //   label: "S3",
+              //   data: actualSeriesData3,
+              //   showMark: false,
+              // },
             ]}
             yAxis={[
               {

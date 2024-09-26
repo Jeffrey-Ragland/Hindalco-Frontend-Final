@@ -8,10 +8,14 @@ import { MdOutlineUpdate, MdSystemSecurityUpdateWarning } from "react-icons/md";
 import { BsThermometerSun, BsDatabaseFillCheck } from "react-icons/bs";
 import { LiaRulerVerticalSolid } from "react-icons/lia";
 import { IoWarningSharp } from "react-icons/io5";
+import { IoMdSettings } from "react-icons/io";
+import { RiCloseCircleLine } from "react-icons/ri";
 import ApexCharts from "react-apexcharts";
 import Navbar from './Navbar';
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import { LineChart } from "@mui/x-charts";
+import { ChartsReferenceLine } from "@mui/x-charts/ChartsReferenceLine";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -41,6 +45,8 @@ ChartJS.register(
 
 const Dashboard = ({dataFromApp}) => {
   console.log("data", dataFromApp);
+
+  const [settingsPopup, setSettingsPopup] = useState(false);
 
   const alertLimitFromLS = parseFloat(
     localStorage.getItem("HindalcoAlertLimit")
@@ -141,8 +147,8 @@ const Dashboard = ({dataFromApp}) => {
         },
       },
       grid: {
-        show: false,
-        // borderColor: "#4d4d4d",
+        show: true,
+        borderColor: "#9CA3AF",
       },
       plotOptions: {
         bar: {
@@ -592,7 +598,31 @@ const Dashboard = ({dataFromApp}) => {
     []
   );
 
-  console.log('hindalco alert limit', hindalcoAlertLimit);
+  // min max graph
+  // const actualXAxisData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+  // const actualSeriesData = [25, 32, 60, 45, 78, 55, 85, 40, 20, 50 ];
+
+  // const actualXAxisData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+
+  const minThreshold = 40; 
+  const maxThreshold = 75; 
+  const thresholds = [minThreshold, maxThreshold]; 
+  const colors = ['red', 'green', 'red'];
+
+  const dataPoints = dataFromApp.length > 0 && Object.values(dataFromApp);
+  const first10DataPoints = dataPoints.slice(0, 10).reverse();
+
+  const actualXAxisData = first10DataPoints.map(point => {
+    const timePart = point.Time.split(',');
+    return timePart[1];
+  }); 
+  const actualSeriesData1 = first10DataPoints.map(point => point.S1 !== "N/A" ? Number(point.S1) : null); 
+  const actualSeriesData2 = first10DataPoints.map(point => point.S2 !== "N/A" ? Number(point.S2) : null); 
+  const actualSeriesData3 = first10DataPoints.map(point => point.S3 !== "N/A" ? Number(point.S3) : null); 
+
+  // console.log("actualXAxisData", actualXAxisData);
+  // console.log("actualSeriesData", actualSeriesData);
+
 
   return (
     <div className="xl:h-screen p-4 flex flex-col gap-2 ">
@@ -604,15 +634,9 @@ const Dashboard = ({dataFromApp}) => {
       {/* main content 1 h-[50%] */}
       <div className="xl:h-[50%] flex flex-col xl:flex-row gap-2 ">
         {/* 2d image */}
-        <div
-          className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]"
-          // style={{
-          //   backgroundImage:
-          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          // }}
-        >
+        <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
-            <div className="relative w-full md:w-[55%] flex justify-center items-center p-4">
+            <div className="relative w-full md:w-[55%] flex justify-center items-center p-4  ">
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
@@ -670,7 +694,7 @@ const Dashboard = ({dataFromApp}) => {
                   </div>
                 )}
               </div>
-              <div className="h-[150px] md:h-auto flex items-center">
+              <div className="h-[150px] md:h-auto flex items-center  ">
                 <img
                   src={potline}
                   alt="potline"
@@ -701,13 +725,22 @@ const Dashboard = ({dataFromApp}) => {
                 )}
               </div>
             </div>
-            <div className="w-full md:w-[45%] flex flex-col gap-2 p-1">
+            <div className="relative w-full md:w-[45%] flex flex-col gap-2 p-1  ">
               <ApexCharts
                 options={barData.options}
                 series={barData.series}
                 type="bar"
                 height="100%"
               />
+              <div className="absolute top-0 right-0 text-xs flex items-center gap-1 font-medium text-[#23439b] 2xl:text-base">
+                <div className="flex items-center ">
+                  <MdOutlineUpdate className="text-base" />
+                  <div>Last Data: </div>
+                </div>
+                <div className="text-black">
+                  {dataFromApp.length > 0 && dataFromApp[0].Time}
+                </div>
+              </div>
             </div>
           </div>
           {/* cards */}
@@ -1234,25 +1267,87 @@ const Dashboard = ({dataFromApp}) => {
           </div>
         </div>
 
+        {/* min max chart */}
+        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1]">
+          <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
+            Trend for last 10 data
+          </div>
+          <LineChart
+            margin={{
+              left: 30,
+              right: 20,
+              top: 10,
+              bottom: 25,
+            }}
+            xAxis={[
+              {
+                data: actualXAxisData,
+                scaleType: "band",
+              },
+            ]}
+            series={[
+              {
+                name: "S1",
+                data: actualSeriesData1,
+              },
+              {
+                name: "S2",
+                data: actualSeriesData2,
+              },
+              {
+                name: "S3",
+                data: actualSeriesData3,
+              },
+            ]}
+            yAxis={[
+              {
+                min: 0,
+                max: 100,
+                colorMap: {
+                  type: "piecewise",
+                  thresholds: thresholds,
+                  colors: colors,
+                },
+              },
+            ]}
+          >
+            <ChartsReferenceLine
+              y={40}
+              lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
+            />
+            <ChartsReferenceLine
+              y={75}
+              lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
+            />
+          </LineChart>
+        </div>
+      </div>
+
+      {/* main content 2 h-[40%] */}
+      <div className="h-[40%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
         {/* alert box */}
-        <div
-          className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1]"
-          // style={{
-          //   backgroundImage:
-          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          // }}
-        >
-          <div className="flex justify-center gap-2 rounded-t-md items-center py-1 px-2 font-bold">
-            <div className="text-[#23439b] 2xl:text-xl">Alerts</div>
+        <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[300px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
+          <div className=" relative flex justify-center gap-2 items-center py-1 px-2 font-bold text-[#23439b] ">
+            <div className="2xl:text-xl">Alerts</div>
+            <div
+              className="text-xl absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer hover:scale-125 duration-200 z-10"
+              onClick={() => setSettingsPopup(!settingsPopup)}
+            >
+              {settingsPopup === true ? (
+                <RiCloseCircleLine className="text-2xl" />
+              ) : (
+                <IoMdSettings />
+              )}
+            </div>
           </div>
           <div
-            className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto rounded-b-md"
+            className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto"
             style={{
               scrollbarWidth: "none",
               scrollbarColor: "#D1D5DB transparent",
             }}
           >
-            <div className="flex w-full justify-between items-center sticky  top-0 mb-2 xl:mb-4 py-1">
+            <div className="flex w-full justify-between items-center sticky top-0 mb-2 xl:mb-4 py-1">
               <div className="text-sm 2xl:text-base font-bold px-2 rounded-md bg-[#f5ffff] border border-gray-400 flex items-center gap-1 shadow-md text-[#23439b]">
                 {alertsArray.length}&nbsp;Alerts
                 <FaBell
@@ -1265,10 +1360,10 @@ const Dashboard = ({dataFromApp}) => {
 
             {alertsArray.length > 0 ? (
               alertsArray.map(({ key, value }) => (
-                <div className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex justify-around items-center mb-2">
+                <div className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base">
                   <div>{key}</div>
                   <div>-</div>
-                  <div className="font-medium">{value} °C</div>
+                  <div className="font-medium">{value}&nbsp;°C</div>
                   <div>-</div>
                   <div>{dataFromApp.length > 0 && dataFromApp[0].Time}</div>
                 </div>
@@ -1279,78 +1374,47 @@ const Dashboard = ({dataFromApp}) => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* main content 2 h-[40%] */}
-      <div className="h-[40%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
-        <div className="w-full md:w-[20%] flex flex-col gap-2 ">
-          {/* last update */}
-          <div
-            className="flex flex-row items-center md:flex-col justify-evenly rounded-md h-[25%] p-1 bg-[#dde3f1]"
-            // style={{
-            //   backgroundImage:
-            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            // }}
-          >
-            <div className="flex items-center gap-2 font-medium text-[#23439b] 2xl:text-xl">
-              <MdOutlineUpdate className="text-2xl 2xl:text-3xl" />
-              <div>Last Updated Data: </div>
-            </div>
-            <div className="text-center text-sm 2xl:text-xl">
-              {dataFromApp.length > 0 && dataFromApp[0].Time}
-            </div>
-          </div>
-
-          {/* settings */}
-          <form
-            className=" rounded-md flex flex-col justify-evenly gap-4 md:gap-0 h-[75%] p-1 bg-[#dde3f1]"
-            // style={{
-            //   backgroundImage:
-            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            // }}
-            onSubmit={handleAlertLimit}
-          >
-            <div className="flex items-center justify-center text-[#23439b]">
-              <LiaRulerVerticalSolid className="text-2xl 2xl:text-3xl" />
-              <div className="font-medium">Alert&nbsp;limit</div>
-            </div>
-            <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-              <div>Current&nbsp;Limit</div>
-              <div className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-xl text-center border border-b-gray-700 border-t-transparent border-l-transparent border-r-transparent">
-                {localStorage.getItem("HindalcoAlertLimit")}°C
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-              <div>Change&nbsp;Limit</div>
-              <input
-                type="text"
-                required
-                className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
-                value={hindalcoAlertLimit}
-                onChange={(e) => setHindalcoAlertLimit(e.target.value)}
-                // onClick={handleAlertLimit}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-[#e4ba4c] hover:scale-[1.03] duration-200 font-medium p-1 px-2 rounded-md"
-              data-tooltip-id="tooltip-style"
-              data-tooltip-content="Set new alert limit"
+          {/* settings popup */}
+          {settingsPopup && (
+            <form
+              className="absolute inset-0 rounded-md flex flex-col justify-evenly gap-4 md:gap-0 p-2 bg-[#dde3f1]"
+              onSubmit={handleAlertLimit}
             >
-              Set
-            </button>
-          </form>
+              <div className="flex items-center justify-center text-[#23439b]">
+                <LiaRulerVerticalSolid className="text-2xl 2xl:text-3xl" />
+                <div className="font-medium">Alert&nbsp;limit</div>
+              </div>
+              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
+                <div>Current&nbsp;Limit</div>
+                <div className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-xl text-center border border-b-gray-700 border-t-transparent border-l-transparent border-r-transparent">
+                  {localStorage.getItem("HindalcoAlertLimit")}°C
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
+                <div>Change&nbsp;Limit</div>
+                <input
+                  type="text"
+                  required
+                  className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
+                  value={hindalcoAlertLimit}
+                  onChange={(e) => setHindalcoAlertLimit(e.target.value)}
+                  // onClick={handleAlertLimit}
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-[#e4ba4c] hover:scale-[1.03] duration-200 font-medium p-1 px-2 rounded-md"
+                data-tooltip-id="tooltip-style"
+                data-tooltip-content="Set new alert limit"
+              >
+                Set
+              </button>
+            </form>
+          )}
         </div>
 
         {/* line chart card */}
-        <div
-          className=" overflow-hidden p-2 w-full md:w-[80%] h-[300px] xl:h-auto rounded-md flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]"
-          // style={{
-          //   backgroundImage:
-          //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-          // }}
-        >
+        <div className=" overflow-hidden p-2 w-full md:w-[75%] h-[300px] xl:h-auto rounded-xl flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]">
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>

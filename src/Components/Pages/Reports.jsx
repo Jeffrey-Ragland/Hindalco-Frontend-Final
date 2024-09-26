@@ -14,6 +14,7 @@ import reportsImg from "../Assets/reports.jpeg";
 import loadingGif from "../Assets/loading.gif";
 
 const Reports = ({dataFromApp}) => {
+  //build
 
   // console.log('reports page data', dataFromApp);
 

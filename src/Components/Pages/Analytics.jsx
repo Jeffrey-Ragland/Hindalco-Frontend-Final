@@ -66,7 +66,7 @@ const Analytics = () => {
       setLoading(true);
       setTableLoading(true);
       const response = await axios.get(
-        "https://hindalcoxyma.live/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -90,7 +90,7 @@ const Analytics = () => {
       setLoading(true);
       setTableLoading(true);
       const response = await axios.get(
-        "https://hindalcoxyma.live/backend/getHindalcoAverageReport",
+        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,

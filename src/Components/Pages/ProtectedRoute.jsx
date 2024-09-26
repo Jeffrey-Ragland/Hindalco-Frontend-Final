@@ -9,7 +9,7 @@ const ProtectedRoute = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("https://hindalco:4000/backend/validateToken", {
+      fetch("https://hindalcoxyma.live/backend/validateToken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

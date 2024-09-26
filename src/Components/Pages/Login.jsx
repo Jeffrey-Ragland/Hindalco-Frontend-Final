@@ -16,7 +16,7 @@ const Login = () => {
   const handleLoginFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://hindalco:4000/backend/login", {
+      const response = await fetch("https://hindalcoxyma.live/backend/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

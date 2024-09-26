@@ -82,7 +82,7 @@ const Reports = ({dataFromApp}) => {
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
-        "https://hindalco.xyma.live:4000/backend/gethindalco.xyma.liveReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -119,7 +119,7 @@ const Reports = ({dataFromApp}) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://hindalco.xyma.live/backend/gethindalco.xyma.liveAverageReport",
+        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,

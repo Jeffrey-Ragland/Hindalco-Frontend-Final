@@ -49,6 +49,7 @@ const Dashboard = ({dataFromApp}) => {
   const [settingsPopup, setSettingsPopup] = useState(false);
   const [actualXAxisData, setActualXAxisData] = useState([]);
   const [actualSeriesData1, setActualSeriesData1] = useState([]);
+  const [settingsPassword, setSettingsPassword] = useState('');
 
   const minThreshold = 40;
   const maxThreshold = 75;
@@ -78,8 +79,13 @@ const Dashboard = ({dataFromApp}) => {
 
   const handleAlertLimit = (e) => {
     e.preventDefault();
-    localStorage.setItem("HindalcoAlertLimit", hindalcoAlertLimit.toString());
-    setHindalcoAlertLimit("");
+    if(settingsPassword === 'xyma.in') {
+      localStorage.setItem("HindalcoAlertLimit", hindalcoAlertLimit.toString());
+      setHindalcoAlertLimit("");
+      setSettingsPassword('');
+    } else {
+      alert('Incorrect Password');
+    };
   };
 
   // cards view more condition
@@ -687,8 +693,7 @@ const Dashboard = ({dataFromApp}) => {
           <div
             className={`xl:h-[45%] grid grid-cols-2 md:grid-cols-5 ${
               viewAllCards && "md:grid-cols-8"
-            } gap-1 overflow-auto`}
-            style={{ scrollbarWidth: "none" }}
+            } gap-1 `}
           >
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
@@ -1279,7 +1284,10 @@ const Dashboard = ({dataFromApp}) => {
               {settingsPopup === true ? (
                 <RiCloseCircleLine className="text-2xl" />
               ) : (
-                <IoMdSettings />
+                <IoMdSettings
+                  data-tooltip-id="tooltip-style"
+                  data-tooltip-content="Alert Limit Settings"
+                />
               )}
             </div>
           </div>
@@ -1333,18 +1341,35 @@ const Dashboard = ({dataFromApp}) => {
               <div className="flex items-center gap-2 text-sm 2xl:text-xl">
                 <div>Current&nbsp;Limit</div>
                 <div className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-xl text-center border border-b-gray-700 border-t-transparent border-l-transparent border-r-transparent">
-                  {localStorage.getItem("HindalcoAlertLimit")}°C
+                  {parseFloat(
+                    localStorage.getItem("HindalcoAlertLimit")
+                  ).toFixed(1)}
+                  °C
                 </div>
               </div>
               <div className="flex items-center gap-2 text-sm 2xl:text-xl">
                 <div>Change&nbsp;Limit</div>
                 <input
-                  type="text"
+                  type="number"
+                  step="0.1"
                   required
                   className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
                   value={hindalcoAlertLimit}
-                  onChange={(e) => setHindalcoAlertLimit(e.target.value)}
-                  // onClick={handleAlertLimit}
+                  onChange={(e) =>
+                    setHindalcoAlertLimit(parseFloat(e.target.value))
+                  }
+                />
+              </div>
+              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
+                <div>Fill&nbsp;Password</div>
+                <input
+                  type="password"
+                  required
+                  className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
+                  value={settingsPassword}
+                  onChange={(e) =>
+                    setSettingsPassword(e.target.value)
+                  }
                 />
               </div>
               <button

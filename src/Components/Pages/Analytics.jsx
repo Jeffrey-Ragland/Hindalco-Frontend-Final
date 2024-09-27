@@ -61,8 +61,9 @@ const Analytics = () => {
     datasets: [],
   });
 
-  const generateAnalyticsData = async () => {
+  const generateAnalyticsData = async (e) => {
     try {
+      e.preventDefault();
       setLoading(true);
       setTableLoading(true);
       const response = await axios.get(
@@ -85,8 +86,9 @@ const Analytics = () => {
     }
   };
 
-  const generateAverageAnalyticsData = async () => {
+  const generateAverageAnalyticsData = async (e) => {
     try {
+      e.preventDefault();
       setLoading(true);
       setTableLoading(true);
       const response = await axios.get(
@@ -484,7 +486,7 @@ const Analytics = () => {
           labels: {
             color: "#4B5563",
             font: {
-              size: 8,
+              size: 9,
             },
             boxWidth: 12,
             padding: 5,
@@ -515,7 +517,7 @@ const Analytics = () => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: 6,
+              size: 7,
             },
           },
         },
@@ -526,7 +528,7 @@ const Analytics = () => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: 6,
+              size: 7,
             },
           },
         },
@@ -638,9 +640,211 @@ const Analytics = () => {
               //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
               // }}
             >
+              {/* averageData option */}
+              {selectedReportOption === "averageData" && (
+                <form
+                  className="flex flex-col items-center justify-center gap-6 2xl:gap-12"
+                  onSubmit={generateAverageAnalyticsData}
+                >
+                  <center className="text-xl 2xl:text-2xl font-medium">
+                    Select Date Range
+                  </center>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-4 font-medium">
+                      <label>From</label>
+                      <label>To</label>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <input
+                        type="date"
+                        className="text-black rounded-md px-0.5"
+                        required
+                        value={avgFromDate}
+                        onChange={(e) => setAvgFromDate(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        className="text-black rounded-md px-0.5"
+                        required
+                        value={avgToDate}
+                        onChange={(e) => setAvgToDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
+                    <div className="text-center">Average By:</div>
+                    <div className="flex gap-2 items-center text-black">
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option1"
+                          name="averageOption"
+                          value={averageOption}
+                          defaultChecked
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("minute")}
+                        />
+                        <label
+                          htmlFor="option1"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Minute
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option2"
+                          name="averageOption"
+                          value={averageOption}
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("hour")}
+                        />
+                        <label
+                          htmlFor="option2"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Hour
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="option3"
+                          name="averageOption"
+                          value={averageOption}
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setAverageOption("day")}
+                        />
+                        <label
+                          htmlFor="option3"
+                          className="mr-2 cursor-pointer"
+                        >
+                          Day
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center gap-4 font-medium">
+                    <button
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
+                      type="submit"
+                    >
+                      <BiScatterChart className="text-lg" />
+                      Plot Graph
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* interval data */}
+              {selectedReportOption === "intervalData" && (
+                <form
+                  className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center"
+                  onSubmit={generateAverageAnalyticsData}
+                >
+                  <center className="text-xl font-medium">
+                    Select Time Interval
+                  </center>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-4 font-medium">
+                      <label>From</label>
+                      <label>To</label>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <input
+                        type="date"
+                        className="text-black rounded-md px-0.5"
+                        required
+                        value={intervalFromDate}
+                        onChange={(e) => setIntervalFromDate(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        className="text-black rounded-md px-0.5"
+                        required
+                        value={intervalToDate}
+                        onChange={(e) => setIntervalToDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-sm 2xl:text-base font-medium">
+                    Get 1 data for every -
+                  </div>
+                  <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption2"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        defaultChecked
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("minute")}
+                      />
+                      <label
+                        htmlFor="intervaOption2"
+                        className="cursor-pointer"
+                      >
+                        Minute
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption1"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("hour")}
+                      />
+                      <label
+                        htmlFor="intervaOption1"
+                        className="cursor-pointer"
+                      >
+                        Hour
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        id="intervaOption3"
+                        name="intervalOptions"
+                        value={intervalOption}
+                        className="cursor-pointer mt-0.5"
+                        onChange={() => setIntervalOption("day")}
+                      />
+                      <label
+                        htmlFor="intervaOption3"
+                        className="cursor-pointer"
+                      >
+                        Day
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
+                      type="submit"
+                    >
+                      <BiScatterChart className="text-lg" />
+                      Plot Graph
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {/* datepicker option */}
               {selectedReportOption === "datePicker" && (
-                <div className="flex flex-col items-center justify-center gap-6 2xl:gap-12 h-full">
+                <form
+                  className="flex flex-col items-center justify-center gap-6 2xl:gap-12 h-full"
+                  onSubmit={generateAnalyticsData}
+                >
                   <center className="text-xl 2xl:text-2xl font-medium">
                     Select Date
                   </center>
@@ -669,13 +873,13 @@ const Analytics = () => {
                   <div className="flex justify-center gap-4 font-medium">
                     <button
                       className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
-                      onClick={generateAnalyticsData}
+                      type="submit"
                     >
                       <BiScatterChart className="text-lg" />
                       Plot Graph
                     </button>
                   </div>
-                </div>
+                </form>
               )}
 
               {/* countwise option */}
@@ -786,199 +990,6 @@ const Analytics = () => {
                   </div>
                 </div>
               )}
-
-              {/* averageData option */}
-              {selectedReportOption === "averageData" && (
-                <div className="flex flex-col items-center justify-center gap-6 2xl:gap-12">
-                  <center className="text-xl 2xl:text-2xl font-medium">
-                    Select Date Range
-                  </center>
-                  <div className="flex gap-2">
-                    <div className="flex flex-col gap-4 font-medium">
-                      <label>From</label>
-                      <label>To</label>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <input
-                        type="date"
-                        className="text-black rounded-md px-0.5"
-                        required
-                        value={avgFromDate}
-                        onChange={(e) => setAvgFromDate(e.target.value)}
-                      />
-                      <input
-                        type="date"
-                        className="text-black rounded-md px-0.5"
-                        required
-                        value={avgToDate}
-                        onChange={(e) => setAvgToDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
-                    <div className="text-center">Average By:</div>
-                    <div className="flex gap-2 items-center text-black">
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="radio"
-                          id="option1"
-                          name="averageOption"
-                          value={averageOption}
-                          defaultChecked
-                          className="cursor-pointer mt-0.5"
-                          onChange={() => setAverageOption("minute")}
-                        />
-                        <label
-                          htmlFor="option1"
-                          className="mr-2 cursor-pointer"
-                        >
-                          Minute
-                        </label>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="radio"
-                          id="option2"
-                          name="averageOption"
-                          value={averageOption}
-                          className="cursor-pointer mt-0.5"
-                          onChange={() => setAverageOption("hour")}
-                        />
-                        <label
-                          htmlFor="option2"
-                          className="mr-2 cursor-pointer"
-                        >
-                          Hour
-                        </label>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="radio"
-                          id="option3"
-                          name="averageOption"
-                          value={averageOption}
-                          className="cursor-pointer mt-0.5"
-                          onChange={() => setAverageOption("day")}
-                        />
-                        <label
-                          htmlFor="option3"
-                          className="mr-2 cursor-pointer"
-                        >
-                          Day
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center gap-4 font-medium">
-                    <button
-                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
-                      onClick={generateAverageAnalyticsData}
-                    >
-                      <BiScatterChart className="text-lg" />
-                      Plot Graph
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* interval data */}
-              {selectedReportOption === "intervalData" && (
-                <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
-                  <center className="text-xl font-medium">
-                    Select Time Interval
-                  </center>
-                  <div className="flex gap-2">
-                    <div className="flex flex-col gap-4 font-medium">
-                      <label>From</label>
-                      <label>To</label>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <input
-                        type="date"
-                        className="text-black rounded-md px-0.5"
-                        required
-                        value={intervalFromDate}
-                        onChange={(e) => setIntervalFromDate(e.target.value)}
-                      />
-                      <input
-                        type="date"
-                        className="text-black rounded-md px-0.5"
-                        required
-                        value={intervalToDate}
-                        onChange={(e) => setIntervalToDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-sm 2xl:text-base font-medium">
-                    Get 1 data for every -
-                  </div>
-                  <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="intervaOption2"
-                        name="intervalOptions"
-                        value={intervalOption}
-                        defaultChecked
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setIntervalOption("minute")}
-                      />
-                      <label
-                        htmlFor="intervaOption2"
-                        className="cursor-pointer"
-                      >
-                        Minute
-                      </label>
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="intervaOption1"
-                        name="intervalOptions"
-                        value={intervalOption}
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setIntervalOption("hour")}
-                      />
-                      <label
-                        htmlFor="intervaOption1"
-                        className="cursor-pointer"
-                      >
-                        Hour
-                      </label>
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="intervaOption3"
-                        name="intervalOptions"
-                        value={intervalOption}
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setIntervalOption("day")}
-                      />
-                      <label
-                        htmlFor="intervaOption3"
-                        className="cursor-pointer"
-                      >
-                        Day
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <button
-                      className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                      onClick={generateAverageAnalyticsData}
-                    >
-                      <BiScatterChart className="text-lg" />
-                      Plot Graph
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* table */}
@@ -1004,7 +1015,9 @@ const Analytics = () => {
                         Array.isArray(analyticsData) &&
                         analyticsData.length > 0 &&
                         Object.keys(analyticsData[0]).map((key) => (
-                          <th key={key} className="px-2">{key}</th>
+                          <th key={key} className="px-2">
+                            {key}
+                          </th>
                         ))}
                     </tr>
                   </thead>

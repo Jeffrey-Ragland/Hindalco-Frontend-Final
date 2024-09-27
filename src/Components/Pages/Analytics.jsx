@@ -1004,7 +1004,7 @@ const Analytics = () => {
                         Array.isArray(analyticsData) &&
                         analyticsData.length > 0 &&
                         Object.keys(analyticsData[0]).map((key) => (
-                          <th className="px-2">{key}</th>
+                          <th key={key} className="px-2">{key}</th>
                         ))}
                     </tr>
                   </thead>

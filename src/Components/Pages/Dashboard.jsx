@@ -47,6 +47,13 @@ const Dashboard = ({dataFromApp}) => {
   console.log("data", dataFromApp);
 
   const [settingsPopup, setSettingsPopup] = useState(false);
+  const [actualXAxisData, setActualXAxisData] = useState([]);
+  const [actualSeriesData1, setActualSeriesData1] = useState([]);
+
+  const minThreshold = 40;
+  const maxThreshold = 75;
+  const thresholds = [minThreshold, maxThreshold];
+  const colors = ["red", "green", "red"];
 
   const alertLimitFromLS = parseFloat(
     localStorage.getItem("HindalcoAlertLimit")
@@ -215,6 +222,19 @@ const Dashboard = ({dataFromApp}) => {
       const barSeries = [];
       const barColors = [];
 
+      // min max line chart 
+      const dataPoints = Object.values(dataFromApp);
+      const first10DataPoints = dataPoints.slice(0, 10).reverse();
+      const xAxisData = first10DataPoints.map((point) => {
+        const timePart = point.Time.split(",");
+        return timePart[1];
+      });
+      const seriesData1 = first10DataPoints.map((point) =>
+        point.S1 !== "N/A" ? Number(point.S1) : null
+      );
+      setActualXAxisData(xAxisData);
+      setActualSeriesData1(seriesData1);
+
       // for activity status 
       const currentDate = new Date();
       const lastDataEntry = dataFromApp[0];
@@ -322,8 +342,6 @@ const Dashboard = ({dataFromApp}) => {
       const sensor13Data = reversedData.map((item) => item.S13);
       const sensor14Data = reversedData.map((item) => item.S14);
       const sensor15Data = reversedData.map((item) => item.S15);
-
-      
 
       setLineData({
         labels: lineLabels,
@@ -482,69 +500,6 @@ const Dashboard = ({dataFromApp}) => {
     }
   }, [dataFromApp, viewAllCards]);
 
-
-  // const lineOptions = useMemo(
-  //   () => ({
-  //     responsive: true,
-  //     maintainAspectRatio: false,
-  //     plugins: {
-  //       legend: {
-  //         position: "top",
-  //         labels: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 8,
-  //           },
-  //           boxWidth: 20,
-  //           padding: 5,
-  //         },
-  //       },
-  //       zoom: {
-  //         pan: {
-  //           enabled: true,
-  //           mode: "x",
-  //         },
-  //         zoom: {
-  //           enabled: true,
-  //           mode: "x",
-  //           wheel: {
-  //             enabled: true,
-  //           },
-  //           pinch: {
-  //             enabled: true,
-  //           },
-  //         },
-  //       },
-  //       customLineSegment: {},
-  //     },
-  //     scales: {
-  //       x: {
-  //         grid: {
-  //           display: false,
-  //         },
-  //         ticks: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 6,
-  //           },
-  //         },
-  //       },
-  //       y: {
-  //         grid: {
-  //           display: true,
-  //         },
-  //         ticks: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 6,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   }),
-  //   []
-  // );
-
   const lineOptions = useMemo(() => {
     
     const screenWidth = window.innerWidth;
@@ -559,9 +514,9 @@ const Dashboard = ({dataFromApp}) => {
           labels: {
             color: "#4B5563",
             font: {
-              size: 8,
+              size: 10,
             },
-            boxWidth: 20,
+            boxWidth: 25,
             padding: 5,
           },
         },
@@ -571,7 +526,6 @@ const Dashboard = ({dataFromApp}) => {
             mode: "x",
           },
           zoom: {
-            enabled: true,
             mode: "x",
             wheel: {
               enabled: true,
@@ -581,7 +535,6 @@ const Dashboard = ({dataFromApp}) => {
             },
           },
         },
-        customLineSegment: {},
       },
       scales: {
         x: {
@@ -591,7 +544,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, // Dynamically set the font size based on screen size
+              size: axisFontSize, 
             },
           },
         },
@@ -602,7 +555,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, // Dynamically set the font size based on screen size
+              size: axisFontSize, 
             },
           },
         },
@@ -611,26 +564,6 @@ const Dashboard = ({dataFromApp}) => {
   }, []);
 
  
-  const minThreshold = 40; 
-  const maxThreshold = 75; 
-  const thresholds = [minThreshold, maxThreshold]; 
-  const colors = ['red', 'green', 'red'];
-
-  const dataPoints = dataFromApp.length > 0 && Object.values(dataFromApp);
-  const first10DataPoints = dataPoints.slice(0, 10).reverse();
-
-  const actualXAxisData = first10DataPoints.map(point => {
-    const timePart = point.Time.split(',');
-    return timePart[1];
-  }); 
-  const actualSeriesData1 = first10DataPoints.map(point => point.S1 !== "N/A" ? Number(point.S1) : null); 
-  // const actualSeriesData2 = first10DataPoints.map(point => point.S2 !== "N/A" ? Number(point.S2) : null); 
-  // const actualSeriesData3 = first10DataPoints.map(point => point.S3 !== "N/A" ? Number(point.S3) : null); 
-
-  // console.log("actualXAxisData", actualXAxisData);
-  // console.log("actualSeriesData", actualSeriesData);
-
-
   return (
     <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
       {/* top bar - h-[10%] */}
@@ -1370,7 +1303,10 @@ const Dashboard = ({dataFromApp}) => {
 
             {alertsArray.length > 0 ? (
               alertsArray.map(({ key, value }) => (
-                <div className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base">
+                <div
+                  key={key}
+                  className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base"
+                >
                   <div>{key}</div>
                   <div>-</div>
                   <div className="font-medium">{value}&nbsp;°C</div>

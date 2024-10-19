@@ -32,8 +32,8 @@ const App = () => {
       // console.log('localstorage', hindalcoLimit);
       if (hindalcoLimit && hindalcoAlertLimit && HindalcoCardsViewMore) {
         const response = await axios.get(
-          `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
-          // `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
+          // `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
+          `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
         );
         if (response.data.success) {
           setHindalcoData(response.data.data);

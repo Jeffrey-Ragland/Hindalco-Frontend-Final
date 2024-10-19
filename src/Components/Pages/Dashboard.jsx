@@ -218,8 +218,77 @@ const Dashboard = ({dataFromApp}) => {
     datasets: [],
   });
 
+  const firstLine = Array.from({ length: 52 }, (_, i) => (i * 900) / 51);
+  console.log("First Line Data (0 to 900):", firstLine);
+
   const [activeStatus, setActiveStatus] = useState("");
   // console.log('active status', activeStatus);
+
+   const lineData2 = {
+     labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
+     datasets: [
+       {
+         label: "Line 1",
+         data: Array.from({ length: 52 }, (_, i) => (i * 1800) / 51), // Straight line 1
+         borderColor: "red",
+         borderWidth: 2,
+         pointRadius: 0,
+         pointHoverRadius: 0,
+         fill: false,
+         tooltip: {
+           enabled: false,
+         },
+       },
+       {
+         label: "Line 2",
+         data: Array.from({ length: 52 }, (_, i) => (i * 450) / 51), // Straight line 2
+         borderColor: "red",
+         borderWidth: 2,
+         pointRadius: 0,
+         pointHoverRadius: 0,
+         fill: false,
+         tooltip: {
+           enabled: false,
+         },
+       },
+     ],
+   };
+
+   // Configuration options
+   const lineOptions2 = {
+     responsive: true,
+     maintainAspectRatio: false,
+     plugins: {
+       legend: {
+         display: false, // This disables the legend
+       },
+     },
+     scales: {
+       x: {
+        grid: {
+          display: false,
+        },
+         min: 0,
+         max: 51, // x-axis range
+         ticks: {
+           stepSize: 5,
+           font: {
+             size: 8,
+           },
+         },
+       },
+       y: {
+         min: 0,
+         max: 900, // y-axis range
+         ticks: {
+           stepSize: 100,
+           font: {
+             size: 8,
+           },
+         },
+       },
+     },
+   };
 
   // chart data assignment
   useEffect(() => {
@@ -229,17 +298,17 @@ const Dashboard = ({dataFromApp}) => {
       const barColors = [];
 
       // min max line chart 
-      const dataPoints = Object.values(dataFromApp);
-      const first10DataPoints = dataPoints.slice(0, 10).reverse();
-      const xAxisData = first10DataPoints.map((point) => {
-        const timePart = point.Time.split(",");
-        return timePart[1];
-      });
-      const seriesData1 = first10DataPoints.map((point) =>
-        point.S1 !== "N/A" ? Number(point.S1) : null
-      );
-      setActualXAxisData(xAxisData);
-      setActualSeriesData1(seriesData1);
+      // const dataPoints = Object.values(dataFromApp);
+      // const first10DataPoints = dataPoints.slice(0, 10).reverse();
+      // const xAxisData = first10DataPoints.map((point) => {
+      //   const timePart = point.Time.split(",");
+      //   return timePart[1];
+      // });
+      // const seriesData1 = first10DataPoints.map((point) =>
+      //   point.S1 !== "N/A" ? Number(point.S1) : null
+      // );
+      // setActualXAxisData(xAxisData);
+      // setActualSeriesData1(seriesData1);
 
       // for activity status 
       const currentDate = new Date();
@@ -1213,8 +1282,9 @@ const Dashboard = ({dataFromApp}) => {
         </div>
 
         {/* min max chart */}
-        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1]">
-          <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
+        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1] p-1">
+          <Line data={lineData2} options={lineOptions2} width={'100%'} />
+          {/* <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
             Trend for last 10 data
           </div>
           <LineChart
@@ -1267,7 +1337,7 @@ const Dashboard = ({dataFromApp}) => {
               y={75}
               lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
             />
-          </LineChart>
+          </LineChart> */}
         </div>
       </div>
 
@@ -1367,9 +1437,7 @@ const Dashboard = ({dataFromApp}) => {
                   required
                   className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
                   value={settingsPassword}
-                  onChange={(e) =>
-                    setSettingsPassword(e.target.value)
-                  }
+                  onChange={(e) => setSettingsPassword(e.target.value)}
                 />
               </div>
               <button

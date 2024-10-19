@@ -35,7 +35,7 @@ const Navbar = () => {
         </div>
         {/* title */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs md:text-2xl text-center font-bold">
-          Data Logger
+          Xyma Data Logger Device
         </div>
 
         {/* hindalco logo , logout */}

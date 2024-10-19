@@ -1,6 +1,7 @@
-import React from 'react';
+import React from "react";
+import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import potline from '../Assets/potline.png';
+import potline from "../Assets/potline.png";
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
@@ -11,7 +12,7 @@ import { IoWarningSharp } from "react-icons/io5";
 import { IoMdSettings } from "react-icons/io";
 import { RiCloseCircleLine } from "react-icons/ri";
 import ApexCharts from "react-apexcharts";
-import Navbar from './Navbar';
+import Navbar from "./Navbar";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { LineChart } from "@mui/x-charts";
@@ -43,13 +44,13 @@ ChartJS.register(
   zoomPlugin
 );
 
-const Dashboard = ({dataFromApp}) => {
+const Dashboard = ({ dataFromApp }) => {
   console.log("data", dataFromApp);
 
   const [settingsPopup, setSettingsPopup] = useState(false);
   const [actualXAxisData, setActualXAxisData] = useState([]);
   const [actualSeriesData1, setActualSeriesData1] = useState([]);
-  const [settingsPassword, setSettingsPassword] = useState('');
+  const [settingsPassword, setSettingsPassword] = useState("");
 
   const minThreshold = 40;
   const maxThreshold = 75;
@@ -79,13 +80,13 @@ const Dashboard = ({dataFromApp}) => {
 
   const handleAlertLimit = (e) => {
     e.preventDefault();
-    if(settingsPassword === 'xyma.in') {
+    if (settingsPassword === "xyma.in") {
       localStorage.setItem("HindalcoAlertLimit", hindalcoAlertLimit.toString());
       setHindalcoAlertLimit("");
-      setSettingsPassword('');
+      setSettingsPassword("");
     } else {
-      alert('Incorrect Password');
-    };
+      alert("Incorrect Password");
+    }
   };
 
   // cards view more condition
@@ -126,16 +127,15 @@ const Dashboard = ({dataFromApp}) => {
           })
       : [];
 
-  const alertKeys = alertsArray.map(({ key }) => key); 
+  const alertKeys = alertsArray.map(({ key }) => key);
 
   // console.log('alerts array', alertsArray);
   // console.log('alert keys', alertKeys);
 
   // bar chart options
   const [barData, setBarData] = useState(() => {
-
     const screenWidth = window.innerWidth;
-    const axisFontSize = screenWidth < 1536 ? '6px' : '8px'; 
+    const axisFontSize = screenWidth < 1536 ? "6px" : "8px";
 
     return {
       series: [],
@@ -218,77 +218,157 @@ const Dashboard = ({dataFromApp}) => {
     datasets: [],
   });
 
-  const firstLine = Array.from({ length: 52 }, (_, i) => (i * 900) / 51);
-  console.log("First Line Data (0 to 900):", firstLine);
+  const firstLineData = Array.from({ length: 52 }, (_, i) => (i * 1800) / 51);
+  const secondLineData = Array.from({ length: 52 }, (_, i) => (i * 450) / 51);
+  // console.log("First Line Data", firstLineData);
 
   const [activeStatus, setActiveStatus] = useState("");
   // console.log('active status', activeStatus);
 
-   const lineData2 = {
-     labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
-     datasets: [
-       {
-         label: "Line 1",
-         data: Array.from({ length: 52 }, (_, i) => (i * 1800) / 51), // Straight line 1
-         borderColor: "red",
-         borderWidth: 2,
-         pointRadius: 0,
-         pointHoverRadius: 0,
-         fill: false,
-         tooltip: {
-           enabled: false,
-         },
-       },
-       {
-         label: "Line 2",
-         data: Array.from({ length: 52 }, (_, i) => (i * 450) / 51), // Straight line 2
-         borderColor: "red",
-         borderWidth: 2,
-         pointRadius: 0,
-         pointHoverRadius: 0,
-         fill: false,
-         tooltip: {
-           enabled: false,
-         },
-       },
-     ],
-   };
+  // const lineData2 = {
+  //   labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
+  //   datasets: [
+  //     {
+  //       label: "Line 1",
+  //       data: firstLineData, // Straight line 1
+  //       borderColor: "red",
+  //       borderWidth: 2,
+  //       pointRadius: 0,
+  //       pointHoverRadius: 0,
+  //       fill: false,
+  //       tooltip: {
+  //         enabled: false,
+  //       },
+  //     },
+  //     {
+  //       label: "Line 2",
+  //       data: secondLineData, // Straight line 2
+  //       borderColor: "red",
+  //       borderWidth: 2,
+  //       pointRadius: 0,
+  //       pointHoverRadius: 0,
+  //       fill: false,
+  //       tooltip: {
+  //         enabled: false,
+  //       },
+  //     },
+  //   ],
+  // };
 
-   // Configuration options
-   const lineOptions2 = {
-     responsive: true,
-     maintainAspectRatio: false,
-     plugins: {
-       legend: {
-         display: false, // This disables the legend
-       },
-     },
-     scales: {
-       x: {
+  const initialData = {
+    labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
+    datasets: [
+      {
+        label: 'Line 1',
+        data: Array.from({ length: 52 }, (_, i) => (i * 1400) / 51), // Line 1
+        borderColor: 'red',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        tooltip: { enabled: false }, // Disable tooltip
+      },
+      {
+        label: 'Line 2',
+        data: Array.from({ length: 52 }, (_, i) => (i * 600) / 51), // Line 2
+        borderColor: 'red',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        tooltip: { enabled: false }, // Disable tooltip
+      },
+    ],
+  };
+
+  const [data2, setData] = useState(initialData);
+  const [isRunning, setIsRunning] = useState(false); // To control start/stop
+  const [line3Data, setLine3Data] = useState([]);
+
+  useEffect(() => {
+    let interval;
+    if (isRunning && line3Data.length < 51) {
+      interval = setInterval(() => {
+        setLine3Data((prev) => {
+          // Generate a random number and make sure it increases
+          const nextValue = prev.length === 0 ? 0 : prev[prev.length - 1] + Math.random() * (900 - prev[prev.length - 1]) / (51 - prev.length);
+          return [...prev, nextValue];
+        });
+      }, 1000); // Add new data every 1 second
+    } else if (line3Data.length >= 51) {
+      setIsRunning(false); // Stop after 51 data points
+      clearInterval(interval); // Stop the interval
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, line3Data]);
+
+  useEffect(() => {
+    // Add Line 3 data to the graph when it starts running
+    if (line3Data.length > 0) {
+      setData((prevData) => ({
+        ...prevData,
+        datasets: [
+          ...prevData.datasets,
+          {
+            label: 'Line 3 (Random Data)',
+            data: line3Data, // Dynamic line3 data
+            borderColor: 'green',
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            fill: false,
+          },
+        ],
+      }));
+    }
+  }, [line3Data]);
+
+  const handleStart = () => {
+    setIsRunning(true);
+    setLine3Data([]); // Reset Line 3 data
+  };
+
+  // Stop the line generation process
+  const handleStop = () => {
+    setIsRunning(false);
+  };
+
+  // Configuration options
+  const lineOptions2 = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: {
+      legend: {
+        display: false, // This disables the legend
+      },
+    },
+    scales: {
+      x: {
         grid: {
           display: false,
         },
-         min: 0,
-         max: 51, // x-axis range
-         ticks: {
-           stepSize: 5,
-           font: {
-             size: 8,
-           },
-         },
-       },
-       y: {
-         min: 0,
-         max: 900, // y-axis range
-         ticks: {
-           stepSize: 100,
-           font: {
-             size: 8,
-           },
-         },
-       },
-     },
-   };
+        min: 0,
+        max: 51, // x-axis range
+        ticks: {
+          stepSize: 5,
+          font: {
+            size: 8,
+          },
+        },
+      },
+      y: {
+        min: 0,
+        max: 900, // y-axis range
+        ticks: {
+          stepSize: 100,
+          font: {
+            size: 8,
+          },
+        },
+      },
+    },
+  };
 
   // chart data assignment
   useEffect(() => {
@@ -297,7 +377,7 @@ const Dashboard = ({dataFromApp}) => {
       const barSeries = [];
       const barColors = [];
 
-      // min max line chart 
+      // min max line chart
       // const dataPoints = Object.values(dataFromApp);
       // const first10DataPoints = dataPoints.slice(0, 10).reverse();
       // const xAxisData = first10DataPoints.map((point) => {
@@ -310,21 +390,21 @@ const Dashboard = ({dataFromApp}) => {
       // setActualXAxisData(xAxisData);
       // setActualSeriesData1(seriesData1);
 
-      // for activity status 
+      // for activity status
       const currentDate = new Date();
       const lastDataEntry = dataFromApp[0];
 
       if (lastDataEntry && lastDataEntry.Time) {
-        const lastDataTime = new Date(lastDataEntry.Time.replace(',', 'T'));
-         const timeDifference = currentDate.getTime() - lastDataTime.getTime();
-         const differenceInMinutes = timeDifference / (1000 * 60);
+        const lastDataTime = new Date(lastDataEntry.Time.replace(",", "T"));
+        const timeDifference = currentDate.getTime() - lastDataTime.getTime();
+        const differenceInMinutes = timeDifference / (1000 * 60);
 
-         if (differenceInMinutes < 5) {
-           setActiveStatus("Active");
-         } else {
-           setActiveStatus("Inactive");
-         }
-      };
+        if (differenceInMinutes < 5) {
+          setActiveStatus("Active");
+        } else {
+          setActiveStatus("Inactive");
+        }
+      }
 
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
@@ -339,8 +419,11 @@ const Dashboard = ({dataFromApp}) => {
           ) {
             barCategories.push(key);
             // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
-              barSeries.push(null); 
+            if (
+              dataFromApp[0][key] === "N/A" ||
+              isNaN(parseFloat(dataFromApp[0][key]))
+            ) {
+              barSeries.push(null);
             } else {
               barSeries.push(parseFloat(dataFromApp[0][key]));
             }
@@ -367,7 +450,10 @@ const Dashboard = ({dataFromApp}) => {
           ) {
             barCategories.push(key);
             // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
+            if (
+              dataFromApp[0][key] === "N/A" ||
+              isNaN(parseFloat(dataFromApp[0][key]))
+            ) {
               barSeries.push(null);
             } else {
               barSeries.push(parseFloat(dataFromApp[0][key]));
@@ -576,9 +662,8 @@ const Dashboard = ({dataFromApp}) => {
   }, [dataFromApp, viewAllCards]);
 
   const lineOptions = useMemo(() => {
-    
     const screenWidth = window.innerWidth;
-    const axisFontSize = screenWidth < 1536 ? 6 : 8; 
+    const axisFontSize = screenWidth < 1536 ? 6 : 8;
 
     return {
       responsive: true,
@@ -619,7 +704,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, 
+              size: axisFontSize,
             },
           },
         },
@@ -630,7 +715,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, 
+              size: axisFontSize,
             },
           },
         },
@@ -638,7 +723,17 @@ const Dashboard = ({dataFromApp}) => {
     };
   }, []);
 
- 
+  const updateHindalcoProcess = async (processStatus) => {
+    try {
+      console.log("process status", processStatus);
+      await axios.post("http://localhost:4000/backend/updateHindalcoProcess", {
+        processStatus,
+      });
+    } catch (error) {
+      console.error("Error updating hindalco process", error);
+    }
+  };
+
   return (
     <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
       {/* top bar - h-[10%] */}
@@ -1282,8 +1377,30 @@ const Dashboard = ({dataFromApp}) => {
         </div>
 
         {/* min max chart */}
-        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1] p-1">
-          <Line data={lineData2} options={lineOptions2} width={'100%'} />
+        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1] p-2">
+          <div className="flex gap-2">
+            <button
+              className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+              onClick={() => {
+                updateHindalcoProcess("Start");
+                handleStart();
+              }}
+            >
+              Start
+            </button>
+            <button
+              className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+              onClick={() => {
+                updateHindalcoProcess("Stop");
+                handleStop();
+              }}
+            >
+              Stop
+            </button>
+          </div>
+          <div className="h-full w-full">
+            <Line data={data2} options={lineOptions2} width={"100%"} />
+          </div>
           {/* <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
             Trend for last 10 data
           </div>
@@ -1549,6 +1666,6 @@ const Dashboard = ({dataFromApp}) => {
       />
     </div>
   );
-}
+};
 
 export default Dashboard;

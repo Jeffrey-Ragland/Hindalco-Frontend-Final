@@ -48,6 +48,7 @@ const App = () => {
 
   // console.log('hindalco data', hindalcoData);
   // mac update
+  // mac update 2
 
   return (
     <>

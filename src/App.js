@@ -11,15 +11,20 @@ import Analysis from './Components/Pages/Analytics';
 const App = () => {
 
   const [hindalcoData, setHindalcoData] = useState([]);
+  const [thresholdGraphData, setThresholdGraphData] = useState([]);
+  // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
+  // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
   // fetching data
   useEffect(() => {
     getHindalcoData();
 
     const hindalcoInterval = setInterval(getHindalcoData, 2000);
+    const hindalcoProcessInterval = setInterval(getHindalcoProcess, 2000);
 
     return () => {
       clearInterval(hindalcoInterval);
+      clearInterval(hindalcoProcessInterval);
     };
   }, []);
 
@@ -46,6 +51,25 @@ const App = () => {
     }
   };
 
+  const getHindalcoProcess = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/backend/getHindalcoProcess');
+      if(response.data.success) {
+        // console.log('data after process time', response.data.data);
+        setThresholdGraphData(response.data.data);
+      } else {
+        console.log('Hindalco process not found');
+      }
+    } catch(error) {
+      console.log('Error fetching hindalco process', error);
+    };
+  };
+
+  // console.log('threshold graph data', thresholdGraphData);
+
+  // console.log('hindalco process status', hindalcoProcessStatus);
+  // console.log("hindalco process time", hindalcoProcessTime);
+
   // console.log('hindalco data', hindalcoData);
   // mac update
   // mac update 2
@@ -55,8 +79,19 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute />}>
-          <Route index element={<Dashboard dataFromApp={hindalcoData} />} />
-          <Route path="Reports" element={<Reports dataFromApp={hindalcoData[0]} />} />
+          <Route
+            index
+            element={
+              <Dashboard
+                dataFromApp={hindalcoData}
+                thresholdGraphData={thresholdGraphData}
+              />
+            }
+          />
+          <Route
+            path="Reports"
+            element={<Reports dataFromApp={hindalcoData[0]} />}
+          />
           <Route path="Analytics" element={<Analysis />} />
         </Route>
       </Routes>

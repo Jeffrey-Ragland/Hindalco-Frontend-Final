@@ -44,18 +44,35 @@ ChartJS.register(
   zoomPlugin
 );
 
-const Dashboard = ({ dataFromApp }) => {
-  console.log("data", dataFromApp);
+const Dashboard = ({ dataFromApp, thresholdGraphData }) => {
+
+  console.log("threshold graph data", thresholdGraphData);
+  
+  // console.log("data", dataFromApp);
+  // console.log("processStatus", processStatus);
+  // console.log("processTime", processTime);
+  
 
   const [settingsPopup, setSettingsPopup] = useState(false);
-  const [actualXAxisData, setActualXAxisData] = useState([]);
-  const [actualSeriesData1, setActualSeriesData1] = useState([]);
+  // const [actualXAxisData, setActualXAxisData] = useState([]);
+  // const [actualSeriesData1, setActualSeriesData1] = useState([]);
   const [settingsPassword, setSettingsPassword] = useState("");
+  // const [thresholdGraphData, setThresholdGraphData] = useState([]);
 
-  const minThreshold = 40;
-  const maxThreshold = 75;
-  const thresholds = [minThreshold, maxThreshold];
-  const colors = ["red", "green", "red"];
+  // setThresholdGraphData([...thresholdGraphData, dataFromApp[0]]);
+
+  // useEffect(() => {
+  //   if(Array.isArray(dataFromApp) && dataFromApp.length > 0) {
+  //     setThresholdGraphData((prevData) => [...prevData, dataFromApp[0]]);
+  //   }
+  // }, [dataFromApp])
+
+  // console.log('threshold graph data', thresholdGraphData);
+
+  // const minThreshold = 40;
+  // const maxThreshold = 75;
+  // const thresholds = [minThreshold, maxThreshold];
+  // const colors = ["red", "green", "red"];
 
   const alertLimitFromLS = parseFloat(
     localStorage.getItem("HindalcoAlertLimit")
@@ -259,9 +276,9 @@ const Dashboard = ({ dataFromApp }) => {
     labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
     datasets: [
       {
-        label: 'Line 1',
+        label: "Line 1",
         data: Array.from({ length: 52 }, (_, i) => (i * 1400) / 51), // Line 1
-        borderColor: 'red',
+        borderColor: "red",
         borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 0,
@@ -269,9 +286,9 @@ const Dashboard = ({ dataFromApp }) => {
         tooltip: { enabled: false }, // Disable tooltip
       },
       {
-        label: 'Line 2',
+        label: "Line 2",
         data: Array.from({ length: 52 }, (_, i) => (i * 600) / 51), // Line 2
-        borderColor: 'red',
+        borderColor: "red",
         borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 0,
@@ -282,37 +299,44 @@ const Dashboard = ({ dataFromApp }) => {
   };
 
   const [data2, setData] = useState(initialData);
-  const [isRunning, setIsRunning] = useState(false); // To control start/stop
-  const [line3Data, setLine3Data] = useState([]);
+
+  // useEffect(() => {
+  //   let interval;
+  //   if (isRunning && line3Data.length < 51) {
+  //     interval = setInterval(() => {
+  //       setLine3Data((prev) => {
+  //         // Generate a random number and make sure it increases
+  //         const nextValue =
+  //           prev.length === 0
+  //             ? 0
+  //             : prev[prev.length - 1] +
+  //               (Math.random() * (900 - prev[prev.length - 1])) /
+  //                 (51 - prev.length);
+  //         return [...prev, nextValue];
+  //       });
+  //     }, 1000); // Add new data every 1 second
+  //   } else if (line3Data.length >= 51) {
+  //     setIsRunning(false); // Stop after 51 data points
+  //     clearInterval(interval); // Stop the interval
+  //   }
+  //   return () => clearInterval(interval);
+  // }, [isRunning, line3Data]);
 
   useEffect(() => {
-    let interval;
-    if (isRunning && line3Data.length < 51) {
-      interval = setInterval(() => {
-        setLine3Data((prev) => {
-          // Generate a random number and make sure it increases
-          const nextValue = prev.length === 0 ? 0 : prev[prev.length - 1] + Math.random() * (900 - prev[prev.length - 1]) / (51 - prev.length);
-          return [...prev, nextValue];
-        });
-      }, 1000); // Add new data every 1 second
-    } else if (line3Data.length >= 51) {
-      setIsRunning(false); // Stop after 51 data points
-      clearInterval(interval); // Stop the interval
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, line3Data]);
+    if (thresholdGraphData.length > 0) {
 
-  useEffect(() => {
-    // Add Line 3 data to the graph when it starts running
-    if (line3Data.length > 0) {
+      const reversedData = [...thresholdGraphData].reverse();
+
+      const graphData = reversedData.map((item) => item.S1)
+      
       setData((prevData) => ({
         ...prevData,
         datasets: [
           ...prevData.datasets,
           {
-            label: 'Line 3 (Random Data)',
-            data: line3Data, // Dynamic line3 data
-            borderColor: 'green',
+            label: "Line 3 (Random Data)",
+            data: graphData,
+            borderColor: "green",
             borderWidth: 2,
             pointRadius: 0,
             pointHoverRadius: 0,
@@ -321,17 +345,17 @@ const Dashboard = ({ dataFromApp }) => {
         ],
       }));
     }
-  }, [line3Data]);
+  }, [thresholdGraphData]);
 
-  const handleStart = () => {
-    setIsRunning(true);
-    setLine3Data([]); // Reset Line 3 data
-  };
+  // const handleStart = () => {
+  //   setIsRunning(true);
+  //   setLine3Data([]); // Reset Line 3 data
+  // };
 
-  // Stop the line generation process
-  const handleStop = () => {
-    setIsRunning(false);
-  };
+  // // Stop the line generation process
+  // const handleStop = () => {
+  //   setIsRunning(false);
+  // };
 
   // Configuration options
   const lineOptions2 = {
@@ -725,7 +749,7 @@ const Dashboard = ({ dataFromApp }) => {
 
   const updateHindalcoProcess = async (processStatus) => {
     try {
-      console.log("process status", processStatus);
+      // console.log("process status", processStatus);
       await axios.post("http://localhost:4000/backend/updateHindalcoProcess", {
         processStatus,
       });
@@ -1383,7 +1407,6 @@ const Dashboard = ({ dataFromApp }) => {
               className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
               onClick={() => {
                 updateHindalcoProcess("Start");
-                handleStart();
               }}
             >
               Start
@@ -1392,7 +1415,6 @@ const Dashboard = ({ dataFromApp }) => {
               className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
               onClick={() => {
                 updateHindalcoProcess("Stop");
-                handleStop();
               }}
             >
               Stop

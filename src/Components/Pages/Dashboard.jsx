@@ -5,12 +5,13 @@ import potline from "../Assets/potline.png";
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
-import { MdOutlineUpdate, MdSystemSecurityUpdateWarning } from "react-icons/md";
+import { MdOutlineUpdate, MdSystemSecurityUpdateWarning, MdSignalCellular1Bar, MdSignalCellular2Bar, MdSignalCellular3Bar, MdSignalCellular4Bar } from "react-icons/md";
 import { BsThermometerSun, BsDatabaseFillCheck } from "react-icons/bs";
 import { LiaRulerVerticalSolid } from "react-icons/lia";
 import { IoWarningSharp } from "react-icons/io5";
 import { IoMdSettings } from "react-icons/io";
 import { RiCloseCircleLine } from "react-icons/ri";
+import { GiBattery25, GiBattery50, GiBattery75, GiBattery100 } from "react-icons/gi";
 import ApexCharts from "react-apexcharts";
 import Navbar from "./Navbar";
 import "react-tooltip/dist/react-tooltip.css";
@@ -791,10 +792,28 @@ const Dashboard = ({ dataFromApp, thresholdGraphData }) => {
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Signal Strength"
                 >
-                  <LuRadioTower className="text-lg 2xl:text-xl" />
-                  <div className="font-medium text-black">
+                  {dataFromApp.length > 0 && (
+                    <>
+                      {dataFromApp[0].DeviceSignal >= 75 && (
+                        <MdSignalCellular4Bar className="text-lg 2xl:text-xl" />
+                      )}
+                      {dataFromApp[0].DeviceSignal >= 50 &&
+                        dataFromApp[0].DeviceSignal < 75 && (
+                          <MdSignalCellular3Bar className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceSignal >= 25 &&
+                        dataFromApp[0].DeviceSignal < 50 && (
+                          <MdSignalCellular2Bar className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceSignal < 25 && (
+                        <MdSignalCellular1Bar className="text-lg 2xl:text-xl" />
+                      )}
+                    </>
+                  )}
+                  {/* <LuRadioTower className="text-lg 2xl:text-xl" /> */}
+                  {/* <div className="font-medium text-black">
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceSignal}%
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* battery */}
@@ -803,10 +822,27 @@ const Dashboard = ({ dataFromApp, thresholdGraphData }) => {
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Battery Percentage"
                 >
-                  <FaBatteryFull className="text-lg 2xl:text-xl" />
-                  <div className="font-medium text-black">
+                  {dataFromApp.length > 0 && (
+                    <>
+                      {dataFromApp[0].DeviceBattery >= 75 && (
+                        <GiBattery100 className="text-lg 2xl:text-xl" />
+                      )}
+                      {dataFromApp[0].DeviceBattery >= 50 &&
+                        dataFromApp[0].DeviceBattery < 75 && (
+                          <GiBattery75 className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceBattery >= 25 &&
+                        dataFromApp[0].DeviceBattery < 50 && (
+                          <GiBattery50 className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceBattery < 25 && (
+                        <GiBattery25 className="text-lg 2xl:text-xl" />
+                      )}
+                    </>
+                  )}
+                  {/* <div className="font-medium text-black">
                     {dataFromApp.length > 0 && dataFromApp[0].DeviceBattery}%
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* activity status */}

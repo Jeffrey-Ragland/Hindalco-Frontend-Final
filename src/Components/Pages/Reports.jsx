@@ -83,12 +83,13 @@ const Reports = ({dataFromApp}) => {
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
-        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoReport",
+        "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
             avgFromDate: avgFromDate,
-            avgToDate : avgToDate,
+            avgToDate: avgToDate,
             fromDate: fromDate,
             toDate: toDate,
             count: count,
@@ -121,7 +122,8 @@ const Reports = ({dataFromApp}) => {
       e.preventDefault();
       setLoading(true);
       const response = await axios.get(
-        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,

@@ -54,11 +54,13 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get('http://localhost:4000/backend/getHindalcoProcess');
-      if(response.data.success) {
+      if(response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
         setThresholdGraphData(response.data.data);
-      } else {
-        console.log('Hindalco process not found');
+      } else if (response.data.success && !response.data.inTimeRange) {
+        console.log('Hindalco process range expired');
+      } else if (!response.data.success) {
+        console.log("process stopped");
       }
     } catch(error) {
       console.log('Error fetching hindalco process', error);

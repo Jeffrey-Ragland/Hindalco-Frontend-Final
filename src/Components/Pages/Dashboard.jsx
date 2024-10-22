@@ -45,9 +45,11 @@ ChartJS.register(
   zoomPlugin
 );
 
-const Dashboard = ({ dataFromApp, thresholdGraphData }) => {
+const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, processIsRunning }) => {
 
   console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph date range", thresholdGraphDateRange);
+  console.log('process is running', processIsRunning);
   
   // console.log("data", dataFromApp);
   // console.log("processStatus", processStatus);
@@ -1455,6 +1457,7 @@ const Dashboard = ({ dataFromApp, thresholdGraphData }) => {
             >
               Stop
             </button>
+            <div className="text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 bg-white">{processIsRunning && processIsRunning === true ? 'Process Running' : 'Process Expired'}</div>
           </div>
           <div className="h-full w-full">
             <Line data={data2} options={lineOptions2} width={"100%"} />

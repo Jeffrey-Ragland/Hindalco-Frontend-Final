@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
 import potline from "../Assets/potline.png";
+import loadingGif from "../Assets/loading.gif";
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
@@ -1548,7 +1549,7 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
             </div>
           ) : (
             //previous process data
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full w-full">
               <div className="flex justify-between">
                 <button
                   onClick={() => {
@@ -1587,7 +1588,10 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
           )}
 
           {previousProcessDataLoading && (
-            <div className="absolute inset-0 bg-black/80 rounded-xl" />
+            <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-sm">
+              <div className="text-white">Retrieving Process Data!</div>
+              <img src={loadingGif} className="max-w-[40px]" />
+            </div>
           )}
 
           {/* <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">

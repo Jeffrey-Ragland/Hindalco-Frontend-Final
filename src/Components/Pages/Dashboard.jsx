@@ -5,6 +5,7 @@ import potline from "../Assets/potline.png";
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { LuRadioTower } from "react-icons/lu";
+import { TiArrowRightThick, TiArrowLeftThick } from "react-icons/ti";
 import { MdOutlineUpdate, MdSystemSecurityUpdateWarning, MdSignalCellular1Bar, MdSignalCellular2Bar, MdSignalCellular3Bar, MdSignalCellular4Bar } from "react-icons/md";
 import { BsThermometerSun, BsDatabaseFillCheck } from "react-icons/bs";
 import { LiaRulerVerticalSolid } from "react-icons/lia";
@@ -47,9 +48,9 @@ ChartJS.register(
 
 const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, processIsRunning }) => {
 
-  console.log("threshold graph data", thresholdGraphData);
-  console.log("threshold graph date range", thresholdGraphDateRange);
-  console.log('process is running', processIsRunning);
+  // console.log("threshold graph data", thresholdGraphData);
+  // console.log("threshold graph date range", thresholdGraphDateRange);
+  // console.log('process is running', processIsRunning);
   
   // console.log("data", dataFromApp);
   // console.log("processStatus", processStatus);
@@ -60,7 +61,14 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
   // const [actualXAxisData, setActualXAxisData] = useState([]);
   // const [actualSeriesData1, setActualSeriesData1] = useState([]);
   const [settingsPassword, setSettingsPassword] = useState("");
+  const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false); 
+  const [previousProcessDataLoading, setPreviousProcessDataLoading] = useState(false);
+  const [previousProcessData, setPreviousProcessData] = useState([]);
+ 
+  // const [selectedDateRange, setSelectedDateRange] = useState('');
   // const [thresholdGraphData, setThresholdGraphData] = useState([]);
+
+  // console.log('selected date range', selectedDateRange);
 
   // setThresholdGraphData([...thresholdGraphData, dataFromApp[0]]);
 
@@ -280,7 +288,7 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
     datasets: [
       {
         label: "Line 1",
-        data: Array.from({ length: 52 }, (_, i) => (i * 1400) / 51), // Line 1
+        data: Array.from({ length: 52 }, (_, i) => (i * 1800) / 51), // Line 1
         borderColor: "red",
         borderWidth: 2,
         pointRadius: 0,
@@ -290,7 +298,7 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
       },
       {
         label: "Line 2",
-        data: Array.from({ length: 52 }, (_, i) => (i * 600) / 51), // Line 2
+        data: Array.from({ length: 52 }, (_, i) => (i * 400) / 51), // Line 2
         borderColor: "red",
         borderWidth: 2,
         pointRadius: 0,
@@ -301,41 +309,20 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
     ],
   };
 
-  const [data2, setData] = useState(initialData);
-
-  // useEffect(() => {
-  //   let interval;
-  //   if (isRunning && line3Data.length < 51) {
-  //     interval = setInterval(() => {
-  //       setLine3Data((prev) => {
-  //         // Generate a random number and make sure it increases
-  //         const nextValue =
-  //           prev.length === 0
-  //             ? 0
-  //             : prev[prev.length - 1] +
-  //               (Math.random() * (900 - prev[prev.length - 1])) /
-  //                 (51 - prev.length);
-  //         return [...prev, nextValue];
-  //       });
-  //     }, 1000); // Add new data every 1 second
-  //   } else if (line3Data.length >= 51) {
-  //     setIsRunning(false); // Stop after 51 data points
-  //     clearInterval(interval); // Stop the interval
-  //   }
-  //   return () => clearInterval(interval);
-  // }, [isRunning, line3Data]);
+  const [lineData2, setLineData2] = useState(initialData);
 
   useEffect(() => {
-    if (thresholdGraphData.length > 0) {
+    if (thresholdGraphData && thresholdGraphData.length > 0) {
 
       const reversedData = [...thresholdGraphData].reverse();
 
       const graphData = reversedData.map((item) => item.S1)
       
-      setData((prevData) => ({
+      setLineData2((prevData) => ({
         ...prevData,
         datasets: [
-          ...prevData.datasets,
+          prevData.datasets[0],
+          prevData.datasets[1],
           {
             label: "Line 3 (Random Data)",
             data: graphData,
@@ -349,16 +336,6 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
       }));
     }
   }, [thresholdGraphData]);
-
-  // const handleStart = () => {
-  //   setIsRunning(true);
-  //   setLine3Data([]); // Reset Line 3 data
-  // };
-
-  // // Stop the line generation process
-  // const handleStop = () => {
-  //   setIsRunning(false);
-  // };
 
   // Configuration options
   const lineOptions2 = {
@@ -396,6 +373,33 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
       },
     },
   };
+
+  const [lineData3, setLineData3] = useState(initialData);
+
+  useEffect(() => {
+    if (previousProcessData && previousProcessData.length > 0) {
+      const reversedData = [...previousProcessData].reverse();
+
+      const graphData = reversedData.map((item) => item.S1);
+
+      setLineData3((prevData) => ({
+        ...prevData,
+        datasets: [
+          prevData.datasets[0],
+          prevData.datasets[1],
+          {
+            label: "Line 3",
+            data: graphData,
+            borderColor: "green",
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            fill: false,
+          },
+        ],
+      }));
+    }
+  }, [previousProcessData]);
 
   // chart data assignment
   useEffect(() => {
@@ -761,6 +765,35 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
     }
   };
 
+  const getProcessDateRangeData = async(selectedDateRange) => {
+    try {
+      setPreviousProcessDataLoading(true);
+      if(selectedDateRange !== "") {
+        const split = selectedDateRange.split('to');
+        const startDate = split[0];
+        const stopDate = split[1];
+
+        const response = await axios.get("http://localhost:4000/backend/getHindalcoReport", {
+          params: {
+            projectName: 'XY001',
+            startDate: startDate,
+            stopDate: stopDate
+          },
+        });
+        setPreviousProcessDataLoading(false);
+        if(response.data.success) {
+          setPreviousProcessData(response.data.data);
+        } else {
+          console.log('Error fetching previous process data');
+        }
+      }
+    } catch(error) {
+      console.error('Error getting date range data', error)
+    };
+  };
+
+  console.log('previous process data', previousProcessData);
+
   return (
     <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
       {/* top bar - h-[10%] */}
@@ -796,18 +829,18 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
                 >
                   {dataFromApp.length > 0 && (
                     <>
-                      {dataFromApp[0].DeviceSignal >= 75 && (
+                      {dataFromApp[0].DeviceSignal >= 22.5 && (
                         <MdSignalCellular4Bar className="text-lg 2xl:text-xl" />
                       )}
-                      {dataFromApp[0].DeviceSignal >= 50 &&
-                        dataFromApp[0].DeviceSignal < 75 && (
+                      {dataFromApp[0].DeviceSignal >= 15 &&
+                        dataFromApp[0].DeviceSignal < 22.5 && (
                           <MdSignalCellular3Bar className="text-lg 2xl:text-xl" />
                         )}
-                      {dataFromApp[0].DeviceSignal >= 25 &&
-                        dataFromApp[0].DeviceSignal < 50 && (
+                      {dataFromApp[0].DeviceSignal >= 7.5 &&
+                        dataFromApp[0].DeviceSignal < 15 && (
                           <MdSignalCellular2Bar className="text-lg 2xl:text-xl" />
                         )}
-                      {dataFromApp[0].DeviceSignal < 25 && (
+                      {dataFromApp[0].DeviceSignal < 7.5 && (
                         <MdSignalCellular1Bar className="text-lg 2xl:text-xl" />
                       )}
                     </>
@@ -1439,29 +1472,124 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
         </div>
 
         {/* min max chart */}
-        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1] p-2">
-          <div className="flex gap-2">
-            <button
-              className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-              onClick={() => {
-                updateHindalcoProcess("Start");
-              }}
-            >
-              Start
-            </button>
-            <button
-              className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-              onClick={() => {
-                updateHindalcoProcess("Stop");
-              }}
-            >
-              Stop
-            </button>
-            <div className="text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 bg-white">{processIsRunning && processIsRunning === true ? 'Process Running' : 'Process Expired'}</div>
-          </div>
-          <div className="h-full w-full">
-            <Line data={data2} options={lineOptions2} width={"100%"} />
-          </div>
+        <div className="relative h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] bg-[#dde3f1] p-2">
+          {!previousProcessDataOpen ? ( //live process data
+            <div className="flex flex-col w-full h-full">
+              <div className="flex justify-between items-center">
+                <div className="flex gap-2">
+                  {processIsRunning && processIsRunning === true ? (
+                    <>
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Start
+                      </button>
+
+                      <button
+                        className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                        onClick={() => {
+                          updateHindalcoProcess("Stop");
+                        }}
+                      >
+                        Stop
+                      </button>
+                    </>
+                  ) : processIsRunning === false ? (
+                    <>
+                      <button
+                        className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                        onClick={() => {
+                          updateHindalcoProcess("Start");
+                        }}
+                      >
+                        Start
+                      </button>
+
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Stop
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Start
+                      </button>
+
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Stop
+                      </button>
+                    </>
+                  )}
+
+                  {processIsRunning && processIsRunning === true ? (
+                    <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b] border-[1.5px] border-green-400">
+                      Process&nbsp;Running
+                    </div>
+                  ) : processIsRunning === false ? (
+                    <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b] border-indicator">
+                      Process&nbsp;Expired
+                    </div>
+                  ) : (
+                    <div>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setPreviousProcessDataOpen(true)}
+                  className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                >
+                  Previous&nbsp;Process&nbsp;Data
+                  <TiArrowRightThick className="text-lg 2xl:text-xl" />
+                </button>
+              </div>
+              <div className="h-full w-full">
+                <Line data={lineData2} options={lineOptions2} width={"100%"} />
+              </div>
+            </div>
+          ) : (
+            //previous process data
+            <div className="flex flex-col">
+              <div className="flex justify-between">
+                <button
+                  onClick={() => {
+                    setPreviousProcessDataOpen(false);
+                    setPreviousProcessData([]);
+                  }}
+                  className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                >
+                  <TiArrowLeftThick className="text-lg 2xl:text-xl" />
+                  Live&nbsp;Data
+                </button>
+
+                <div className="flex gap-1 text-xs 2xl:text-base font-medium items-center">
+                  <select
+                    onChange={(e) => getProcessDateRangeData(e.target.value)}
+                    className="rounded-md px-1 py-0.5 cursor-pointer"
+                  >
+                    <option value="">Pick Date Range</option>
+                    {thresholdGraphDateRange &&
+                      thresholdGraphDateRange.length > 0 &&
+                      thresholdGraphDateRange.map((data, i) => (
+                        <option
+                          key={i}
+                          value={`${data.startTime}to${data.stopTime}`}
+                        >
+                          {data.startTime} to {data.stopTime}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+              <div className="h-full w-full">
+                <Line data={lineData3} options={lineOptions2} width={"100%"} />
+              </div>
+            </div>
+          )}
+
+          {previousProcessDataLoading && (
+            <div className="absolute inset-0 bg-black/80 rounded-xl" />
+          )}
+
           {/* <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
             Trend for last 10 data
           </div>

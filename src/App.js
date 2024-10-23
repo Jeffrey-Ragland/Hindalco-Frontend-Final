@@ -64,9 +64,9 @@ const App = () => {
         // console.log('data after process time', response.data.data);
         setThresholdGraphData(response.data.data);
       } else if (response.data.success && !response.data.inTimeRange) {
-        console.log('Hindalco process range expired');
+        // console.log('Hindalco process range expired');
       } else if (!response.data.success) {
-        console.log("process stopped");
+        // console.log("process stopped");
       }
     } catch(error) {
       console.log('Error fetching hindalco process', error);

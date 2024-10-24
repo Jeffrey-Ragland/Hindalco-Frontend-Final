@@ -68,6 +68,7 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
   const [clickedLegends, setClickedLegends] = useState(['S1']);
 
   console.log('clicked legends', clickedLegends);
+  console.log('threshold graph date  range', thresholdGraphDateRange);
  
   // const [selectedDateRange, setSelectedDateRange] = useState('');
   // const [thresholdGraphData, setThresholdGraphData] = useState([]);

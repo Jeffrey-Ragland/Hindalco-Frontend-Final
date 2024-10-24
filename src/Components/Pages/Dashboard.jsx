@@ -65,6 +65,9 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false); 
   const [previousProcessDataLoading, setPreviousProcessDataLoading] = useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
+  const [clickedLegends, setClickedLegends] = useState(['S1']);
+
+  console.log('clicked legends', clickedLegends);
  
   // const [selectedDateRange, setSelectedDateRange] = useState('');
   // const [thresholdGraphData, setThresholdGraphData] = useState([]);
@@ -310,6 +313,24 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
     ],
   };
 
+  const sensorColors = [
+    "rgb(35, 67, 155)",
+    "rgb(240,5,5)",
+    "rgb(40, 167, 69)",
+    "rgb(255, 193, 7)",
+    "rgb(153, 50, 204)",
+    "rgb(163, 106, 2)",
+    "rgb(241, 110, 250)",
+    "rgb(0, 255, 127)",
+    "rgb(148, 72, 148)",
+    "rgb(240, 128, 128)",
+    "rgb(255, 20, 147)",
+    "rgb(0, 191, 255)",
+    "rgb(75, 0, 130)",
+    "rgb(255, 99, 71)",
+    "rgb(255, 222, 173)",
+  ];
+
   const [lineData2, setLineData2] = useState(initialData);
 
   useEffect(() => {
@@ -317,26 +338,46 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
 
       const reversedData = [...thresholdGraphData].reverse();
 
-      const graphData = reversedData.map((item) => item.S1)
+      const sensorData = Array.from({ length: 15 }, (_, i) =>
+        reversedData.map((item) => item[`S${i + 1}`])
+      );
+
+      const datasets = clickedLegends.map((legendLabel, index) => {
+        const sensorIndex = parseInt(legendLabel.replace("S", "")) - 1;
+        return {
+          label: legendLabel,
+          data: sensorData[sensorIndex],
+          borderColor: sensorColors[sensorIndex],
+          borderWidth: 1.25,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+        };
+      });
       
       setLineData2((prevData) => ({
         ...prevData,
-        datasets: [
-          prevData.datasets[0],
-          prevData.datasets[1],
-          {
-            label: "Line 3 (Random Data)",
-            data: graphData,
-            borderColor: "green",
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            fill: false,
-          },
-        ],
+        datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
       }));
+
+      // setLineData2((prevData) => ({
+      //   ...prevData,
+      //   datasets: [
+      //     prevData.datasets[0],
+      //     prevData.datasets[1],
+      //     {
+      //       label: "Line 3 (Random Data)",
+      //       data: graphData,
+      //       borderColor: "green",
+      //       borderWidth: 2,
+      //       pointRadius: 0,
+      //       pointHoverRadius: 0,
+      //       fill: false,
+      //     },
+      //   ],
+      // }));
     }
-  }, [thresholdGraphData]);
+  }, [thresholdGraphData, clickedLegends]);
 
   // Configuration options
   const lineOptions2 = {
@@ -381,26 +422,33 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
     if (previousProcessData && previousProcessData.length > 0) {
       const reversedData = [...previousProcessData].reverse();
 
-      const graphData = reversedData.map((item) => item.S1);
+      const sensorData = Array.from({ length: 15 }, (_, i) =>
+        reversedData.map((item) => item[`S${i + 1}`])
+      );
+
+      const datasets = clickedLegends.map((legendLabel, index) => {
+        const sensorIndex = parseInt(legendLabel.replace('S', '')) - 1;
+        return {
+          label: legendLabel,
+          data: sensorData[sensorIndex],
+          borderColor: sensorColors[sensorIndex],
+          borderWidth: 1.25,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+        };
+      });
 
       setLineData3((prevData) => ({
         ...prevData,
         datasets: [
           prevData.datasets[0],
           prevData.datasets[1],
-          {
-            label: "Line 3",
-            data: graphData,
-            borderColor: "green",
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            fill: false,
-          },
+          ...datasets,
         ],
       }));
     }
-  }, [previousProcessData]);
+  }, [previousProcessData, clickedLegends]);
 
   // chart data assignment
   useEffect(() => {
@@ -408,19 +456,6 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
       const barCategories = [];
       const barSeries = [];
       const barColors = [];
-
-      // min max line chart
-      // const dataPoints = Object.values(dataFromApp);
-      // const first10DataPoints = dataPoints.slice(0, 10).reverse();
-      // const xAxisData = first10DataPoints.map((point) => {
-      //   const timePart = point.Time.split(",");
-      //   return timePart[1];
-      // });
-      // const seriesData1 = first10DataPoints.map((point) =>
-      //   point.S1 !== "N/A" ? Number(point.S1) : null
-      // );
-      // setActualXAxisData(xAxisData);
-      // setActualSeriesData1(seriesData1);
 
       // for activity status
       const currentDate = new Date();
@@ -520,178 +555,27 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
       const lineLabels = reversedData.map((item) => {
         return item.Time;
       });
-      const sensor1Data = reversedData.map((item) => item.S1);
-      const sensor2Data = reversedData.map((item) => item.S2);
-      const sensor3Data = reversedData.map((item) => item.S3);
-      const sensor4Data = reversedData.map((item) => item.S4);
-      const sensor5Data = reversedData.map((item) => item.S5);
-      const sensor6Data = reversedData.map((item) => item.S6);
-      const sensor7Data = reversedData.map((item) => item.S7);
-      const sensor8Data = reversedData.map((item) => item.S8);
-      const sensor9Data = reversedData.map((item) => item.S9);
-      const sensor10Data = reversedData.map((item) => item.S10);
-      const sensor11Data = reversedData.map((item) => item.S11);
-      const sensor12Data = reversedData.map((item) => item.S12);
-      const sensor13Data = reversedData.map((item) => item.S13);
-      const sensor14Data = reversedData.map((item) => item.S14);
-      const sensor15Data = reversedData.map((item) => item.S15);
+      const sensorData = Array.from({length: 15}, (_, i) => reversedData.map(item => item[`S${i + 1}`]));
+
+      const sensorLabels = Array.from({ length: 15 }, (_, i) => `S${i + 1}`);
 
       setLineData({
         labels: lineLabels,
-        datasets: [
-          {
-            label: "S1",
-            data: sensor1Data,
-            borderColor: "rgb(35, 67, 155)", // Vibrant Red
-            backgroundColor: "rgba(35, 67, 155, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-          },
-          {
-            label: "S2",
-            data: sensor2Data,
-            borderColor: "rgb(240,5,5)", // Bright Blue
-            backgroundColor: "rgba(240,5,5, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S3",
-            data: sensor3Data,
-            borderColor: "rgb(40, 167, 69)", // Bright Green
-            backgroundColor: "rgba(40, 167, 69, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S4",
-            data: sensor4Data,
-            borderColor: "rgb(255, 193, 7)", // Bright Yellow
-            backgroundColor: "rgba(255, 193, 7, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S5",
-            data: sensor5Data,
-            borderColor: "rgb(153, 50, 204)", // Vibrant Purple
-            backgroundColor: "rgba(153, 50, 204, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S6",
-            data: sensor6Data,
-            borderColor: "rgb(163, 106, 2)", // Bright Orange
-            backgroundColor: "rgba(163, 106, 2, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S7",
-            data: sensor7Data,
-            borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
-            backgroundColor: "rgba(241, 110, 250, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S8",
-            data: sensor8Data,
-            borderColor: "rgb(0, 255, 127)", // Medium Sea Green
-            backgroundColor: "rgba(0, 255, 127, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S9",
-            data: sensor9Data,
-            borderColor: "rgb(148, 72, 148)", // Violet
-            backgroundColor: "rgba(148, 72, 148, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S10",
-            data: sensor10Data,
-            borderColor: "rgb(240, 128, 128)", // Light Coral
-            backgroundColor: "rgba(240, 128, 128, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S11",
-            data: sensor11Data,
-            borderColor: "rgb(255, 20, 147)", // Deep Pink
-            backgroundColor: "rgba(255, 20, 147, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S12",
-            data: sensor12Data,
-            borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
-            backgroundColor: "rgba(0, 191, 255, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S13",
-            data: sensor13Data,
-            borderColor: "rgb(75, 0, 130)", // Indigo
-            backgroundColor: "rgba(75, 0, 130, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S14",
-            data: sensor14Data,
-            borderColor: "rgb(255, 99, 71)", // Bright Coral
-            backgroundColor: "rgba(255, 99, 71, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S15",
-            data: sensor15Data,
-            borderColor: "rgb(255, 222, 173)", // Light Peach
-            backgroundColor: "rgba(255, 222, 173, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-        ],
+        datasets: sensorData.map((data, i) => ({
+          label: sensorLabels[i],
+          data,
+          borderColor: sensorColors[i],
+          backgroundColor: `${sensorColors[i]
+            .replace("rgb", "rgba")
+            .replace(")", ", 0.2)")}`,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 1.25,
+          hidden: !clickedLegends.includes(sensorLabels[i]), 
+        })),
       });
     }
-  }, [dataFromApp, viewAllCards]);
+  }, [dataFromApp, viewAllCards, clickedLegends]);
 
   const lineOptions = useMemo(() => {
     const screenWidth = window.innerWidth;
@@ -711,6 +595,18 @@ const Dashboard = ({ dataFromApp, thresholdGraphData, thresholdGraphDateRange, p
             boxWidth: 25,
             padding: 5,
           },
+          onClick: (e, legendItem) => {
+            const index = legendItem.datasetIndex;
+            const datasetLabel = legendItem.text;
+
+            setClickedLegends((prevClickedLegends) => {
+              if(prevClickedLegends.includes(datasetLabel)) {
+                return prevClickedLegends.filter(label => label !== datasetLabel);
+              } else {
+                return [...prevClickedLegends, datasetLabel];
+              }
+            });
+          }
         },
         zoom: {
           pan: {

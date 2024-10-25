@@ -65,7 +65,7 @@ const Dashboard = ({
   thresholdGraphDateRange,
   processIsRunning,
 }) => {
-  // console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph data", thresholdGraphData);
   // console.log("threshold graph date range", thresholdGraphDateRange);
   // console.log('process is running', processIsRunning);
 
@@ -85,13 +85,15 @@ const Dashboard = ({
   const [clickedLegends, setClickedLegends] = useState(["S1"]);
 
   const upperThresholdData = Array.from(
-    { length: 52 },
-    (_, i) => (i * 900) / 51
+    { length: 367 },
+    (_, i) => (i * 900) / 366
   );
   const lowerThresholdData = Array.from(
-    { length: 52 },
-    (_, i) => (i * 400) / 51
+    { length: 367 },
+    (_, i) => (i * 400) / 366
   );
+
+  console.log('upper threshold data', upperThresholdData);
 
   // console.log("clicked legends", clickedLegends);
   // console.log("threshold graph date  range", thresholdGraphDateRange);
@@ -197,7 +199,7 @@ const Dashboard = ({
 
   const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
 
-  console.log("threshold graph data", thresholdGraphData);
+  // console.log("threshold graph data", thresholdGraphData);
 
   // console.log("alerts array", alertsArray);
   console.log("alert keys", alertKeys);
@@ -289,11 +291,22 @@ const Dashboard = ({
     datasets: [],
   });
 
-  // console.log("First Line Data", firstLineData);
+  // console.log("upperThresholdData ", upperThresholdData);
   // console.log("second Line Data", secondLineData);
 
+  // const allLabels = Array.from({length: 366} , (_, i) => `${i + 1}`);
+
+  // const displayLabels = allLabels.map((label, index) => (index % 6 === 0 ? label : ''));
+
+  const allLabels = Array.from({ length: 366 }, (_, i) => Math.floor(i / 6) + 1);
+
+  // Only display the unique section labels and leave the rest as empty strings
+  const displayLabels = allLabels.map((label, index) => (index % 6 === 0 ? label.toString() : ''));
+
+  console.log('display labels', displayLabels);
+
   const initialData = {
-    labels: Array.from({ length: 52 }, (_, i) => i), // x-axis from 0 to 51
+    labels: displayLabels,
     datasets: [
       {
         label: "Line 1",
@@ -382,9 +395,8 @@ const Dashboard = ({
           display: false,
         },
         min: 0,
-        max: 51, // x-axis range
+        max: 366, // x-axis range
         ticks: {
-          stepSize: 5,
           font: {
             size: 8,
           },
@@ -652,7 +664,7 @@ const Dashboard = ({
   const getProcessDateRangeData = async (selectedDateRange) => {
     try {
       setPreviousProcessDataLoading(true);
-      if (selectedDateRange !== "") {
+      if (selectedDateRange !== '') {
         const split = selectedDateRange.split("to");
         const startDate = split[0];
         const stopDate = split[1];

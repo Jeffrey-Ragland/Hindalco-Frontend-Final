@@ -86,7 +86,7 @@ const Dashboard = ({
     (_, i) => (i * 400) / 731
   );
 
-  console.log('upper threshold data', upperThresholdData);
+  // console.log('upper threshold data', upperThresholdData);
 
   // console.log("clicked legends", clickedLegends);
   // console.log("threshold graph date  range", thresholdGraphDateRange);
@@ -292,7 +292,7 @@ const Dashboard = ({
   // Only display the unique section labels and leave the rest as empty strings
   const displayLabels = allLabels.map((label, index) => (index % 12 === 0 ? label.toString() : ''));
 
-  console.log('display labels', displayLabels);
+  // console.log('display labels', displayLabels);
 
   const initialData = {
     labels: displayLabels,

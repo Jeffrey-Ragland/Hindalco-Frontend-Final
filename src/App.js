@@ -34,14 +34,15 @@ const App = () => {
   const getHindalcoData = async () => {
     try {
       const hindalcoLimit = localStorage.getItem("HindalcoLimit");
-      const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
+      // const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
       const HindalcoCardsViewMore = localStorage.getItem("HindalcoCardsViewMore");
       // console.log('localstorage', hindalcoLimit);
-      if (hindalcoLimit && hindalcoAlertLimit && HindalcoCardsViewMore) {
+      if (hindalcoLimit && HindalcoCardsViewMore) {
         const response = await axios.get(
           // `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
           `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
         );
+        //console.log("response =",response.data.data)
         if (response.data.success) {
           setHindalcoData(response.data.data);
         } else {

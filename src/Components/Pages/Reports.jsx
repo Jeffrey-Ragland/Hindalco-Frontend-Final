@@ -47,10 +47,12 @@ const Reports = ({dataFromApp}) => {
   useEffect(() => {
     if (dataFromApp) {
       const filteredData = Object.keys(dataFromApp).filter((key) =>
-        key.startsWith("S")); 
+        key.startsWith("T") && key !== 'Time'); 
       setParameters(filteredData);
     }
   }, [dataFromApp]);
+
+  // console.log('parameters', parameters);
 
   // used for setting unselected sensor
   useEffect(() => {
@@ -83,8 +85,8 @@ const Reports = ({dataFromApp}) => {
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
-        // "https://hindalco.xyma.live/backend/getHindalcoReport",
-        "http://localhost:4000/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -122,8 +124,8 @@ const Reports = ({dataFromApp}) => {
       e.preventDefault();
       setLoading(true);
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
-        "http://localhost:4000/backend/getHindalcoAverageReport",
+        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        // "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,

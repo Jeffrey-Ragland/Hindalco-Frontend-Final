@@ -68,6 +68,7 @@ const Analytics = () => {
       setTableLoading(true);
       const response = await axios.get(
         "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -93,6 +94,7 @@ const Analytics = () => {
       setTableLoading(true);
       const response = await axios.get(
         "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        // "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,
@@ -122,27 +124,27 @@ const Analytics = () => {
           return item.Time;
         });
 
-        const sensor1Data = reversedData.map((item) => item.S1);
-        const sensor2Data = reversedData.map((item) => item.S2);
-        const sensor3Data = reversedData.map((item) => item.S3);
-        const sensor4Data = reversedData.map((item) => item.S4);
-        const sensor5Data = reversedData.map((item) => item.S5);
-        const sensor6Data = reversedData.map((item) => item.S6);
-        const sensor7Data = reversedData.map((item) => item.S7);
-        const sensor8Data = reversedData.map((item) => item.S8);
-        const sensor9Data = reversedData.map((item) => item.S9);
-        const sensor10Data = reversedData.map((item) => item.S10);
-        const sensor11Data = reversedData.map((item) => item.S11);
-        const sensor12Data = reversedData.map((item) => item.S12);
-        const sensor13Data = reversedData.map((item) => item.S13);
-        const sensor14Data = reversedData.map((item) => item.S14);
-        const sensor15Data = reversedData.map((item) => item.S15);
+        const sensor1Data = reversedData.map((item) => item.T1);
+        const sensor2Data = reversedData.map((item) => item.T2);
+        const sensor3Data = reversedData.map((item) => item.T3);
+        const sensor4Data = reversedData.map((item) => item.T4);
+        const sensor5Data = reversedData.map((item) => item.T5);
+        const sensor6Data = reversedData.map((item) => item.T6);
+        const sensor7Data = reversedData.map((item) => item.T7);
+        const sensor8Data = reversedData.map((item) => item.T8);
+        const sensor9Data = reversedData.map((item) => item.T9);
+        const sensor10Data = reversedData.map((item) => item.T10);
+        const sensor11Data = reversedData.map((item) => item.T11);
+        const sensor12Data = reversedData.map((item) => item.T12);
+        const sensor13Data = reversedData.map((item) => item.T13);
+        const sensor14Data = reversedData.map((item) => item.T14);
+        const sensor15Data = reversedData.map((item) => item.T15);
 
         setLineData({
           labels: lineLabels,
           datasets: [
             {
-              label: "S1",
+              label: "T1",
               data: sensor1Data,
               borderColor: "rgb(240, 5, 5)", // Vibrant Red
               backgroundColor: "rgba(240, 5, 5, 0.2)",
@@ -151,7 +153,7 @@ const Analytics = () => {
               borderWidth: 1.25,
             },
             {
-              label: "S2",
+              label: "T2",
               data: sensor2Data,
               borderColor: "rgb(0, 123, 255)", // Bright Blue
               backgroundColor: "rgba(0, 123, 255, 0.2)",
@@ -161,7 +163,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S3",
+              label: "T3",
               data: sensor3Data,
               borderColor: "rgb(40, 167, 69)", // Bright Green
               backgroundColor: "rgba(40, 167, 69, 0.2)",
@@ -171,7 +173,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S4",
+              label: "T4",
               data: sensor4Data,
               borderColor: "rgb(255, 193, 7)", // Bright Yellow
               backgroundColor: "rgba(255, 193, 7, 0.2)",
@@ -181,7 +183,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S5",
+              label: "T5",
               data: sensor5Data,
               borderColor: "rgb(153, 50, 204)", // Vibrant Purple
               backgroundColor: "rgba(153, 50, 204, 0.2)",
@@ -191,7 +193,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S6",
+              label: "T6",
               data: sensor6Data,
               borderColor: "rgb(163, 106, 2)", // Bright Orange
               backgroundColor: "rgba(163, 106, 2, 0.2)",
@@ -201,7 +203,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S7",
+              label: "T7",
               data: sensor7Data,
               borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
               backgroundColor: "rgba(241, 110, 250, 0.2)",
@@ -211,7 +213,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S8",
+              label: "T8",
               data: sensor8Data,
               borderColor: "rgb(0, 255, 127)", // Medium Sea Green
               backgroundColor: "rgba(0, 255, 127, 0.2)",
@@ -221,7 +223,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S9",
+              label: "T9",
               data: sensor9Data,
               borderColor: "rgb(148, 72, 148)", // Violet
               backgroundColor: "rgba(148, 72, 148, 0.2)",
@@ -231,7 +233,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S10",
+              label: "T10",
               data: sensor10Data,
               borderColor: "rgb(240, 128, 128)", // Light Coral
               backgroundColor: "rgba(240, 128, 128, 0.2)",
@@ -241,7 +243,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S11",
+              label: "T11",
               data: sensor11Data,
               borderColor: "rgb(255, 20, 147)", // Deep Pink
               backgroundColor: "rgba(255, 20, 147, 0.2)",
@@ -251,7 +253,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S12",
+              label: "T12",
               data: sensor12Data,
               borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
               backgroundColor: "rgba(0, 191, 255, 0.2)",
@@ -261,7 +263,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S13",
+              label: "T13",
               data: sensor13Data,
               borderColor: "rgb(75, 0, 130)", // Indigo
               backgroundColor: "rgba(75, 0, 130, 0.2)",
@@ -271,7 +273,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S14",
+              label: "T14",
               data: sensor14Data,
               borderColor: "rgb(255, 99, 71)", // Bright Coral
               backgroundColor: "rgba(255, 99, 71, 0.2)",
@@ -281,7 +283,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "S15",
+              label: "T15",
               data: sensor15Data,
               borderColor: "rgb(255, 222, 173)", // Light Peach
               backgroundColor: "rgba(255, 222, 173, 0.2)",
@@ -300,27 +302,27 @@ const Analytics = () => {
           return item.dateRange;
         });
 
-        const avgSensor1Data = reversedData.map((item) => item.avgS1);
-        const avgSensor2Data = reversedData.map((item) => item.avgS2);
-        const avgSensor3Data = reversedData.map((item) => item.avgS3);
-        const avgSensor4Data = reversedData.map((item) => item.avgS4);
-        const avgSensor5Data = reversedData.map((item) => item.avgS5);
-        const avgSensor6Data = reversedData.map((item) => item.avgS6);
-        const avgSensor7Data = reversedData.map((item) => item.avgS7);
-        const avgSensor8Data = reversedData.map((item) => item.avgS8);
-        const avgSensor9Data = reversedData.map((item) => item.avgS9);
-        const avgSensor10Data = reversedData.map((item) => item.avgS10);
-        const avgSensor11Data = reversedData.map((item) => item.avgS11);
-        const avgSensor12Data = reversedData.map((item) => item.avgS12);
-        const avgSensor13Data = reversedData.map((item) => item.avgS13);
-        const avgSensor14Data = reversedData.map((item) => item.avgS14);
-        const avgSensor15Data = reversedData.map((item) => item.avgS15);
+        const avgSensor1Data = reversedData.map((item) => item.avgT1);
+        const avgSensor2Data = reversedData.map((item) => item.avgT2);
+        const avgSensor3Data = reversedData.map((item) => item.avgT3);
+        const avgSensor4Data = reversedData.map((item) => item.avgT4);
+        const avgSensor5Data = reversedData.map((item) => item.avgT5);
+        const avgSensor6Data = reversedData.map((item) => item.avgT6);
+        const avgSensor7Data = reversedData.map((item) => item.avgT7);
+        const avgSensor8Data = reversedData.map((item) => item.avgT8);
+        const avgSensor9Data = reversedData.map((item) => item.avgT9);
+        const avgSensor10Data = reversedData.map((item) => item.avgT10);
+        const avgSensor11Data = reversedData.map((item) => item.avgT11);
+        const avgSensor12Data = reversedData.map((item) => item.avgT12);
+        const avgSensor13Data = reversedData.map((item) => item.avgT13);
+        const avgSensor14Data = reversedData.map((item) => item.avgT14);
+        const avgSensor15Data = reversedData.map((item) => item.avgT15);
 
         setLineData({
           labels: lineLabels,
           datasets: [
             {
-              label: "avgS1",
+              label: "avgT1",
               data: avgSensor1Data,
               borderColor: "rgb(240, 5, 5)", // Vibrant Red
               backgroundColor: "rgba(240, 5, 5, 0.2)",
@@ -329,7 +331,7 @@ const Analytics = () => {
               borderWidth: 1.25,
             },
             {
-              label: "avgS2",
+              label: "avgT2",
               data: avgSensor2Data,
               borderColor: "rgb(0, 123, 255)", // Bright Blue
               backgroundColor: "rgba(0, 123, 255, 0.2)",
@@ -339,7 +341,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS3",
+              label: "avgT3",
               data: avgSensor3Data,
               borderColor: "rgb(40, 167, 69)", // Bright Green
               backgroundColor: "rgba(40, 167, 69, 0.2)",
@@ -349,7 +351,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS4",
+              label: "avgT4",
               data: avgSensor4Data,
               borderColor: "rgb(255, 193, 7)", // Bright Yellow
               backgroundColor: "rgba(255, 193, 7, 0.2)",
@@ -359,7 +361,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS5",
+              label: "avgT5",
               data: avgSensor5Data,
               borderColor: "rgb(153, 50, 204)", // Vibrant Purple
               backgroundColor: "rgba(153, 50, 204, 0.2)",
@@ -369,7 +371,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS6",
+              label: "avgT6",
               data: avgSensor6Data,
               borderColor: "rgb(163, 106, 2)", // Bright Orange
               backgroundColor: "rgba(163, 106, 2, 0.2)",
@@ -379,7 +381,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS7",
+              label: "avgT7",
               data: avgSensor7Data,
               borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
               backgroundColor: "rgba(241, 110, 250, 0.2)",
@@ -389,7 +391,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS8",
+              label: "avgT8",
               data: avgSensor8Data,
               borderColor: "rgb(0, 255, 127)", // Medium Sea Green
               backgroundColor: "rgba(0, 255, 127, 0.2)",
@@ -399,7 +401,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS9",
+              label: "avgT9",
               data: avgSensor9Data,
               borderColor: "rgb(148, 72, 148)", // Violet
               backgroundColor: "rgba(148, 72, 148, 0.2)",
@@ -409,7 +411,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS10",
+              label: "avgT10",
               data: avgSensor10Data,
               borderColor: "rgb(240, 128, 128)", // Light Coral
               backgroundColor: "rgba(240, 128, 128, 0.2)",
@@ -419,7 +421,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS11",
+              label: "avgT11",
               data: avgSensor11Data,
               borderColor: "rgb(255, 20, 147)", // Deep Pink
               backgroundColor: "rgba(255, 20, 147, 0.2)",
@@ -429,7 +431,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS12",
+              label: "avgT12",
               data: avgSensor12Data,
               borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
               backgroundColor: "rgba(0, 191, 255, 0.2)",
@@ -439,7 +441,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS13",
+              label: "avgT13",
               data: avgSensor13Data,
               borderColor: "rgb(75, 0, 130)", // Indigo
               backgroundColor: "rgba(75, 0, 130, 0.2)",
@@ -449,7 +451,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS14",
+              label: "avgT14",
               data: avgSensor14Data,
               borderColor: "rgb(255, 99, 71)", // Bright Coral
               backgroundColor: "rgba(255, 99, 71, 0.2)",
@@ -459,7 +461,7 @@ const Analytics = () => {
               hidden: true,
             },
             {
-              label: "avgS15",
+              label: "avgT15",
               data: avgSensor15Data,
               borderColor: "rgb(255, 222, 173)", // Light Peach
               backgroundColor: "rgba(255, 222, 173, 0.2)",

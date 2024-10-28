@@ -14,6 +14,7 @@ const App = () => {
   const [thresholdGraphData, setThresholdGraphData] = useState([]);
   const [thresholdGraphDateRange, setThresholdGraphDateRange] = useState([]);
   const [processIsRunning, setProcessIsRunning] = useState();
+  const [processTimeLeft, setProcessTimeLeft] = useState('');
   // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
   // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
@@ -56,10 +57,14 @@ const App = () => {
 
   const getHindalcoProcess = async () => {
     try {
-      const response = await axios.get('https://hindalco.xyma.live/backend/getHindalcoProcess');
+      const response = await axios.get(
+        'https://hindalco.xyma.live/backend/getHindalcoProcess'
+        // 'http://localhost:4000/backend/getHindalcoProcess'
+      );
 
       setThresholdGraphDateRange(response.data.dateRange);
       setProcessIsRunning(response.data.inTimeRange);
+      setProcessTimeLeft(response.data.timeLeft);
 
       if(response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
@@ -74,6 +79,7 @@ const App = () => {
     };
   };
 
+  // console.log('time left', processTimeLeft);
   // console.log("process is running", processIsRunning);
   // console.log('threshold graph date range', thresholdGraphDateRange);
   // console.log('threshold graph data', thresholdGraphData);
@@ -98,6 +104,7 @@ const App = () => {
                 thresholdGraphData={thresholdGraphData}
                 thresholdGraphDateRange={thresholdGraphDateRange}
                 processIsRunning={processIsRunning}
+                processTimeLeft={processTimeLeft}
               />
             }
           />

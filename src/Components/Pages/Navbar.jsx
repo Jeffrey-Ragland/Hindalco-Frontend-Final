@@ -16,7 +16,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="relative flex justify-between items-center text-white 2xl:text-xl">
+      <div className="relative flex justify-between items-center text-white 2xl:text-xl mb-2">
         <div className="flex items-center gap-2">
           <div>
             <img
@@ -34,14 +34,14 @@ const Navbar = () => {
           </div>
         </div>
         {/* title */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs md:text-2xl text-center font-bold">
-          Xyma Data Logger Device
+        <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs md:text-2xl text-center font-bold">
+          XYMA Data Logger Device
         </div>
 
         {/* hindalco logo , logout */}
-        <div className="hidden xl:flex gap-4 items-center">
+        <div className="hidden xl:flex gap-4 items-center bg-[#0f1e47] z-10">
           {/* navbar */}
-          <div className="flex items-center gap-4 mr-4">
+          <div className="flex items-center gap-4 mr-4 ">
             <Link to="/">
               <div
                 className={`flex flex-col items-center ${
@@ -165,6 +165,7 @@ const Navbar = () => {
           )}
         </div>
       </div>
+      <div className='text-sm text-center font-bold md:hidden text-white'>XYMA Data Logger Device</div>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useEffect, useState, useMemo } from "react";
 import Navbar from "./Navbar";
 import { LuCalendarSearch } from "react-icons/lu";
@@ -35,7 +35,8 @@ ChartJS.register(
 );
 
 const Analytics = () => {
-  const [selectedReportOption, setSelectedReportOption] = useState("averageData");
+  const [selectedReportOption, setSelectedReportOption] =
+    useState("averageData");
   const [count, setCount] = useState(100);
   const [enableCount, setEnableCount] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -43,7 +44,7 @@ const Analytics = () => {
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
-  const [averageOption, setAverageOption] = useState('minute');
+  const [averageOption, setAverageOption] = useState("minute");
   const [intervalFromDate, setIntervalFromDate] = useState("");
   const [intervalToDate, setIntervalToDate] = useState("");
   const [intervalOption, setIntervalOption] = useState("minute");
@@ -116,366 +117,120 @@ const Analytics = () => {
 
   console.log("analytics data", analyticsData);
 
+  const sensorColors = [
+    {
+      borderColor: "rgb(240, 5, 5)",
+      backgroundColor: "rgba(240, 5, 5, 0.2)",
+    }, // T1
+    {
+      borderColor: "rgb(0, 123, 255)",
+      backgroundColor: "rgba(0, 123, 255, 0.2)",
+    }, // T2
+    {
+      borderColor: "rgb(40, 167, 69)",
+      backgroundColor: "rgba(40, 167, 69, 0.2)",
+    }, // T3
+    {
+      borderColor: "rgb(255, 193, 7)",
+      backgroundColor: "rgba(255, 193, 7, 0.2)",
+    }, // T4
+    {
+      borderColor: "rgb(153, 50, 204)",
+      backgroundColor: "rgba(153, 50, 204, 0.2)",
+    }, // T5
+    {
+      borderColor: "rgb(163, 106, 2)",
+      backgroundColor: "rgba(163, 106, 2, 0.2)",
+    }, // T6
+    {
+      borderColor: "rgb(241, 110, 250)",
+      backgroundColor: "rgba(241, 110, 250, 0.2)",
+    }, // T7
+    {
+      borderColor: "rgb(0, 255, 127)",
+      backgroundColor: "rgba(0, 255, 127, 0.2)",
+    }, // T8
+    {
+      borderColor: "rgb(148, 72, 148)",
+      backgroundColor: "rgba(148, 72, 148, 0.2)",
+    }, // T9
+    {
+      borderColor: "rgb(240, 128, 128)",
+      backgroundColor: "rgba(240, 128, 128, 0.2)",
+    }, // T10
+    {
+      borderColor: "rgb(255, 20, 147)",
+      backgroundColor: "rgba(255, 20, 147, 0.2)",
+    }, // T11
+    {
+      borderColor: "rgb(0, 191, 255)",
+      backgroundColor: "rgba(0, 191, 255, 0.2)",
+    }, // T12
+    {
+      borderColor: "rgb(75, 0, 130)",
+      backgroundColor: "rgba(75, 0, 130, 0.2)",
+    }, // T13
+    {
+      borderColor: "rgb(255, 99, 71)",
+      backgroundColor: "rgba(255, 99, 71, 0.2)",
+    }, // T14
+    {
+      borderColor: "rgb(255, 222, 13)",
+      backgroundColor: "rgba(255, 222, 13, 0.2)",
+    }, // T15
+  ];
+
   useEffect(() => {
-    if (analyticsData && Array.isArray(analyticsData) && analyticsData.length > 0) {
+    if (
+      analyticsData &&
+      Array.isArray(analyticsData) &&
+      analyticsData.length > 0
+    ) {
       const reversedData = [...analyticsData].reverse();
-      if(selectedReportOption !== 'averageData') {
+      if (selectedReportOption !== "averageData") {
         const lineLabels = reversedData.map((item) => {
           return item.Time;
         });
 
-        const sensor1Data = reversedData.map((item) => item.T1);
-        const sensor2Data = reversedData.map((item) => item.T2);
-        const sensor3Data = reversedData.map((item) => item.T3);
-        const sensor4Data = reversedData.map((item) => item.T4);
-        const sensor5Data = reversedData.map((item) => item.T5);
-        const sensor6Data = reversedData.map((item) => item.T6);
-        const sensor7Data = reversedData.map((item) => item.T7);
-        const sensor8Data = reversedData.map((item) => item.T8);
-        const sensor9Data = reversedData.map((item) => item.T9);
-        const sensor10Data = reversedData.map((item) => item.T10);
-        const sensor11Data = reversedData.map((item) => item.T11);
-        const sensor12Data = reversedData.map((item) => item.T12);
-        const sensor13Data = reversedData.map((item) => item.T13);
-        const sensor14Data = reversedData.map((item) => item.T14);
-        const sensor15Data = reversedData.map((item) => item.T15);
+        const datasets = sensorColors.map((color, index) => ({
+          label: `T${index + 1}`,
+          data: reversedData.map((item) => item[`T${index + 1}`]),
+          borderColor: color.borderColor,
+          backgroundColor: color.backgroundColor,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 1.25,
+          hidden: index > 0, // Only T1 is visible initially
+        }));
 
         setLineData({
           labels: lineLabels,
-          datasets: [
-            {
-              label: "T1",
-              data: sensor1Data,
-              borderColor: "rgb(240, 5, 5)", // Vibrant Red
-              backgroundColor: "rgba(240, 5, 5, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-            },
-            {
-              label: "T2",
-              data: sensor2Data,
-              borderColor: "rgb(0, 123, 255)", // Bright Blue
-              backgroundColor: "rgba(0, 123, 255, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T3",
-              data: sensor3Data,
-              borderColor: "rgb(40, 167, 69)", // Bright Green
-              backgroundColor: "rgba(40, 167, 69, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T4",
-              data: sensor4Data,
-              borderColor: "rgb(255, 193, 7)", // Bright Yellow
-              backgroundColor: "rgba(255, 193, 7, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T5",
-              data: sensor5Data,
-              borderColor: "rgb(153, 50, 204)", // Vibrant Purple
-              backgroundColor: "rgba(153, 50, 204, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T6",
-              data: sensor6Data,
-              borderColor: "rgb(163, 106, 2)", // Bright Orange
-              backgroundColor: "rgba(163, 106, 2, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T7",
-              data: sensor7Data,
-              borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
-              backgroundColor: "rgba(241, 110, 250, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T8",
-              data: sensor8Data,
-              borderColor: "rgb(0, 255, 127)", // Medium Sea Green
-              backgroundColor: "rgba(0, 255, 127, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T9",
-              data: sensor9Data,
-              borderColor: "rgb(148, 72, 148)", // Violet
-              backgroundColor: "rgba(148, 72, 148, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T10",
-              data: sensor10Data,
-              borderColor: "rgb(240, 128, 128)", // Light Coral
-              backgroundColor: "rgba(240, 128, 128, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T11",
-              data: sensor11Data,
-              borderColor: "rgb(255, 20, 147)", // Deep Pink
-              backgroundColor: "rgba(255, 20, 147, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T12",
-              data: sensor12Data,
-              borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
-              backgroundColor: "rgba(0, 191, 255, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T13",
-              data: sensor13Data,
-              borderColor: "rgb(75, 0, 130)", // Indigo
-              backgroundColor: "rgba(75, 0, 130, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T14",
-              data: sensor14Data,
-              borderColor: "rgb(255, 99, 71)", // Bright Coral
-              backgroundColor: "rgba(255, 99, 71, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "T15",
-              data: sensor15Data,
-              borderColor: "rgb(255, 222, 173)", // Light Peach
-              backgroundColor: "rgba(255, 222, 173, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-          ],
+          datasets: datasets,
         });
-        // console.log('graph rendered');
-      }
-
-      else if(selectedReportOption === 'averageData') {
+      } else if (selectedReportOption === "averageData") {
         const lineLabels = reversedData.map((item) => {
           return item.dateRange;
         });
 
-        const avgSensor1Data = reversedData.map((item) => item.avgT1);
-        const avgSensor2Data = reversedData.map((item) => item.avgT2);
-        const avgSensor3Data = reversedData.map((item) => item.avgT3);
-        const avgSensor4Data = reversedData.map((item) => item.avgT4);
-        const avgSensor5Data = reversedData.map((item) => item.avgT5);
-        const avgSensor6Data = reversedData.map((item) => item.avgT6);
-        const avgSensor7Data = reversedData.map((item) => item.avgT7);
-        const avgSensor8Data = reversedData.map((item) => item.avgT8);
-        const avgSensor9Data = reversedData.map((item) => item.avgT9);
-        const avgSensor10Data = reversedData.map((item) => item.avgT10);
-        const avgSensor11Data = reversedData.map((item) => item.avgT11);
-        const avgSensor12Data = reversedData.map((item) => item.avgT12);
-        const avgSensor13Data = reversedData.map((item) => item.avgT13);
-        const avgSensor14Data = reversedData.map((item) => item.avgT14);
-        const avgSensor15Data = reversedData.map((item) => item.avgT15);
+        const datasets = sensorColors.map((sensor, index) => ({
+          label: `avgT${index + 1}`,
+          data: reversedData.map((item) => item[`avgT${index + 1}`]),
+          borderColor: sensor.borderColor,
+          backgroundColor: sensor.backgroundColor,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 1.25,
+          hidden: index !== 0, // only show avgT1 initially, hide others
+        }));
 
         setLineData({
           labels: lineLabels,
-          datasets: [
-            {
-              label: "avgT1",
-              data: avgSensor1Data,
-              borderColor: "rgb(240, 5, 5)", // Vibrant Red
-              backgroundColor: "rgba(240, 5, 5, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-            },
-            {
-              label: "avgT2",
-              data: avgSensor2Data,
-              borderColor: "rgb(0, 123, 255)", // Bright Blue
-              backgroundColor: "rgba(0, 123, 255, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT3",
-              data: avgSensor3Data,
-              borderColor: "rgb(40, 167, 69)", // Bright Green
-              backgroundColor: "rgba(40, 167, 69, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT4",
-              data: avgSensor4Data,
-              borderColor: "rgb(255, 193, 7)", // Bright Yellow
-              backgroundColor: "rgba(255, 193, 7, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT5",
-              data: avgSensor5Data,
-              borderColor: "rgb(153, 50, 204)", // Vibrant Purple
-              backgroundColor: "rgba(153, 50, 204, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT6",
-              data: avgSensor6Data,
-              borderColor: "rgb(163, 106, 2)", // Bright Orange
-              backgroundColor: "rgba(163, 106, 2, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT7",
-              data: avgSensor7Data,
-              borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
-              backgroundColor: "rgba(241, 110, 250, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT8",
-              data: avgSensor8Data,
-              borderColor: "rgb(0, 255, 127)", // Medium Sea Green
-              backgroundColor: "rgba(0, 255, 127, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT9",
-              data: avgSensor9Data,
-              borderColor: "rgb(148, 72, 148)", // Violet
-              backgroundColor: "rgba(148, 72, 148, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT10",
-              data: avgSensor10Data,
-              borderColor: "rgb(240, 128, 128)", // Light Coral
-              backgroundColor: "rgba(240, 128, 128, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT11",
-              data: avgSensor11Data,
-              borderColor: "rgb(255, 20, 147)", // Deep Pink
-              backgroundColor: "rgba(255, 20, 147, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT12",
-              data: avgSensor12Data,
-              borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
-              backgroundColor: "rgba(0, 191, 255, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT13",
-              data: avgSensor13Data,
-              borderColor: "rgb(75, 0, 130)", // Indigo
-              backgroundColor: "rgba(75, 0, 130, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT14",
-              data: avgSensor14Data,
-              borderColor: "rgb(255, 99, 71)", // Bright Coral
-              backgroundColor: "rgba(255, 99, 71, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-            {
-              label: "avgT15",
-              data: avgSensor15Data,
-              borderColor: "rgb(255, 222, 173)", // Light Peach
-              backgroundColor: "rgba(255, 222, 173, 0.2)",
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderWidth: 1.25,
-              hidden: true,
-            },
-          ],
+          datasets: datasets,
         });
       }
       setLoading(false);
     }
-  },[analyticsData]);
+  }, [analyticsData]);
 
   const lineOptions = useMemo(
     () => ({
@@ -484,7 +239,7 @@ const Analytics = () => {
       plugins: {
         legend: {
           position: "top",
-          align: 'start',
+          align: "start",
           labels: {
             color: "#4B5563",
             font: {

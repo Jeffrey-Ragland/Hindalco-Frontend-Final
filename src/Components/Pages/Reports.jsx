@@ -160,10 +160,10 @@ const Reports = ({dataFromApp}) => {
       <div className="h-[10%]">
         <Navbar />
       </div>
-      <div className="relative h-[90%] flex flex-col justify-center">
+      <div className="relative h-[90%] flex flex-col justify-center text-sm md:text-base">
         <div className="flex gap-2 justify-evenly font-medium">
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "averageData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -187,7 +187,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "intervalData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -211,7 +211,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -235,7 +235,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "countWiseData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -261,7 +261,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "sensorWiseData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}

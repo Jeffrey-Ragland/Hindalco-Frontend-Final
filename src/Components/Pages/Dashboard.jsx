@@ -57,59 +57,29 @@ const Dashboard = ({
   thresholdGraphData,
   thresholdGraphDateRange,
   processIsRunning,
+  processTimeLeft,
 }) => {
   console.log("threshold graph data", thresholdGraphData);
-  // console.log("threshold graph date range", thresholdGraphDateRange);
-  // console.log('process is running', processIsRunning);
+  console.log("time left", processTimeLeft);
 
   // console.log("data", dataFromApp);
-  // console.log("processStatus", processStatus);
-  // console.log("processTime", processTime);
 
-  // const [settingsPopup, setSettingsPopup] = useState(false);
   const [activeStatus, setActiveStatus] = useState("");
-  // const [actualXAxisData, setActualXAxisData] = useState([]);
-  // const [actualSeriesData1, setActualSeriesData1] = useState([]);
-  // const [settingsPassword, setSettingsPassword] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
   const [previousProcessDataLoading, setPreviousProcessDataLoading] =
     useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
   const [clickedLegends, setClickedLegends] = useState(["T1"]);
+  const [stopPopup, setStopPopup] = useState(false);
 
   const upperThresholdData = Array.from(
     { length: 732 },
-    (_, i) => (i * 900) / 731
+    (_, i) => 150 + (i * (900 - 150)) / 731
   );
   const lowerThresholdData = Array.from(
     { length: 732 },
     (_, i) => (i * 400) / 731
   );
-
-  // console.log('upper threshold data', upperThresholdData);
-
-  // console.log("clicked legends", clickedLegends);
-  // console.log("threshold graph date  range", thresholdGraphDateRange);
-
-  // const [selectedDateRange, setSelectedDateRange] = useState('');
-  // const [thresholdGraphData, setThresholdGraphData] = useState([]);
-
-  // console.log('selected date range', selectedDateRange);
-
-  // setThresholdGraphData([...thresholdGraphData, dataFromApp[0]]);
-
-  // useEffect(() => {
-  //   if(Array.isArray(dataFromApp) && dataFromApp.length > 0) {
-  //     setThresholdGraphData((prevData) => [...prevData, dataFromApp[0]]);
-  //   }
-  // }, [dataFromApp])
-
-  // console.log('threshold graph data', thresholdGraphData);
-
-  // const minThreshold = 40;
-  // const maxThreshold = 75;
-  // const thresholds = [minThreshold, maxThreshold];
-  // const colors = ["red", "green", "red"];
 
   // line chart limit
   const getInitialLimit = () => {
@@ -124,20 +94,6 @@ const Dashboard = ({
     setHindalcoLimit(limit);
     localStorage.setItem("HindalcoLimit", limit.toString());
   };
-
-  // card alert limit
-  // const [hindalcoAlertLimit, setHindalcoAlertLimit] = useState("");
-
-  // const handleAlertLimit = (e) => {
-  //   e.preventDefault();
-  //   if (settingsPassword === "xyma.in") {
-  //     localStorage.setItem("HindalcoAlertLimit", hindalcoAlertLimit.toString());
-  //     setHindalcoAlertLimit("");
-  //     setSettingsPassword("");
-  //   } else {
-  //     alert("Incorrect Password");
-  //   }
-  // };
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -287,10 +243,15 @@ const Dashboard = ({
   // console.log("upperThresholdData ", upperThresholdData);
   // console.log("second Line Data", secondLineData);
 
-  const allLabels = Array.from({ length: 732 }, (_, i) => Math.floor(i / 12) + 1);
+  const allLabels = Array.from(
+    { length: 732 },
+    (_, i) => Math.floor(i / 12) + 1
+  );
 
   // Only display the unique section labels and leave the rest as empty strings
-  const displayLabels = allLabels.map((label, index) => (index % 12 === 0 ? label.toString() : ''));
+  const displayLabels = allLabels.map((label, index) =>
+    index % 12 === 0 ? label.toString() : ""
+  );
 
   // console.log('display labels', displayLabels);
 
@@ -387,7 +348,12 @@ const Dashboard = ({
         max: 732, // x-axis range
         ticks: {
           font: {
-            size: 8,
+            size: 7,
+          },
+          autoSkip: false,
+          maxRotation: 0,
+          callback: function (value, index) {
+            return index % 24 === 0 ? this.getLabelForValue(value) : "";
           },
         },
       },
@@ -642,9 +608,13 @@ const Dashboard = ({
   const updateHindalcoProcess = async (processStatus) => {
     try {
       // console.log("process status", processStatus);
-      await axios.post("https://hindalco.xyma.live/backend/updateHindalcoProcess", {
-        processStatus,
-      });
+      await axios.post(
+        "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+        // "http://localhost:4000/backend/updateHindalcoProcess",
+        {
+          processStatus,
+        }
+      );
     } catch (error) {
       console.error("Error updating hindalco process", error);
     }
@@ -652,14 +622,15 @@ const Dashboard = ({
 
   const getProcessDateRangeData = async (selectedDateRange) => {
     try {
-      setPreviousProcessDataLoading(true);
-      if (selectedDateRange !== '') {
+      if (selectedDateRange !== "default") {
+        setPreviousProcessDataLoading(true);
         const split = selectedDateRange.split("to");
         const startDate = split[0];
         const stopDate = split[1];
 
         const response = await axios.get(
           "https://hindalco.xyma.live/backend/getHindalcoReport",
+          // "http://localhost:4000/backend/getHindalcoReport",
           {
             params: {
               projectName: "XY001",
@@ -674,6 +645,8 @@ const Dashboard = ({
         } else {
           console.log("Error fetching previous process data");
         }
+      } else {
+        alert("Please pick a valid Date Range!");
       }
     } catch (error) {
       console.error("Error getting date range data", error);
@@ -683,7 +656,7 @@ const Dashboard = ({
   // console.log("previous process data", previousProcessData);
 
   return (
-    <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
+    <div className="relative xl:h-screen p-4 flex flex-col gap-2">
       {/* top bar - h-[10%] */}
       <div className="xl:h-[10%]">
         <Navbar />
@@ -839,25 +812,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                    alertKeys.includes('T1')
+                  : alertKeys.length > 0 && alertKeys.includes("T1")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T1')
+                    alertKeys.length > 0 && alertKeys.includes("T1")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T1
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T1)
                   )
@@ -873,25 +856,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T2')
+                  : alertKeys.length > 0 && alertKeys.includes("T2")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T2')
+                    alertKeys.length > 0 && alertKeys.includes("T2")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T2
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T2)
                   )
@@ -907,25 +900,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                    alertKeys.includes('T3')
+                  : alertKeys.length > 0 && alertKeys.includes("T3")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T3')
+                    alertKeys.length > 0 && alertKeys.includes("T3")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T3
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T3)
                   )
@@ -941,25 +944,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T4')
+                  : alertKeys.length > 0 && alertKeys.includes("T4")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T4')
+                    alertKeys.length > 0 && alertKeys.includes("T4")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T4
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T4)
                   )
@@ -975,25 +988,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T5')
+                  : alertKeys.length > 0 && alertKeys.includes("T5")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T5')
+                    alertKeys.length > 0 && alertKeys.includes("T5")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T5
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T5)
                   )
@@ -1009,25 +1032,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T6')
+                  : alertKeys.length > 0 && alertKeys.includes("T6")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T6')
+                    alertKeys.length > 0 && alertKeys.includes("T6")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T6
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T6)
                   )
@@ -1043,25 +1076,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T7')
+                  : alertKeys.length > 0 && alertKeys.includes("T7")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T7')
+                    alertKeys.length > 0 && alertKeys.includes("T7")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T7
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T7)
                   )
@@ -1077,25 +1120,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T8')
+                  : alertKeys.length > 0 && alertKeys.includes("T8")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T8')
+                    alertKeys.length > 0 && alertKeys.includes("T8")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T8
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T8)
                   )
@@ -1111,25 +1164,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T9')
+                  : alertKeys.length > 0 && alertKeys.includes("T9")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T9')
+                    alertKeys.length > 0 && alertKeys.includes("T9")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T9
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T9)
                   )
@@ -1145,25 +1208,35 @@ const Dashboard = ({
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 &&
-                  alertKeys.includes('T10')
+                  : alertKeys.length > 0 && alertKeys.includes("T10")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    alertKeys.length > 0 &&
-                    alertKeys.includes('T10')
+                    alertKeys.length > 0 && alertKeys.includes("T10")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
                   T10
                 </div>
-                <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T10)
                   )
@@ -1182,25 +1255,35 @@ const Dashboard = ({
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 &&
-                      alertKeys.includes('T11')
+                      : alertKeys.length > 0 && alertKeys.includes("T11")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        alertKeys.length > 0 &&
-                    alertKeys.includes('T11')
+                        alertKeys.length > 0 && alertKeys.includes("T11")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       T11
                     </div>
-                    <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T11)
                       )
@@ -1216,25 +1299,35 @@ const Dashboard = ({
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 &&
-                      alertKeys.includes('T12')
+                      : alertKeys.length > 0 && alertKeys.includes("T12")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        alertKeys.length > 0 &&
-                    alertKeys.includes('T12')
+                        alertKeys.length > 0 && alertKeys.includes("T12")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       T12
                     </div>
-                    <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T12)
                       )
@@ -1250,25 +1343,35 @@ const Dashboard = ({
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 &&
-                      alertKeys.includes('T13')
+                      : alertKeys.length > 0 && alertKeys.includes("T13")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        alertKeys.length > 0 &&
-                    alertKeys.includes('T13')
+                        alertKeys.length > 0 && alertKeys.includes("T13")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       T13
                     </div>
-                    <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T13)
                       )
@@ -1284,25 +1387,35 @@ const Dashboard = ({
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 &&
-                      alertKeys.includes('T14')
+                      : alertKeys.length > 0 && alertKeys.includes("T14")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        alertKeys.length > 0 &&
-                    alertKeys.includes('T14')
+                        alertKeys.length > 0 && alertKeys.includes("T14")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       T14
                     </div>
-                    <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T14)
                       )
@@ -1318,25 +1431,35 @@ const Dashboard = ({
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                     (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 &&
-                      alertKeys.includes('T15')
+                      : alertKeys.length > 0 && alertKeys.includes("T15")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className={`${viewAllCards ? 'text-xl 2xl:text-3xl' : 'text-3xl 2xl:text-4xl'}`} />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        alertKeys.length > 0 &&
-                    alertKeys.includes('T15')
+                        alertKeys.length > 0 && alertKeys.includes("T15")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
                       T15
                     </div>
-                    <div className={`font-bold ${viewAllCards ? 'text-base 2xl:text-2xl' : 'text-lg 2xl:text-3xl'}`}>
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T15)
                       )
@@ -1353,10 +1476,10 @@ const Dashboard = ({
         </div>
 
         {/* threshold chart */}
-        <div className="relative h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] bg-[#dde3f1] p-2">
+        <div className="relative h-[350px] xl:h-auto rounded-xl w-full xl:w-[30%] bg-[#dde3f1] p-2">
           {!previousProcessDataOpen ? ( //live process data
-            <div className="flex flex-col w-full h-full">
-              <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-1 w-full h-full">
+              <div className="flex flex-wrap gap-2 justify-between items-center">
                 <div className="flex gap-2">
                   {processIsRunning && processIsRunning === true ? (
                     <>
@@ -1366,9 +1489,7 @@ const Dashboard = ({
 
                       <button
                         className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-                        onClick={() => {
-                          updateHindalcoProcess("Stop");
-                        }}
+                        onClick={() => setStopPopup(true)}
                       >
                         Stop
                       </button>
@@ -1415,14 +1536,28 @@ const Dashboard = ({
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => setPreviousProcessDataOpen(true)}
-                  className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-                >
-                  Previous&nbsp;Process&nbsp;Data
-                  <TiArrowRightThick className="text-lg 2xl:text-xl" />
-                </button>
+
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={() => setPreviousProcessDataOpen(true)}
+                    className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                  >
+                    Previous&nbsp;Process&nbsp;Data
+                    <TiArrowRightThick className="text-lg 2xl:text-xl" />
+                  </button>
+
+                  <div className="text-[10px] text-[#23439b] font-medium 2xl:text-base bg-white rounded-sm px-2 xl:hidden">
+                    Time Left: {processTimeLeft}
+                  </div>
+                </div>
               </div>
+
+              <div className="justify-end hidden xl:flex">
+                <div className="text-[10px] text-[#23439b] font-medium 2xl:text-base bg-white rounded-sm px-2">
+                  Time Left: {processTimeLeft}
+                </div>
+              </div>
+
               <div className="h-full w-full">
                 <Line data={lineData2} options={lineOptions2} width={"100%"} />
               </div>
@@ -1430,7 +1565,7 @@ const Dashboard = ({
           ) : (
             //previous process data
             <div className="flex flex-col h-full w-full">
-              <div className="flex justify-between">
+              <div className="flex flex-wrap gap-2 justify-between">
                 <button
                   onClick={() => {
                     setPreviousProcessDataOpen(false);
@@ -1447,7 +1582,7 @@ const Dashboard = ({
                     onChange={(e) => getProcessDateRangeData(e.target.value)}
                     className="rounded-md px-1 py-0.5 cursor-pointer"
                   >
-                    <option value="">Pick Date Range</option>
+                    <option value="default">Pick Date Range</option>
                     {thresholdGraphDateRange &&
                       thresholdGraphDateRange.length > 0 &&
                       thresholdGraphDateRange.map((data, i) => (
@@ -1479,22 +1614,9 @@ const Dashboard = ({
       {/* main content 2 h-[40%] */}
       <div className="h-[40%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
         {/* alert box */}
-        <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[300px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
+        <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[350px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
           <div className=" relative flex justify-center gap-2 items-center py-1 px-2 font-bold text-[#23439b] ">
             <div className="2xl:text-xl">Alerts</div>
-            {/* <div
-              className="text-xl absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer hover:scale-125 duration-200 z-10"
-              // onClick={() => setSettingsPopup(!settingsPopup)}
-            >
-              {settingsPopup === true ? (
-                <RiCloseCircleLine className="text-2xl" />
-              ) : (
-                <IoMdSettings
-                  data-tooltip-id="tooltip-style"
-                  data-tooltip-content="Alert Limit Settings"
-                />
-              )}
-            </div> */}
           </div>
           <div
             className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto"
@@ -1538,63 +1660,10 @@ const Dashboard = ({
               </div>
             )}
           </div>
-
-          {/* settings popup */}
-          {/* {settingsPopup && (
-            <form
-              className="absolute inset-0 rounded-md flex flex-col justify-evenly gap-4 md:gap-0 p-2 bg-[#dde3f1]"
-              onSubmit={handleAlertLimit}
-            >
-              <div className="flex items-center justify-center text-[#23439b]">
-                <LiaRulerVerticalSolid className="text-2xl 2xl:text-3xl" />
-                <div className="font-medium">Alert&nbsp;limit</div>
-              </div>
-              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-                <div>Current&nbsp;Limit</div>
-                <div className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-xl text-center border border-b-gray-700 border-t-transparent border-l-transparent border-r-transparent">
-                  {parseFloat(
-                    localStorage.getItem("HindalcoAlertLimit")
-                  ).toFixed(1)}
-                  °C
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-                <div>Change&nbsp;Limit</div>
-                <input
-                  type="number"
-                  step="0.1"
-                  required
-                  className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
-                  value={hindalcoAlertLimit}
-                  onChange={(e) =>
-                    setHindalcoAlertLimit(parseFloat(e.target.value))
-                  }
-                />
-              </div>
-              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-                <div>Fill&nbsp;Password</div>
-                <input
-                  type="password"
-                  required
-                  className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
-                  value={settingsPassword}
-                  onChange={(e) => setSettingsPassword(e.target.value)}
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-[#e4ba4c] hover:scale-[1.03] duration-200 font-medium p-1 px-2 rounded-md"
-                data-tooltip-id="tooltip-style"
-                data-tooltip-content="Set new alert limit"
-              >
-                Set
-              </button>
-            </form>
-          )} */}
         </div>
 
         {/* line chart card */}
-        <div className=" overflow-hidden p-2 w-full md:w-[75%] h-[300px] xl:h-auto rounded-xl flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]">
+        <div className=" overflow-hidden p-2 w-full md:w-[75%] h-[350px] xl:h-auto rounded-xl flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]">
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
@@ -1688,6 +1757,32 @@ const Dashboard = ({
           fontSize: "0.75rem",
         }}
       />
+
+      {/* stop confirmation popup */}
+      {stopPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center">
+          <div className="bg-[#dde3f1] px-4 py-6 flex flex-col gap-6 rounded-md">
+            <div>Do you really want to stop the process?</div>
+            <div className="flex items-center justify-end gap-4">
+              <button
+                className="bg-gray-300 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
+                onClick={() => setStopPopup(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  setStopPopup(false);
+                  updateHindalcoProcess("Stop");
+                }}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

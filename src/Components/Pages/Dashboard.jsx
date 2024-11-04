@@ -266,21 +266,23 @@ const Dashboard = ({
         label: "Upper Threshold",
         data: upperThresholdData,
         borderColor: "red",
-        borderWidth: 2,
+        borderWidth: 1.5,
         pointRadius: 0,
         pointHoverRadius: 0,
         fill: false,
-        tooltip: { enabled: false }, // Disable tooltip
+        tooltip: { enabled: false },
+        borderDash: [5,5] // Disable tooltip
       },
       {
         label: "Lower Threshold",
         data: lowerThresholdData,
         borderColor: "red",
-        borderWidth: 2,
+        borderWidth: 1.5,
         pointRadius: 0,
         pointHoverRadius: 0,
         fill: false,
-        tooltip: { enabled: false }, // Disable tooltip
+        tooltip: { enabled: false },
+        borderDash: [5,5] // Disable tooltip
       },
     ],
   };
@@ -319,7 +321,7 @@ const Dashboard = ({
           label: legendLabel,
           data: sensorData[sensorIndex],
           borderColor: sensorColors[sensorIndex],
-          borderWidth: 1.25,
+          borderWidth: 2,
           pointRadius: 0,
           pointHoverRadius: 0,
           fill: false,
@@ -743,6 +745,12 @@ const Dashboard = ({
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
             <div className="relative w-full md:w-[55%] p-4 flex items-center justify-center border border-black overflow-hidden">
+
+              {/* 3d model */}
+              <div className="h-[150px] md:h-auto xl:h-[400px] xl:w-[450px] 2xl:h-[500px] border border-black">
+                <ThreeDModel alertKeys={alertKeys}/>
+              </div>
+              
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
@@ -829,10 +837,7 @@ const Dashboard = ({
                 )}
               </div>
 
-              {/* 3d model */}
-              <div className="h-[150px] md:h-auto xl:h-[400px] xl:w-[450px] 2xl:h-[500px] border border-black">
-                <ThreeDModel />
-              </div>
+              
 
               {/* view all cards */}
               <div

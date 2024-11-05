@@ -177,7 +177,10 @@ const Dashboard = ({
     const axisFontSize = screenWidth < 1536 ? "6px" : "8px";
 
     return {
-      series: [],
+      series: [{
+        name: 'Temperature',
+        data: []
+      }],
       options: {
         chart: {
           type: "bar",
@@ -225,9 +228,9 @@ const Dashboard = ({
             colors: ["#4a5568"],
             fontSize: "8px",
           },
-          formatter: (val) => {
-            return val === null ? "N/A" : `${val}°C`;
-          },
+          // formatter: (val) => {
+          //   return val === null ? "N/A" : `${val}°C`;
+          // },
         },
         stroke: {
           show: true,
@@ -239,11 +242,11 @@ const Dashboard = ({
         },
         tooltip: {
           theme: "dark",
-          y: {
-            formatter: (val) => {
-              return val === null ? "N/A" : `${val}°C`;
-            },
-          },
+          // y: {
+          //   formatter: (val) => {
+          //     return val === null ? "N/A" : `${val}°C`;
+          //   },
+          // },
         },
         legend: {
           show: false,
@@ -523,7 +526,7 @@ const Dashboard = ({
       setBarData({
         series: [
           {
-            name: "Sensor Temp",
+            name: "Temperature",
             data: barSeries,
           },
         ],

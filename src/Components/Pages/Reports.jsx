@@ -118,6 +118,7 @@ const Reports = ({dataFromApp}) => {
   const generateAverageExcel = async () => {
     setLoading(true);
     try {
+      console.log("before api");
       const response = await axios.get(
         "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
         {
@@ -132,6 +133,7 @@ const Reports = ({dataFromApp}) => {
           },
         }
       );
+      console.log("after api");
       setLoading(false);
       console.log("report data", response.data.data);
       const ws = XLSX.utils.json_to_sheet(response.data.data);
@@ -146,6 +148,7 @@ const Reports = ({dataFromApp}) => {
       console.error(error);
     }
   };
+  
 
 
   return (

@@ -188,6 +188,18 @@ body {
     }
 }
 
+@keyframes blink-third {
+  0% {
+    border: 1.5px solid red;
+  }
+  50% {
+    border: 1.5px solid gray;
+  }
+  100% {
+    border: 1.5px solid red;
+  }
+}
+
 .card-indicator {
   animation: blink 1s infinite; 
 }
@@ -197,3 +209,6 @@ body {
   background-color: inherit;
 }
 
+.border-indicator {
+  animation: blink-third 1s infinite; 
+}

@@ -27,7 +27,7 @@ const Login = () => {
       if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("HindalcoLimit", '100');
-        localStorage.setItem("HindalcoAlertLimit", "75");
+        // localStorage.setItem("HindalcoAlertLimit", "75");
         localStorage.setItem("HindalcoCardsViewMore", "false");
         navigate(data.redirectUrl);
       } else {

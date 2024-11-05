@@ -1,21 +1,31 @@
-import React from 'react';
+import React from "react";
+import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import potline from '../Assets/potline.png';
+import potline from "../Assets/potline.png";
+import ThreeDModel from "./ThreeDModel";
+import loadingGif from "../Assets/loading.gif";
 import { FaBell, FaBatteryFull } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
-import { LuRadioTower } from "react-icons/lu";
-import { MdOutlineUpdate, MdSystemSecurityUpdateWarning } from "react-icons/md";
+import { TiArrowRightThick, TiArrowLeftThick } from "react-icons/ti";
+import {
+  MdOutlineUpdate,
+  MdSignalCellular1Bar,
+  MdSignalCellular2Bar,
+  MdSignalCellular3Bar,
+  MdSignalCellular4Bar,
+} from "react-icons/md";
 import { BsThermometerSun, BsDatabaseFillCheck } from "react-icons/bs";
-import { LiaRulerVerticalSolid } from "react-icons/lia";
 import { IoWarningSharp } from "react-icons/io5";
-import { IoMdSettings } from "react-icons/io";
-import { RiCloseCircleLine } from "react-icons/ri";
+import {
+  GiBattery25,
+  GiBattery50,
+  GiBattery75,
+  GiBattery100,
+} from "react-icons/gi";
 import ApexCharts from "react-apexcharts";
-import Navbar from './Navbar';
+import Navbar from "./Navbar";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
-import { LineChart } from "@mui/x-charts";
-import { ChartsReferenceLine } from "@mui/x-charts/ChartsReferenceLine";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -43,14 +53,50 @@ ChartJS.register(
   zoomPlugin
 );
 
-const Dashboard = ({dataFromApp}) => {
-  console.log("data", dataFromApp);
+const Dashboard = ({
+  dataFromApp,
+  thresholdGraphData,
+  thresholdGraphDateRange,
+  processIsRunning,
+  processTimeLeft,
+}) => {
+  // console.log("threshold graph data", thresholdGraphData);
+  // console.log("time left", processTimeLeft);
 
-  const [settingsPopup, setSettingsPopup] = useState(false);
+  // console.log("data", dataFromApp);
 
-  const alertLimitFromLS = parseFloat(
-    localStorage.getItem("HindalcoAlertLimit")
+  const [activeStatus, setActiveStatus] = useState("");
+  const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
+  const [previousProcessDataLoading, setPreviousProcessDataLoading] =
+    useState(false);
+  const [previousProcessData, setPreviousProcessData] = useState([]);
+  const [clickedLegends, setClickedLegends] = useState(["T1"]);
+  const [stopPopup, setStopPopup] = useState(false);
+  const [coords, setCoords] = useState([0, 0]);
+  const [meshName, setMeshName] = useState('');
+
+  // 3d model hover
+  const handleCoordsUpdate = (newCoords) => {
+    setCoords(newCoords);
+  };
+
+  const handleMeshName = (newName) => {
+    setMeshName(newName);
+  };
+
+  console.log("coords in  main file", coords);
+
+  const upperThresholdData = Array.from(
+    { length: 732 },
+    (_, i) => 150 + (i * (900 - 150)) / 731
   );
+  const lowerThresholdData = Array.from(
+    { length: 732 },
+    (_, i) => (i * 400) / 731
+  );
+
+  // console.log('upper threshold data', upperThresholdData);
+  // console.log('lower threshold data', lowerThresholdData);
 
   // line chart limit
   const getInitialLimit = () => {
@@ -64,15 +110,6 @@ const Dashboard = ({dataFromApp}) => {
     const limit = parseInt(e.target.value);
     setHindalcoLimit(limit);
     localStorage.setItem("HindalcoLimit", limit.toString());
-  };
-
-  // card alert limit
-  const [hindalcoAlertLimit, setHindalcoAlertLimit] = useState("");
-
-  const handleAlertLimit = (e) => {
-    e.preventDefault();
-    localStorage.setItem("HindalcoAlertLimit", hindalcoAlertLimit.toString());
-    setHindalcoAlertLimit("");
   };
 
   // cards view more condition
@@ -93,36 +130,51 @@ const Dashboard = ({dataFromApp}) => {
     });
   };
 
-  // alerts array
-  const alertsArray =
-    dataFromApp.length > 0
-      ? Object.entries(dataFromApp[0])
-          .filter(
-            ([key, value]) =>
-              key !== "_id" &&
-              key !== "DeviceName" &&
-              key !== "DeviceTemperature" &&
-              key !== "DeviceBattery" &&
-              key !== "DeviceSignal" &&
-              key !== "Time" &&
-              value !== "N/A"
-          )
-          .filter(([key, value]) => value >= alertLimitFromLS)
-          .map(([key, value]) => {
-            return { key, value };
-          })
-      : [];
+  const alertsArray = [];
 
-  const alertKeys = alertsArray.map(({ key }) => key); 
+  if (thresholdGraphData.length > 0) {
+    const latestData = thresholdGraphData[0];
+    const time = thresholdGraphData[0].Time;
+    const index = thresholdGraphData.length - 1;
 
-  // console.log('alerts array', alertsArray);
-  // console.log('alert keys', alertKeys);
+    Object.entries(latestData)
+      .filter(([key]) => key !== "Time" && key !== "_id")
+      .forEach(([key, value]) => {
+        const sensorValue = parseFloat(value);
+        const upperThresholdValue = upperThresholdData[index];
+        const lowerThresholdValue = lowerThresholdData[index];
+
+        const alertIndex = alertsArray.findIndex((alert) => alert[key]);
+
+        if (
+          sensorValue > upperThresholdValue ||
+          sensorValue < lowerThresholdValue
+        ) {
+          if (alertIndex === -1) {
+            alertsArray.push({ [key]: sensorValue, Time: time });
+          } else {
+            alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
+          }
+        } else {
+          if (alertIndex !== -1) {
+            alertsArray.splice(alertIndex, 1);
+          }
+        }
+      });
+  }
+
+  const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
+
+  // console.log("threshold graph data", thresholdGraphData);
+
+  // console.log("alerts array", alertsArray);
+  // console.log("alert keys", alertKeys);
+  // const alertKeys = [];
 
   // bar chart options
   const [barData, setBarData] = useState(() => {
-
     const screenWidth = window.innerWidth;
-    const axisFontSize = screenWidth < 1536 ? '6px' : '8px'; 
+    const axisFontSize = screenWidth < 1536 ? "6px" : "8px";
 
     return {
       series: [],
@@ -205,8 +257,184 @@ const Dashboard = ({dataFromApp}) => {
     datasets: [],
   });
 
-  const [activeStatus, setActiveStatus] = useState("");
-  // console.log('active status', activeStatus);
+  // console.log("upperThresholdData ", upperThresholdData);
+  // console.log("second Line Data", secondLineData);
+
+  const allLabels = Array.from(
+    { length: 732 },
+    (_, i) => Math.floor(i / 12) + 1
+  );
+
+  // Only display the unique section labels and leave the rest as empty strings
+  const displayLabels = allLabels.map((label, index) =>
+    index % 12 === 0 ? label.toString() : ""
+  );
+
+  // console.log('display labels', displayLabels);
+
+  const initialData = {
+    labels: displayLabels,
+    datasets: [
+      {
+        label: "Upper Threshold",
+        data: upperThresholdData,
+        borderColor: "red",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        tooltip: { enabled: false },
+        borderDash: [5, 5], // Disable tooltip
+      },
+      {
+        label: "Lower Threshold",
+        data: lowerThresholdData,
+        borderColor: "red",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        tooltip: { enabled: false },
+        borderDash: [5, 5], // Disable tooltip
+      },
+    ],
+  };
+
+  const sensorColors = [
+    "rgb(35, 67, 155)",
+    "rgb(240,5,5)",
+    "rgb(40, 167, 69)",
+    "rgb(255, 193, 7)",
+    "rgb(153, 50, 204)",
+    "rgb(163, 106, 2)",
+    "rgb(241, 110, 250)",
+    "rgb(0, 255, 127)",
+    "rgb(148, 72, 148)",
+    "rgb(240, 128, 128)",
+    "rgb(255, 20, 147)",
+    "rgb(0, 191, 255)",
+    "rgb(75, 0, 130)",
+    "rgb(255, 99, 71)",
+    "rgb(255, 222, 173)",
+  ];
+
+  const [lineData2, setLineData2] = useState(initialData);
+
+  useEffect(() => {
+    if (thresholdGraphData && thresholdGraphData.length > 0) {
+      const reversedData = [...thresholdGraphData].reverse();
+
+      const sensorData = Array.from({ length: 15 }, (_, i) =>
+        reversedData.map((item) => item[`T${i + 1}`])
+      );
+
+      const datasets = clickedLegends.map((legendLabel, index) => {
+        const sensorIndex = parseInt(legendLabel.replace("T", "")) - 1;
+        return {
+          label: legendLabel,
+          data: sensorData[sensorIndex],
+          borderColor: sensorColors[sensorIndex],
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+        };
+      });
+
+      setLineData2((prevData) => ({
+        ...prevData,
+        datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
+      }));
+    }
+  }, [thresholdGraphData, clickedLegends]);
+
+  const lineOptions2 = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          display: false, // Disable legend
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: "x",
+          },
+          zoom: {
+            mode: "x",
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          min: 0,
+          max: 732, // x-axis range
+          ticks: {
+            font: {
+              size: 7,
+            },
+            autoSkip: false,
+            maxRotation: 0,
+            callback: function (value, index) {
+              return index % 24 === 0 ? this.getLabelForValue(value) : "";
+            },
+          },
+        },
+        y: {
+          min: 0,
+          max: 1000, // y-axis range
+          ticks: {
+            stepSize: 100,
+            font: {
+              size: 8,
+            },
+          },
+        },
+      },
+    }),
+    []
+  );
+
+  const [lineData3, setLineData3] = useState(initialData);
+
+  useEffect(() => {
+    if (previousProcessData && previousProcessData.length > 0) {
+      const reversedData = [...previousProcessData].reverse();
+
+      const sensorData = Array.from({ length: 15 }, (_, i) =>
+        reversedData.map((item) => item[`T${i + 1}`])
+      );
+
+      const datasets = clickedLegends.map((legendLabel, index) => {
+        const sensorIndex = parseInt(legendLabel.replace("T", "")) - 1;
+        return {
+          label: legendLabel,
+          data: sensorData[sensorIndex],
+          borderColor: sensorColors[sensorIndex],
+          borderWidth: 1.25,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+        };
+      });
+
+      setLineData3((prevData) => ({
+        ...prevData,
+        datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
+      }));
+    }
+  }, [previousProcessData, clickedLegends]);
 
   // chart data assignment
   useEffect(() => {
@@ -215,21 +443,21 @@ const Dashboard = ({dataFromApp}) => {
       const barSeries = [];
       const barColors = [];
 
-      // for activity status 
+      // for activity status
       const currentDate = new Date();
       const lastDataEntry = dataFromApp[0];
 
       if (lastDataEntry && lastDataEntry.Time) {
-        const lastDataTime = new Date(lastDataEntry.Time.replace(',', 'T'));
-         const timeDifference = currentDate.getTime() - lastDataTime.getTime();
-         const differenceInMinutes = timeDifference / (1000 * 60);
+        const lastDataTime = new Date(lastDataEntry.Time.replace(",", "T"));
+        const timeDifference = currentDate.getTime() - lastDataTime.getTime();
+        const differenceInMinutes = timeDifference / (1000 * 60);
 
-         if (differenceInMinutes < 5) {
-           setActiveStatus("Active");
-         } else {
-           setActiveStatus("Inactive");
-         }
-      };
+        if (differenceInMinutes < 5) {
+          setActiveStatus("Active");
+        } else {
+          setActiveStatus("Inactive");
+        }
+      }
 
       Object.keys(dataFromApp[0]).forEach((key) => {
         if (viewAllCards === true) {
@@ -244,8 +472,11 @@ const Dashboard = ({dataFromApp}) => {
           ) {
             barCategories.push(key);
             // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
-              barSeries.push(null); 
+            if (
+              dataFromApp[0][key] === "N/A" ||
+              isNaN(parseFloat(dataFromApp[0][key]))
+            ) {
+              barSeries.push(null);
             } else {
               barSeries.push(parseFloat(dataFromApp[0][key]));
             }
@@ -272,7 +503,10 @@ const Dashboard = ({dataFromApp}) => {
           ) {
             barCategories.push(key);
             // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (dataFromApp[0][key] === "N/A" || isNaN(parseFloat(dataFromApp[0][key]))) {
+            if (
+              dataFromApp[0][key] === "N/A" ||
+              isNaN(parseFloat(dataFromApp[0][key]))
+            ) {
               barSeries.push(null);
             } else {
               barSeries.push(parseFloat(dataFromApp[0][key]));
@@ -307,248 +541,33 @@ const Dashboard = ({dataFromApp}) => {
       const lineLabels = reversedData.map((item) => {
         return item.Time;
       });
-      const sensor1Data = reversedData.map((item) => item.S1);
-      const sensor2Data = reversedData.map((item) => item.S2);
-      const sensor3Data = reversedData.map((item) => item.S3);
-      const sensor4Data = reversedData.map((item) => item.S4);
-      const sensor5Data = reversedData.map((item) => item.S5);
-      const sensor6Data = reversedData.map((item) => item.S6);
-      const sensor7Data = reversedData.map((item) => item.S7);
-      const sensor8Data = reversedData.map((item) => item.S8);
-      const sensor9Data = reversedData.map((item) => item.S9);
-      const sensor10Data = reversedData.map((item) => item.S10);
-      const sensor11Data = reversedData.map((item) => item.S11);
-      const sensor12Data = reversedData.map((item) => item.S12);
-      const sensor13Data = reversedData.map((item) => item.S13);
-      const sensor14Data = reversedData.map((item) => item.S14);
-      const sensor15Data = reversedData.map((item) => item.S15);
+      const sensorData = Array.from({ length: 15 }, (_, i) =>
+        reversedData.map((item) => item[`T${i + 1}`])
+      );
 
-      
+      const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
 
       setLineData({
         labels: lineLabels,
-        datasets: [
-          {
-            label: "S1",
-            data: sensor1Data,
-            borderColor: "rgb(35, 67, 155)", // Vibrant Red
-            backgroundColor: "rgba(35, 67, 155, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-          },
-          {
-            label: "S2",
-            data: sensor2Data,
-            borderColor: "rgb(240,5,5)", // Bright Blue
-            backgroundColor: "rgba(240,5,5, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S3",
-            data: sensor3Data,
-            borderColor: "rgb(40, 167, 69)", // Bright Green
-            backgroundColor: "rgba(40, 167, 69, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S4",
-            data: sensor4Data,
-            borderColor: "rgb(255, 193, 7)", // Bright Yellow
-            backgroundColor: "rgba(255, 193, 7, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S5",
-            data: sensor5Data,
-            borderColor: "rgb(153, 50, 204)", // Vibrant Purple
-            backgroundColor: "rgba(153, 50, 204, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S6",
-            data: sensor6Data,
-            borderColor: "rgb(163, 106, 2)", // Bright Orange
-            backgroundColor: "rgba(163, 106, 2, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S7",
-            data: sensor7Data,
-            borderColor: "rgb(241, 110, 250)", // Vibrant Tomato Red
-            backgroundColor: "rgba(241, 110, 250, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S8",
-            data: sensor8Data,
-            borderColor: "rgb(0, 255, 127)", // Medium Sea Green
-            backgroundColor: "rgba(0, 255, 127, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S9",
-            data: sensor9Data,
-            borderColor: "rgb(148, 72, 148)", // Violet
-            backgroundColor: "rgba(148, 72, 148, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S10",
-            data: sensor10Data,
-            borderColor: "rgb(240, 128, 128)", // Light Coral
-            backgroundColor: "rgba(240, 128, 128, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S11",
-            data: sensor11Data,
-            borderColor: "rgb(255, 20, 147)", // Deep Pink
-            backgroundColor: "rgba(255, 20, 147, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S12",
-            data: sensor12Data,
-            borderColor: "rgb(0, 191, 255)", // Deep Sky Blue
-            backgroundColor: "rgba(0, 191, 255, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S13",
-            data: sensor13Data,
-            borderColor: "rgb(75, 0, 130)", // Indigo
-            backgroundColor: "rgba(75, 0, 130, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S14",
-            data: sensor14Data,
-            borderColor: "rgb(255, 99, 71)", // Bright Coral
-            backgroundColor: "rgba(255, 99, 71, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-          {
-            label: "S15",
-            data: sensor15Data,
-            borderColor: "rgb(255, 222, 173)", // Light Peach
-            backgroundColor: "rgba(255, 222, 173, 0.2)",
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 1.25,
-            hidden: true,
-          },
-        ],
+        datasets: sensorData.map((data, i) => ({
+          label: sensorLabels[i],
+          data,
+          borderColor: sensorColors[i],
+          backgroundColor: `${sensorColors[i]
+            .replace("rgb", "rgba")
+            .replace(")", ", 0.2)")}`,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 1.25,
+          hidden: !clickedLegends.includes(sensorLabels[i]),
+        })),
       });
     }
-  }, [dataFromApp, viewAllCards]);
-
-
-  // const lineOptions = useMemo(
-  //   () => ({
-  //     responsive: true,
-  //     maintainAspectRatio: false,
-  //     plugins: {
-  //       legend: {
-  //         position: "top",
-  //         labels: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 8,
-  //           },
-  //           boxWidth: 20,
-  //           padding: 5,
-  //         },
-  //       },
-  //       zoom: {
-  //         pan: {
-  //           enabled: true,
-  //           mode: "x",
-  //         },
-  //         zoom: {
-  //           enabled: true,
-  //           mode: "x",
-  //           wheel: {
-  //             enabled: true,
-  //           },
-  //           pinch: {
-  //             enabled: true,
-  //           },
-  //         },
-  //       },
-  //       customLineSegment: {},
-  //     },
-  //     scales: {
-  //       x: {
-  //         grid: {
-  //           display: false,
-  //         },
-  //         ticks: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 6,
-  //           },
-  //         },
-  //       },
-  //       y: {
-  //         grid: {
-  //           display: true,
-  //         },
-  //         ticks: {
-  //           color: "#4B5563",
-  //           font: {
-  //             size: 6,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   }),
-  //   []
-  // );
+  }, [dataFromApp, viewAllCards, clickedLegends]);
 
   const lineOptions = useMemo(() => {
-    
     const screenWidth = window.innerWidth;
-    const axisFontSize = screenWidth < 1536 ? 6 : 8; 
+    const axisFontSize = screenWidth < 1536 ? 6 : 8;
 
     return {
       responsive: true,
@@ -559,10 +578,24 @@ const Dashboard = ({dataFromApp}) => {
           labels: {
             color: "#4B5563",
             font: {
-              size: 8,
+              size: 10,
             },
-            boxWidth: 20,
+            boxWidth: 25,
             padding: 5,
+          },
+          onClick: (e, legendItem) => {
+            const index = legendItem.datasetIndex;
+            const datasetLabel = legendItem.text;
+
+            setClickedLegends((prevClickedLegends) => {
+              if (prevClickedLegends.includes(datasetLabel)) {
+                return prevClickedLegends.filter(
+                  (label) => label !== datasetLabel
+                );
+              } else {
+                return [...prevClickedLegends, datasetLabel];
+              }
+            });
           },
         },
         zoom: {
@@ -571,7 +604,6 @@ const Dashboard = ({dataFromApp}) => {
             mode: "x",
           },
           zoom: {
-            enabled: true,
             mode: "x",
             wheel: {
               enabled: true,
@@ -581,7 +613,6 @@ const Dashboard = ({dataFromApp}) => {
             },
           },
         },
-        customLineSegment: {},
       },
       scales: {
         x: {
@@ -591,7 +622,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, // Dynamically set the font size based on screen size
+              size: axisFontSize,
             },
           },
         },
@@ -602,7 +633,7 @@ const Dashboard = ({dataFromApp}) => {
           ticks: {
             color: "#4B5563",
             font: {
-              size: axisFontSize, // Dynamically set the font size based on screen size
+              size: axisFontSize,
             },
           },
         },
@@ -610,29 +641,58 @@ const Dashboard = ({dataFromApp}) => {
     };
   }, []);
 
- 
-  const minThreshold = 40; 
-  const maxThreshold = 75; 
-  const thresholds = [minThreshold, maxThreshold]; 
-  const colors = ['red', 'green', 'red'];
+  const updateHindalcoProcess = async (processStatus) => {
+    try {
+      // console.log("process status", processStatus);
+      await axios.post(
+        "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+        // "http://localhost:4000/backend/updateHindalcoProcess",
+        {
+          processStatus,
+        }
+      );
+    } catch (error) {
+      console.error("Error updating hindalco process", error);
+    }
+  };
 
-  const dataPoints = dataFromApp.length > 0 && Object.values(dataFromApp);
-  const first10DataPoints = dataPoints.slice(0, 10).reverse();
+  const getProcessDateRangeData = async (selectedDateRange) => {
+    try {
+      if (selectedDateRange !== "default") {
+        setPreviousProcessDataLoading(true);
+        const split = selectedDateRange.split("to");
+        const startDate = split[0];
+        const stopDate = split[1];
 
-  const actualXAxisData = first10DataPoints.map(point => {
-    const timePart = point.Time.split(',');
-    return timePart[1];
-  }); 
-  const actualSeriesData1 = first10DataPoints.map(point => point.S1 !== "N/A" ? Number(point.S1) : null); 
-  // const actualSeriesData2 = first10DataPoints.map(point => point.S2 !== "N/A" ? Number(point.S2) : null); 
-  // const actualSeriesData3 = first10DataPoints.map(point => point.S3 !== "N/A" ? Number(point.S3) : null); 
+        const response = await axios.get(
+          "https://hindalco.xyma.live/backend/getHindalcoReport",
+          // "http://localhost:4000/backend/getHindalcoReport",
+          {
+            params: {
+              projectName: "XY001",
+              startDate: startDate,
+              stopDate: stopDate,
+            },
+          }
+        );
+        setPreviousProcessDataLoading(false);
+        if (response.data.success) {
+          setPreviousProcessData(response.data.data);
+        } else {
+          console.log("Error fetching previous process data");
+        }
+      } else {
+        alert("Please pick a valid Date Range!");
+      }
+    } catch (error) {
+      console.error("Error getting date range data", error);
+    }
+  };
 
-  // console.log("actualXAxisData", actualXAxisData);
-  // console.log("actualSeriesData", actualSeriesData);
-
+  // console.log("previous process data", previousProcessData);
 
   return (
-    <div className="xl:h-screen p-4 flex flex-col gap-2 2x">
+    <div className="relative xl:h-screen p-4 flex flex-col gap-2">
       {/* top bar - h-[10%] */}
       <div className="xl:h-[10%]">
         <Navbar />
@@ -643,7 +703,16 @@ const Dashboard = ({dataFromApp}) => {
         {/* 2d image */}
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
-            <div className="relative w-full md:w-[55%] flex justify-center items-center p-4  ">
+            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center  overflow-hidden h-[200px] xl:h-auto">
+              {/* 3d model */}
+              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px] ">
+                <ThreeDModel
+                  alertKeys={alertKeys}
+                  coordsUpdateFunc={handleCoordsUpdate}
+                  meshNameFunc={handleMeshName}
+                />
+              </div>
+
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
@@ -664,10 +733,24 @@ const Dashboard = ({dataFromApp}) => {
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Signal Strength"
                 >
-                  <LuRadioTower className="text-lg 2xl:text-xl" />
-                  <div className="font-medium text-black">
-                    {dataFromApp.length > 0 && dataFromApp[0].DeviceSignal}%
-                  </div>
+                  {dataFromApp.length > 0 && (
+                    <>
+                      {dataFromApp[0].DeviceSignal >= 22.5 && (
+                        <MdSignalCellular4Bar className="text-lg 2xl:text-xl" />
+                      )}
+                      {dataFromApp[0].DeviceSignal >= 15 &&
+                        dataFromApp[0].DeviceSignal < 22.5 && (
+                          <MdSignalCellular3Bar className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceSignal >= 7.5 &&
+                        dataFromApp[0].DeviceSignal < 15 && (
+                          <MdSignalCellular2Bar className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceSignal < 7.5 && (
+                        <MdSignalCellular1Bar className="text-lg 2xl:text-xl" />
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* battery */}
@@ -676,10 +759,24 @@ const Dashboard = ({dataFromApp}) => {
                   data-tooltip-id="tooltip-style"
                   data-tooltip-content="Battery Percentage"
                 >
-                  <FaBatteryFull className="text-lg 2xl:text-xl" />
-                  <div className="font-medium text-black">
-                    {dataFromApp.length > 0 && dataFromApp[0].DeviceBattery}%
-                  </div>
+                  {dataFromApp.length > 0 && (
+                    <>
+                      {dataFromApp[0].DeviceBattery >= 75 && (
+                        <GiBattery100 className="text-lg 2xl:text-xl" />
+                      )}
+                      {dataFromApp[0].DeviceBattery >= 50 &&
+                        dataFromApp[0].DeviceBattery < 75 && (
+                          <GiBattery75 className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceBattery >= 25 &&
+                        dataFromApp[0].DeviceBattery < 50 && (
+                          <GiBattery50 className="text-lg 2xl:text-xl" />
+                        )}
+                      {dataFromApp[0].DeviceBattery < 25 && (
+                        <GiBattery25 className="text-lg 2xl:text-xl" />
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* activity status */}
@@ -701,13 +798,7 @@ const Dashboard = ({dataFromApp}) => {
                   </div>
                 )}
               </div>
-              <div className="h-[150px] md:h-auto flex items-center  ">
-                <img
-                  src={potline}
-                  alt="potline"
-                  className="max-w-[250px] md:max-w-[300px] 2xl:max-w-[450px]"
-                />
-              </div>
+
               {/* view all cards */}
               <div
                 className="absolute bottom-1 left-1 hover:scale-110 duration-200 text-black"
@@ -754,38 +845,47 @@ const Dashboard = ({dataFromApp}) => {
           <div
             className={`xl:h-[45%] grid grid-cols-2 md:grid-cols-5 ${
               viewAllCards && "md:grid-cols-8"
-            } gap-1 overflow-auto`}
-            style={{ scrollbarWidth: "none" }}
+            } gap-1 `}
           >
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
-                (dataFromApp.length > 0 && dataFromApp[0].S1) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S1 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T1")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S1 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T1")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;1
+                  T1
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S1)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T1)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S1
+                        dataFromApp.length > 0 && dataFromApp[0].T1
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -793,33 +893,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S2) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S2 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T2")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S2 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T2")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;2
+                  T2
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S2)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T2)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S2
+                        dataFromApp.length > 0 && dataFromApp[0].T2
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -827,33 +937,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S3) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S3 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T3")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S3 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T3")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;3
+                  T3
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S3)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T3)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S3
+                        dataFromApp.length > 0 && dataFromApp[0].T3
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -861,33 +981,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S4) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S4 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T4")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S4 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T4")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;4
+                  T4
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S4)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T4)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S4
+                        dataFromApp.length > 0 && dataFromApp[0].T4
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -895,33 +1025,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S5) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S5 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T5")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S5 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T5")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;5
+                  T5
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S5)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T5)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S5
+                        dataFromApp.length > 0 && dataFromApp[0].T5
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -929,33 +1069,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S6) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S6 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T6")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S6 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T6")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;6
+                  T6
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S6)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T6)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S6
+                        dataFromApp.length > 0 && dataFromApp[0].T6
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -963,33 +1113,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S7) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S7 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T7")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S7 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T7")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;7
+                  T7
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S7)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T7)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S7
+                        dataFromApp.length > 0 && dataFromApp[0].T7
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -997,33 +1157,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S8) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S8 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T8")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S8 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T8")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;8
+                  T8
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S8)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T8)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S8
+                        dataFromApp.length > 0 && dataFromApp[0].T8
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1031,33 +1201,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S9) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S9 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T9")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S9 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T9")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;9
+                  T9
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S9)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T9)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S9
+                        dataFromApp.length > 0 && dataFromApp[0].T9
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1065,33 +1245,43 @@ const Dashboard = ({dataFromApp}) => {
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].S10) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A"
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : dataFromApp.length > 0 &&
-                    dataFromApp[0].S10 >= alertLimitFromLS
+                  : alertKeys.length > 0 && alertKeys.includes("T10")
                   ? "card-indicator"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
-              <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+              <BsThermometerSun
+                className={`${
+                  viewAllCards
+                    ? "text-xl 2xl:text-3xl"
+                    : "text-3xl 2xl:text-4xl"
+                }`}
+              />
               <div>
                 <div
                   className={`${
-                    dataFromApp.length > 0 &&
-                    dataFromApp[0].S10 >= alertLimitFromLS
+                    alertKeys.length > 0 && alertKeys.includes("T10")
                       ? "text-white"
                       : "text-black"
                   } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                 >
-                  Sensor&nbsp;10
+                  T10
                 </div>
-                <div className="text-lg 2xl:text-4xl font-bold">
+                <div
+                  className={`font-bold ${
+                    viewAllCards
+                      ? "text-base 2xl:text-2xl"
+                      : "text-lg 2xl:text-3xl"
+                  }`}
+                >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].S10)
+                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T10)
                   )
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].S10
+                        dataFromApp.length > 0 && dataFromApp[0].T10
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1102,33 +1292,43 @@ const Dashboard = ({dataFromApp}) => {
               <>
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].S11) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : dataFromApp.length > 0 &&
-                        dataFromApp[0].S11 >= alertLimitFromLS
+                      : alertKeys.length > 0 && alertKeys.includes("T11")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        dataFromApp.length > 0 &&
-                        dataFromApp[0].S11 >= alertLimitFromLS
+                        alertKeys.length > 0 && alertKeys.includes("T11")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
-                      Sensor&nbsp;11
+                      T11
                     </div>
-                    <div className="text-lg 2xl:text-4xl font-bold">
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].S11)
+                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T11)
                       )
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].S11
+                            dataFromApp.length > 0 && dataFromApp[0].T11
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1136,33 +1336,43 @@ const Dashboard = ({dataFromApp}) => {
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].S12) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : dataFromApp.length > 0 &&
-                        dataFromApp[0].S12 >= alertLimitFromLS
+                      : alertKeys.length > 0 && alertKeys.includes("T12")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        dataFromApp.length > 0 &&
-                        dataFromApp[0].S12 >= alertLimitFromLS
+                        alertKeys.length > 0 && alertKeys.includes("T12")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
-                      Sensor&nbsp;12
+                      T12
                     </div>
-                    <div className="text-lg 2xl:text-4xl font-bold">
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].S12)
+                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T12)
                       )
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].S12
+                            dataFromApp.length > 0 && dataFromApp[0].T12
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1170,33 +1380,43 @@ const Dashboard = ({dataFromApp}) => {
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].S13) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : dataFromApp.length > 0 &&
-                        dataFromApp[0].S13 >= alertLimitFromLS
+                      : alertKeys.length > 0 && alertKeys.includes("T13")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        dataFromApp.length > 0 &&
-                        dataFromApp[0].S13 >= alertLimitFromLS
+                        alertKeys.length > 0 && alertKeys.includes("T13")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
-                      Sensor&nbsp;13
+                      T13
                     </div>
-                    <div className="text-lg 2xl:text-4xl font-bold">
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].S13)
+                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T13)
                       )
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].S13
+                            dataFromApp.length > 0 && dataFromApp[0].T13
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1204,33 +1424,43 @@ const Dashboard = ({dataFromApp}) => {
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].S14) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : dataFromApp.length > 0 &&
-                        dataFromApp[0].S14 >= alertLimitFromLS
+                      : alertKeys.length > 0 && alertKeys.includes("T14")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        dataFromApp.length > 0 &&
-                        dataFromApp[0].S14 >= alertLimitFromLS
+                        alertKeys.length > 0 && alertKeys.includes("T14")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
-                      Sensor&nbsp;14
+                      T14
                     </div>
-                    <div className="text-lg 2xl:text-4xl font-bold">
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].S14)
+                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T14)
                       )
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].S14
+                            dataFromApp.length > 0 && dataFromApp[0].T14
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1238,33 +1468,43 @@ const Dashboard = ({dataFromApp}) => {
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].S15) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A"
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : dataFromApp.length > 0 &&
-                        dataFromApp[0].S15 >= alertLimitFromLS
+                      : alertKeys.length > 0 && alertKeys.includes("T15")
                       ? "card-indicator"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
-                  <BsThermometerSun className="text-2xl 2xl:text-5xl" />
+                  <BsThermometerSun
+                    className={`${
+                      viewAllCards
+                        ? "text-xl 2xl:text-3xl"
+                        : "text-3xl 2xl:text-4xl"
+                    }`}
+                  />
                   <div>
                     <div
                       className={`${
-                        dataFromApp.length > 0 &&
-                        dataFromApp[0].S15 >= alertLimitFromLS
+                        alertKeys.length > 0 && alertKeys.includes("T15")
                           ? "text-white"
                           : "text-black"
                       } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
                     >
-                      Sensor&nbsp;15
+                      T15
                     </div>
-                    <div className="text-lg 2xl:text-4xl font-bold">
+                    <div
+                      className={`font-bold ${
+                        viewAllCards
+                          ? "text-base 2xl:text-2xl"
+                          : "text-lg 2xl:text-3xl"
+                      }`}
+                    >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].S15)
+                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T15)
                       )
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].S15
+                            dataFromApp.length > 0 && dataFromApp[0].T15
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1274,81 +1514,148 @@ const Dashboard = ({dataFromApp}) => {
           </div>
         </div>
 
-        {/* min max chart */}
-        <div className="h-[300px] xl:h-auto rounded-xl w-full xl:w-[30%] flex flex-col bg-[#dde3f1]">
-          <div className="text-center text-[#23439b] text-sm font-medium 2xl:text-base">
-            Trend for last 10 data
-          </div>
-          <LineChart
-            margin={{
-              left: 30,
-              right: 20,
-              top: 10,
-              bottom: 25,
-            }}
-            xAxis={[
-              {
-                data: actualXAxisData,
-                scaleType: "band",
-              },
-            ]}
-            series={[
-              {
-                // label: "S1",
-                data: actualSeriesData1,
-                showMark: false,
-              },
-              // {
-              //   label: "S2",
-              //   data: actualSeriesData2,
-              //   showMark: false,
-              // },
-              // {
-              //   label: "S3",
-              //   data: actualSeriesData3,
-              //   showMark: false,
-              // },
-            ]}
-            yAxis={[
-              {
-                min: 0,
-                max: 100,
-                colorMap: {
-                  type: "piecewise",
-                  thresholds: thresholds,
-                  colors: colors,
-                },
-              },
-            ]}
-          >
-            <ChartsReferenceLine
-              y={40}
-              lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
-            />
-            <ChartsReferenceLine
-              y={75}
-              lineStyle={{ stroke: "red", strokeDasharray: "5 5" }}
-            />
-          </LineChart>
+        {/* threshold chart */}
+        <div className="relative h-[350px] xl:h-auto rounded-xl w-full xl:w-[30%] bg-[#dde3f1] p-2">
+          {!previousProcessDataOpen ? ( //live process data
+            <div className="flex flex-col gap-1 w-full h-full">
+              <div className="flex flex-wrap gap-2 justify-between items-center">
+                <div className="flex gap-2">
+                  {processIsRunning && processIsRunning === true ? (
+                    <>
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Start
+                      </button>
+
+                      <button
+                        className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                        onClick={() => setStopPopup(true)}
+                      >
+                        Stop
+                      </button>
+                    </>
+                  ) : processIsRunning === false ? (
+                    <>
+                      <button
+                        className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                        onClick={() => {
+                          updateHindalcoProcess("Start");
+                        }}
+                      >
+                        Start
+                      </button>
+
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Stop
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Start
+                      </button>
+
+                      <button className="bg-gray-300 text-gray-500 text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 cursor-not-allowed">
+                        Stop
+                      </button>
+                    </>
+                  )}
+
+                  {processIsRunning && processIsRunning === true ? (
+                    <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b] border-[1.5px] border-green-400">
+                      Process&nbsp;Running
+                    </div>
+                  ) : processIsRunning === false ? (
+                    <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b] border-indicator">
+                      Process&nbsp;Expired
+                    </div>
+                  ) : (
+                    <div>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={() => setPreviousProcessDataOpen(true)}
+                    className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                  >
+                    Previous&nbsp;Process&nbsp;Data
+                    <TiArrowRightThick className="text-lg 2xl:text-xl" />
+                  </button>
+
+                  <div className="text-[10px] text-[#23439b] font-medium 2xl:text-base bg-white rounded-sm px-2 xl:hidden">
+                    Time Left: {processTimeLeft}
+                  </div>
+                </div>
+              </div>
+
+              <div className="justify-end hidden xl:flex">
+                <div className="text-[10px] text-[#23439b] font-medium 2xl:text-base bg-white rounded-sm px-2">
+                  Time Left: {processTimeLeft}
+                </div>
+              </div>
+
+              <div className="h-full w-full">
+                <Line data={lineData2} options={lineOptions2} width={"100%"} />
+              </div>
+            </div>
+          ) : (
+            //previous process data
+            <div className="flex flex-col h-full w-full">
+              <div className="flex flex-wrap gap-2 justify-between">
+                <button
+                  onClick={() => {
+                    setPreviousProcessDataOpen(false);
+                    setPreviousProcessData([]);
+                  }}
+                  className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                >
+                  <TiArrowLeftThick className="text-lg 2xl:text-xl" />
+                  Live&nbsp;Data
+                </button>
+
+                <div className="flex gap-1 text-xs 2xl:text-base font-medium items-center">
+                  <select
+                    onChange={(e) => getProcessDateRangeData(e.target.value)}
+                    className="rounded-md px-1 py-0.5 cursor-pointer"
+                  >
+                    <option value="default">Pick Date Range</option>
+                    {thresholdGraphDateRange &&
+                      thresholdGraphDateRange.length > 0 &&
+                      thresholdGraphDateRange.map((data, i) => (
+                        <option
+                          key={i}
+                          value={`${data.startTime}to${data.stopTime}`}
+                        >
+                          {data.startTime} to {data.stopTime}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+              <div className="h-full w-full">
+                <Line data={lineData3} options={lineOptions2} width={"100%"} />
+              </div>
+            </div>
+          )}
+
+          {previousProcessDataLoading && (
+            <div className="absolute inset-0 bg-black/70 rounded-xl flex flex-col justify-center items-center font-semibold text-sm">
+              <div className="text-white">Retrieving Process Data!</div>
+              <img src={loadingGif} className="max-w-[40px]" />
+            </div>
+          )}
         </div>
       </div>
 
       {/* main content 2 h-[40%] */}
       <div className="h-[40%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
         {/* alert box */}
-        <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[300px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
+        <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[350px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
           <div className=" relative flex justify-center gap-2 items-center py-1 px-2 font-bold text-[#23439b] ">
             <div className="2xl:text-xl">Alerts</div>
-            <div
-              className="text-xl absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer hover:scale-125 duration-200 z-10"
-              onClick={() => setSettingsPopup(!settingsPopup)}
-            >
-              {settingsPopup === true ? (
-                <RiCloseCircleLine className="text-2xl" />
-              ) : (
-                <IoMdSettings />
-              )}
-            </div>
           </div>
           <div
             className="relative flex flex-col flex-1 text-gray-800 px-2 overflow-auto"
@@ -1369,62 +1676,33 @@ const Dashboard = ({dataFromApp}) => {
             </div>
 
             {alertsArray.length > 0 ? (
-              alertsArray.map(({ key, value }) => (
-                <div className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base">
-                  <div>{key}</div>
-                  <div>-</div>
-                  <div className="font-medium">{value}&nbsp;°C</div>
-                  <div>-</div>
-                  <div>{dataFromApp.length > 0 && dataFromApp[0].Time}</div>
-                </div>
-              ))
+              alertsArray.map((alert, index) => {
+                const key = Object.keys(alert)[0];
+                const value = alert[key];
+
+                return (
+                  <div
+                    key={index}
+                    className="rounded-md text-white bg-gradient-to-tr from-red-700 via-red-500 to-red-400 p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base"
+                  >
+                    <div>{key}</div>
+                    <div>-</div>
+                    <div className="font-medium">{value}&nbsp;°C</div>
+                    <div>-</div>
+                    <div>{alert.Time}</div>
+                  </div>
+                );
+              })
             ) : (
               <div className="absolute inset-0 flex justify-center items-center text-sm ">
                 No new Alerts
               </div>
             )}
           </div>
-          {/* settings popup */}
-          {settingsPopup && (
-            <form
-              className="absolute inset-0 rounded-md flex flex-col justify-evenly gap-4 md:gap-0 p-2 bg-[#dde3f1]"
-              onSubmit={handleAlertLimit}
-            >
-              <div className="flex items-center justify-center text-[#23439b]">
-                <LiaRulerVerticalSolid className="text-2xl 2xl:text-3xl" />
-                <div className="font-medium">Alert&nbsp;limit</div>
-              </div>
-              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-                <div>Current&nbsp;Limit</div>
-                <div className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-xl text-center border border-b-gray-700 border-t-transparent border-l-transparent border-r-transparent">
-                  {localStorage.getItem("HindalcoAlertLimit")}°C
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm 2xl:text-xl">
-                <div>Change&nbsp;Limit</div>
-                <input
-                  type="text"
-                  required
-                  className="py-0.5 px-1 w-full text-sm 2xl:text-base font-medium rounded-sm focus:outline-none bg-white"
-                  value={hindalcoAlertLimit}
-                  onChange={(e) => setHindalcoAlertLimit(e.target.value)}
-                  // onClick={handleAlertLimit}
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-[#e4ba4c] hover:scale-[1.03] duration-200 font-medium p-1 px-2 rounded-md"
-                data-tooltip-id="tooltip-style"
-                data-tooltip-content="Set new alert limit"
-              >
-                Set
-              </button>
-            </form>
-          )}
         </div>
 
         {/* line chart card */}
-        <div className=" overflow-hidden p-2 w-full md:w-[75%] h-[300px] xl:h-auto rounded-xl flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]">
+        <div className=" overflow-hidden p-2 w-full md:w-[75%] h-[350px] xl:h-auto rounded-xl flex flex-col-reverse gap-2 md:flex-row bg-[#dde3f1]">
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
@@ -1518,8 +1796,54 @@ const Dashboard = ({dataFromApp}) => {
           fontSize: "0.75rem",
         }}
       />
+
+      {/* 3d model hover */}
+      {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
+        <div
+          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${alertKeys.length > 0 && alertKeys.includes(meshName) ? 'bg-red-500' : 'bg-[#23439b]'}`}
+          style={{
+            top: `${coords[1]}px`,
+            left: `${coords[0]}px`,
+          }}
+        >
+          <div>{meshName}:</div>
+          <div>
+            {isNaN(parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName]))
+              ? "N/A"
+              : `${parseFloat(
+                  dataFromApp.length > 0 && dataFromApp[0][meshName]
+                ).toFixed(1)}°C`}{" "}
+          </div>
+        </div>
+      )}
+
+      {/* stop confirmation popup */}
+      {stopPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center">
+          <div className="bg-white px-4 py-6 flex flex-col gap-6 rounded-md">
+            <div>Do you really want to stop the process?</div>
+            <div className="flex items-center justify-end gap-4">
+              <button
+                className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
+                onClick={() => setStopPopup(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  setStopPopup(false);
+                  updateHindalcoProcess("Stop");
+                }}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default Dashboard;

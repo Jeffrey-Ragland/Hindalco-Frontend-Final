@@ -47,10 +47,12 @@ const Reports = ({dataFromApp}) => {
   useEffect(() => {
     if (dataFromApp) {
       const filteredData = Object.keys(dataFromApp).filter((key) =>
-        key.startsWith("S")); 
+        key.startsWith("T") && key !== 'Time'); 
       setParameters(filteredData);
     }
   }, [dataFromApp]);
+
+  // console.log('parameters', parameters);
 
   // used for setting unselected sensor
   useEffect(() => {
@@ -77,17 +79,19 @@ const Reports = ({dataFromApp}) => {
     });
   };
 
-  const generateExcel = async () => {
+  const generateExcel = async (e) => {
     try {
+      e.preventDefault();
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
         "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
             avgFromDate: avgFromDate,
-            avgToDate : avgToDate,
+            avgToDate: avgToDate,
             fromDate: fromDate,
             toDate: toDate,
             count: count,
@@ -115,12 +119,17 @@ const Reports = ({dataFromApp}) => {
     };
   };
 
-  const generateAverageExcel = async () => {
-    setLoading(true);
+  const generateAverageExcel = async (e) => {
     try {
+<<<<<<< HEAD
       console.log("before api");
+=======
+      e.preventDefault();
+      setLoading(true);
+>>>>>>> 3d96725e7ec6fe17effa461b8badaa085d826e6a
       const response = await axios.get(
         "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        // "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,
@@ -157,10 +166,10 @@ const Reports = ({dataFromApp}) => {
       <div className="h-[10%]">
         <Navbar />
       </div>
-      <div className="relative h-[90%] flex flex-col justify-center">
+      <div className="relative h-[90%] flex flex-col justify-center text-sm md:text-base">
         <div className="flex gap-2 justify-evenly font-medium">
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "averageData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -184,7 +193,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "intervalData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -208,7 +217,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -232,7 +241,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "countWiseData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -258,7 +267,7 @@ const Reports = ({dataFromApp}) => {
           </div>
 
           <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "sensorWiseData" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -281,13 +290,7 @@ const Reports = ({dataFromApp}) => {
         </div>
 
         <div className="flex-1 flex items-center justify-center ">
-          <div
-            className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-[#23439b] bg-[#dde3f1]"
-            // style={{
-            //   backgroundImage:
-            //     "radial-gradient(circle, #dbf2ff, #d6ebf9, #d1e4f3, #ccdced, #c8d5e7, #c2cfe3, #bdcadf, #afbfdb, #a9bbd9, #a1b4d6, #98b0d4, #90aad1)",
-            // }}
-          >
+          <div className="flex flex-col md:flex-row p-4 md:p-8 rounded-xl text-[#23439b] bg-[#dde3f1]">
             <div className="p-2 md:p-4 flex items-center justify-center">
               <img
                 src={reportsImg}
@@ -298,7 +301,10 @@ const Reports = ({dataFromApp}) => {
 
             {/* averageData option */}
             {selectedReportOption === "averageData" && (
-              <div className="p-8 flex flex-col items-center justify-center gap-6">
+              <form
+                className="p-8 flex flex-col items-center justify-center gap-6"
+                onSubmit={generateAverageExcel}
+              >
                 <center className="text-xl font-medium">
                   Select Date Range
                 </center>
@@ -373,19 +379,22 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
+                    type="submit"
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
-                    onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {/* interval option */}
             {selectedReportOption === "intervalData" && (
-              <div className="flex flex-col gap-6 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
+              <form
+                className="flex flex-col gap-6 py-4 md:py-8 px-5 md:px-10 items-center justify-center"
+                onSubmit={generateAverageExcel}
+              >
                 <center className="text-xl font-medium">
                   Select Time Interval
                 </center>
@@ -460,19 +469,22 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div>
                   <button
+                    type="submit"
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                    onClick={generateAverageExcel}
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {/* datepicker option */}
             {selectedReportOption === "datePicker" && (
-              <div className="p-4 md:p-8 flex flex-col items-center justify-center gap-6">
+              <form
+                className="p-4 md:p-8 flex flex-col items-center justify-center gap-6"
+                onSubmit={generateExcel}
+              >
                 <center className="text-xl font-medium">Select Date</center>
                 <div className="flex gap-2">
                   <div className="flex flex-col gap-4 font-medium">
@@ -498,19 +510,19 @@ const Reports = ({dataFromApp}) => {
                 </div>
                 <div className="flex justify-center gap-4 font-medium">
                   <button
+                    type="submit"
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black"
-                    onClick={generateExcel}
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {/* countwise option */}
             {selectedReportOption === "countWiseData" && (
-              <div className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center">
+              <form className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center" onSubmit={generateExcel}>
                 <center className="text-xl font-medium">Select Count</center>
                 <div className="flex flex-col gap-2 md:gap-4 text-black">
                   <div className="flex items-center">
@@ -594,6 +606,7 @@ const Reports = ({dataFromApp}) => {
                       <input
                         type="number"
                         id="count"
+                        required
                         value={count}
                         className="text-black w-32 rounded-md px-2"
                         onChange={(e) =>
@@ -606,18 +619,18 @@ const Reports = ({dataFromApp}) => {
                 <div className="flex gap-4">
                   <button
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                    onClick={generateExcel}
+                    type='submit'
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {/* sensorwise data option */}
             {selectedReportOption === "sensorWiseData" && (
-              <div className="px-4 md:px-8 py-2 md:py-4 flex flex-col items-center justify-center gap-4 text-sm md:text-base">
+              <form className="px-4 md:px-8 py-2 md:py-4 flex flex-col items-center justify-center gap-4 text-sm md:text-base" onSubmit={generateExcel}>
                 <center className="text-sm md:text-xl font-medium">
                   Select sensor
                 </center>
@@ -820,13 +833,13 @@ const Reports = ({dataFromApp}) => {
                 <div className="flex gap-4">
                   <button
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                    onClick={generateExcel}
+                    type='submit'
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
           </div>
         </div>

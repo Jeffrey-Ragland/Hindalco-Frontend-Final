@@ -7,69 +7,27 @@ import { Route, Routes } from "react-router-dom";
 import Dashboard from './Components/Pages/Dashboard';
 import Reports from './Components/Pages/Reports';
 import Analysis from './Components/Pages/Analytics';
-// import GraphTesting from './Components/Pages/GraphTesting';
 
 const App = () => {
 
   const [hindalcoData, setHindalcoData] = useState([]);
-
-  // for line graph limit
-  // const getInitialHindalcoCondition = () => {
-  //   const storedLimit = localStorage.getItem("HindalcoLimit");
-  //   return storedLimit ? 1 : 0;
-  // };
-
-  // const [hindalcoCondition, setHindalcoCondition] = useState(
-  //   getInitialHindalcoCondition
-  // );
-
-  // useEffect(() => {
-  //   if (hindalcoCondition === 0) {
-  //     localStorage.setItem("HindalcoLimit", "100");
-  //     setHindalcoCondition(1);
-  //   }
-  // }, []);
-
-  // // for card alert limit
-  // const getInitialHindalcoAlertCondition = () => {
-  //   const storedLimit = localStorage.getItem("HindalcoAlertLimit");
-  //   return storedLimit ? 1 : 0;
-  // };
-
-  // const [hindalcoAlertCondition, setHindalcoAlertCondition] = useState(
-  //   getInitialHindalcoAlertCondition
-  // );
-
-  // useEffect(() => {
-  //   if (hindalcoAlertCondition === 0) {
-  //     localStorage.setItem("HindalcoAlertLimit", "75");
-  //     setHindalcoAlertCondition(1);
-  //   }
-  // }, []);
-
-  // // for view more cards
-  // const getInitialViewCondition = () => {
-  //   const storedView = localStorage.getItem('HindalcoCardsViewMore');
-  //   return storedView ? 1 : 0;
-  // };
-
-  // const [hindalcoViewCondition, setHindalcoViewCondition] = useState(getInitialViewCondition);
-
-  // useEffect(() => {
-  //   if(hindalcoViewCondition === 0) {
-  //     localStorage.setItem("HindalcoCardsViewMore", 'false');
-  //     setHindalcoViewCondition(1);
-  //   }
-  // },[]);
+  const [thresholdGraphData, setThresholdGraphData] = useState([]);
+  const [thresholdGraphDateRange, setThresholdGraphDateRange] = useState([]);
+  const [processIsRunning, setProcessIsRunning] = useState();
+  const [processTimeLeft, setProcessTimeLeft] = useState('');
+  // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
+  // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
   // fetching data
   useEffect(() => {
     getHindalcoData();
 
     const hindalcoInterval = setInterval(getHindalcoData, 2000);
+    const hindalcoProcessInterval = setInterval(getHindalcoProcess, 2000);
 
     return () => {
       clearInterval(hindalcoInterval);
+      clearInterval(hindalcoProcessInterval);
     };
   }, []);
 
@@ -77,14 +35,15 @@ const App = () => {
   const getHindalcoData = async () => {
     try {
       const hindalcoLimit = localStorage.getItem("HindalcoLimit");
-      const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
+      // const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
       const HindalcoCardsViewMore = localStorage.getItem("HindalcoCardsViewMore");
       // console.log('localstorage', hindalcoLimit);
-      if (hindalcoLimit && hindalcoAlertLimit && HindalcoCardsViewMore) {
+      if (hindalcoLimit && HindalcoCardsViewMore) {
         const response = await axios.get(
           `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
           // `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
         );
+        //console.log("response =",response.data.data)
         if (response.data.success) {
           setHindalcoData(response.data.data);
         } else {
@@ -96,17 +55,64 @@ const App = () => {
     }
   };
 
+  const getHindalcoProcess = async () => {
+    try {
+      const response = await axios.get(
+        'https://hindalco.xyma.live/backend/getHindalcoProcess'
+        // 'http://localhost:4000/backend/getHindalcoProcess'
+      );
+
+      setThresholdGraphDateRange(response.data.dateRange);
+      setProcessIsRunning(response.data.inTimeRange);
+      setProcessTimeLeft(response.data.timeLeft);
+
+      if(response.data.success && response.data.inTimeRange) {
+        // console.log('data after process time', response.data.data);
+        setThresholdGraphData(response.data.data);
+      } else if (response.data.success && !response.data.inTimeRange) {
+        // console.log('Hindalco process range expired');
+      } else if (!response.data.success) {
+        // console.log("process stopped");
+      }
+    } catch(error) {
+      console.log('Error fetching hindalco process', error);
+    };
+  };
+
+  // console.log('time left', processTimeLeft);
+  // console.log("process is running", processIsRunning);
+  // console.log('threshold graph date range', thresholdGraphDateRange);
+  // console.log('threshold graph data', thresholdGraphData);
+
+  // console.log('hindalco process status', hindalcoProcessStatus);
+  // console.log("hindalco process time", hindalcoProcessTime);
+
   // console.log('hindalco data', hindalcoData);
+  // mac update
+  // mac update 2
 
   return (
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute />}>
-          <Route index element={<Dashboard dataFromApp={hindalcoData} />} />
-          <Route path="Reports" element={<Reports dataFromApp={hindalcoData[0]} />} />
+          <Route
+            index
+            element={
+              <Dashboard
+                dataFromApp={hindalcoData}
+                thresholdGraphData={thresholdGraphData}
+                thresholdGraphDateRange={thresholdGraphDateRange}
+                processIsRunning={processIsRunning}
+                processTimeLeft={processTimeLeft}
+              />
+            }
+          />
+          <Route
+            path="Reports"
+            element={<Reports dataFromApp={hindalcoData[0]} />}
+          />
           <Route path="Analytics" element={<Analysis />} />
-          {/* <Route path="Graphs" element={<GraphTesting />} /> */}
         </Route>
       </Routes>
     </>

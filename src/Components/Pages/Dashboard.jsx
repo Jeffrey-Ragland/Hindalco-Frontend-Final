@@ -63,7 +63,7 @@ const Dashboard = ({
   // console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
 
-  // console.log("data", dataFromApp);
+  console.log("data", dataFromApp);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -165,7 +165,7 @@ const Dashboard = ({
 
   const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
 
-  // console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph data", thresholdGraphData);
 
   // console.log("alerts array", alertsArray);
   // console.log("alert keys", alertKeys);

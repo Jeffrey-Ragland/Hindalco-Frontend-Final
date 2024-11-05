@@ -72,6 +72,19 @@ const Dashboard = ({
   const [previousProcessData, setPreviousProcessData] = useState([]);
   const [clickedLegends, setClickedLegends] = useState(["T1"]);
   const [stopPopup, setStopPopup] = useState(false);
+  const [coords, setCoords] = useState([0, 0]);
+  const [meshName, setMeshName] = useState('');
+
+  // 3d model hover
+  const handleCoordsUpdate = (newCoords) => {
+    setCoords(newCoords);
+  };
+
+  const handleMeshName = (newName) => {
+    setMeshName(newName);
+  };
+
+  console.log("coords in  main file", coords);
 
   const upperThresholdData = Array.from(
     { length: 732 },
@@ -271,7 +284,7 @@ const Dashboard = ({
         pointHoverRadius: 0,
         fill: false,
         tooltip: { enabled: false },
-        borderDash: [5,5] // Disable tooltip
+        borderDash: [5, 5], // Disable tooltip
       },
       {
         label: "Lower Threshold",
@@ -282,7 +295,7 @@ const Dashboard = ({
         pointHoverRadius: 0,
         fill: false,
         tooltip: { enabled: false },
-        borderDash: [5,5] // Disable tooltip
+        borderDash: [5, 5], // Disable tooltip
       },
     ],
   };
@@ -334,118 +347,64 @@ const Dashboard = ({
       }));
     }
   }, [thresholdGraphData, clickedLegends]);
-  
 
-  const lineOptions2 = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false,
-    plugins: {
-      legend: {
-        display: false, // Disable legend
-      },
-      zoom: {
-        pan: {
-          enabled: true,
-          mode: "x",
+  const lineOptions2 = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          display: false, // Disable legend
         },
         zoom: {
-          mode: "x",
-          wheel: {
+          pan: {
             enabled: true,
+            mode: "x",
           },
-          pinch: {
-            enabled: true,
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        min: 0,
-        max: 732, // x-axis range
-        ticks: {
-          font: {
-            size: 7,
-          },
-          autoSkip: false,
-          maxRotation: 0,
-          callback: function (value, index) {
-            return index % 24 === 0 ? this.getLabelForValue(value) : "";
+          zoom: {
+            mode: "x",
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
           },
         },
       },
-      y: {
-        min: 0,
-        max: 1000, // y-axis range
-        ticks: {
-          stepSize: 100,
-          font: {
-            size: 8,
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          min: 0,
+          max: 732, // x-axis range
+          ticks: {
+            font: {
+              size: 7,
+            },
+            autoSkip: false,
+            maxRotation: 0,
+            callback: function (value, index) {
+              return index % 24 === 0 ? this.getLabelForValue(value) : "";
+            },
+          },
+        },
+        y: {
+          min: 0,
+          max: 1000, // y-axis range
+          ticks: {
+            stepSize: 100,
+            font: {
+              size: 8,
+            },
           },
         },
       },
-    },
-  }), []);
-
-  // Configuration options
-  // const lineOptions2 = {
-  //   responsive: true,
-  //   maintainAspectRatio: false,
-  //   animation: false,
-  //   plugins: {
-  //     legend: {
-  //       display: false, // This disables the legend
-  //     },
-  //     zoom: {
-  //       pan: {
-  //         enabled: true,
-  //         mode: "x",
-  //       },
-  //       zoom: {
-  //         mode: "x",
-  //         wheel: {
-  //           enabled: true,
-  //         },
-  //         pinch: {
-  //           enabled: true,
-  //         },
-  //       },
-  //     },
-  //   },
-  //   scales: {
-  //     x: {
-  //       grid: {
-  //         display: false,
-  //       },
-  //       min: 0,
-  //       max: 732, // x-axis range
-  //       ticks: {
-  //         font: {
-  //           size: 7,
-  //         },
-  //         autoSkip: false,
-  //         maxRotation: 0,
-  //         callback: function (value, index) {
-  //           return index % 24 === 0 ? this.getLabelForValue(value) : "";
-  //         },
-  //       },
-  //     },
-  //     y: {
-  //       min: 0,
-  //       max: 1000, // y-axis range
-  //       ticks: {
-  //         stepSize: 100,
-  //         font: {
-  //           size: 8,
-  //         },
-  //       },
-  //     },
-  //   },
-  // };
+    }),
+    []
+  );
 
   const [lineData3, setLineData3] = useState(initialData);
 
@@ -686,8 +645,8 @@ const Dashboard = ({
     try {
       // console.log("process status", processStatus);
       await axios.post(
-        // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-        "http://localhost:4000/backend/updateHindalcoProcess",
+        "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+        // "http://localhost:4000/backend/updateHindalcoProcess",
         {
           processStatus,
         }
@@ -706,8 +665,8 @@ const Dashboard = ({
         const stopDate = split[1];
 
         const response = await axios.get(
-          // "https://hindalco.xyma.live/backend/getHindalcoReport",
-          "http://localhost:4000/backend/getHindalcoReport",
+          "https://hindalco.xyma.live/backend/getHindalcoReport",
+          // "http://localhost:4000/backend/getHindalcoReport",
           {
             params: {
               projectName: "XY001",
@@ -744,13 +703,16 @@ const Dashboard = ({
         {/* 2d image */}
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
-            <div className="relative w-full md:w-[55%] p-4 flex items-center justify-center border border-black overflow-hidden">
-
+            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center  overflow-hidden h-[200px] xl:h-auto">
               {/* 3d model */}
-              <div className="h-[150px] md:h-auto xl:h-[400px] xl:w-[450px] 2xl:h-[500px] border border-black">
-                <ThreeDModel alertKeys={alertKeys}/>
+              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px] ">
+                <ThreeDModel
+                  alertKeys={alertKeys}
+                  coordsUpdateFunc={handleCoordsUpdate}
+                  meshNameFunc={handleMeshName}
+                />
               </div>
-              
+
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
@@ -836,8 +798,6 @@ const Dashboard = ({
                   </div>
                 )}
               </div>
-
-              
 
               {/* view all cards */}
               <div
@@ -1837,14 +1797,34 @@ const Dashboard = ({
         }}
       />
 
+      {/* 3d model hover */}
+      {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
+        <div
+          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${alertKeys.length > 0 && alertKeys.includes(meshName) ? 'bg-red-500' : 'bg-[#23439b]'}`}
+          style={{
+            top: `${coords[1]}px`,
+            left: `${coords[0]}px`,
+          }}
+        >
+          <div>{meshName}:</div>
+          <div>
+            {isNaN(parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName]))
+              ? "N/A"
+              : `${parseFloat(
+                  dataFromApp.length > 0 && dataFromApp[0][meshName]
+                ).toFixed(1)}°C`}{" "}
+          </div>
+        </div>
+      )}
+
       {/* stop confirmation popup */}
       {stopPopup && (
         <div className="absolute inset-0 bg-black/70 flex justify-center items-center">
-          <div className="bg-[#dde3f1] px-4 py-6 flex flex-col gap-6 rounded-md">
+          <div className="bg-white px-4 py-6 flex flex-col gap-6 rounded-md">
             <div>Do you really want to stop the process?</div>
             <div className="flex items-center justify-end gap-4">
               <button
-                className="bg-gray-300 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
+                className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
                 onClick={() => setStopPopup(false)}
               >
                 Cancel

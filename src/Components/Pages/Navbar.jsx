@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import xymaLogoWhite from "../Assets/xymaLogoWhite.png";
 import hindalcoLogo from "../Assets/hindalcoLogo.png";
@@ -8,11 +8,9 @@ import { LuLayoutDashboard } from "react-icons/lu";
 import { LiaFileExcelSolid } from "react-icons/lia";
 import { AiOutlineLogout } from "react-icons/ai";
 
-
 const Navbar = () => {
-
-    const [hamburgerPopup, setHamburgerPopup] = useState(false);
-    const location = useLocation();
+  const [hamburgerPopup, setHamburgerPopup] = useState(false);
+  const location = useLocation();
 
   return (
     <>
@@ -33,6 +31,7 @@ const Navbar = () => {
             />
           </div>
         </div>
+
         {/* title */}
         <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs md:text-2xl text-center font-bold">
           XYMA Data Logger Device
@@ -130,23 +129,41 @@ const Navbar = () => {
           )}
 
           {hamburgerPopup && (
-            <div className="rounded-sm border border-gray-300 absolute right-0 flex flex-col gap-4 bg-stone-200 p-2 text-[#23439b] text-sm font-medium">
+            <div className="rounded-sm border border-gray-300 absolute right-0 flex flex-col gap-4 bg-stone-200 p-2 text-sm">
               <Link to="/">
-                <div className="border border-b-gray-400 flex items-center gap-1">
+                <div
+                  className={`border border-b-gray-400 flex items-center gap-1 ${
+                    location.pathname === "/"
+                      ? "text-[#e4ba4c] font-semibold"
+                      : "text-[#23439b] font-medium"
+                  }`}
+                >
                   <LuLayoutDashboard className="text-lg" />
                   Dashboard
                 </div>
               </Link>
 
               <Link to="/Reports">
-                <div className="border border-b-gray-400 flex items-center gap-1">
+                <div
+                  className={`border border-b-gray-400 flex items-center gap-1 ${
+                    location.pathname === "/Reports"
+                      ? "text-[#e4ba4c] font-semibold"
+                      : "text-[#23439b] font-medium"
+                  }`}
+                >
                   <LiaFileExcelSolid className="text-lg" />
                   Reports
                 </div>
               </Link>
 
               <Link to="/Analytics">
-                <div className="border border-b-gray-400 flex items-center gap-1">
+                <div
+                  className={`border border-b-gray-400 flex items-center gap-1 ${
+                    location.pathname === "/Analytics"
+                      ? "text-[#e4ba4c] font-semibold"
+                      : "text-[#23439b] font-medium"
+                  }`}
+                >
                   <IoAnalyticsSharp className="text-lg" />
                   Analytics
                 </div>
@@ -154,7 +171,7 @@ const Navbar = () => {
 
               <Link to="/login">
                 <div
-                  className="border border-b-gray-400 flex items-center gap-1"
+                  className="border border-b-gray-400 flex items-center gap-1 text-[#23439b] font-medium"
                   onClick={() => localStorage.clear()}
                 >
                   <AiOutlineLogout className="text-lg" />
@@ -165,9 +182,13 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      <div className='text-sm text-center font-bold md:hidden text-white'>XYMA Data Logger Device</div>
+
+      {/* mobile layout title */}
+      <div className="text-sm text-center font-bold md:hidden text-white">
+        XYMA Data Logger Device
+      </div>
     </>
   );
-}
+};
 
-export default Navbar
+export default Navbar;

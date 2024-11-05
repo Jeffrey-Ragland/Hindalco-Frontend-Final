@@ -40,8 +40,8 @@ const App = () => {
       // console.log('localstorage', hindalcoLimit);
       if (hindalcoLimit && HindalcoCardsViewMore) {
         const response = await axios.get(
-          // `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
-          `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
+          `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
+          // `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
         );
         //console.log("response =",response.data.data)
         if (response.data.success) {
@@ -58,8 +58,8 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get(
-        // 'https://hindalco.xyma.live/backend/getHindalcoProcess'
-        'http://localhost:4000/backend/getHindalcoProcess'
+        'https://hindalco.xyma.live/backend/getHindalcoProcess'
+        // 'http://localhost:4000/backend/getHindalcoProcess'
       );
 
       setThresholdGraphDateRange(response.data.dateRange);

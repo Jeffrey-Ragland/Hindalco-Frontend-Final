@@ -228,9 +228,9 @@ const Dashboard = ({
             colors: ["#4a5568"],
             fontSize: "8px",
           },
-          // formatter: (val) => {
-          //   return val === null ? "N/A" : `${val}°C`;
-          // },
+          formatter: (val) => {
+            return val === null ? "N/A" : `${val}°C`;
+          },
         },
         stroke: {
           show: true,
@@ -242,11 +242,11 @@ const Dashboard = ({
         },
         tooltip: {
           theme: "dark",
-          // y: {
-          //   formatter: (val) => {
-          //     return val === null ? "N/A" : `${val}°C`;
-          //   },
-          // },
+          y: {
+            formatter: (val) => {
+              return val === null ? "N/A" : `${val}°C`;
+            },
+          },
         },
         legend: {
           show: false,

@@ -84,7 +84,7 @@ const Dashboard = ({
     setMeshName(newName);
   };
 
-  console.log("coords in  main file", coords);
+  // console.log("coords in  main file", coords);
 
   const upperThresholdData = Array.from(
     { length: 732 },
@@ -495,11 +495,11 @@ const Dashboard = ({
             key !== "DeviceTemperature" &&
             key !== "DeviceBattery" &&
             key !== "DeviceSignal" &&
-            key !== "S11" &&
-            key !== "S12" &&
-            key !== "S13" &&
-            key !== "S14" &&
-            key !== "S15"
+            key !== "T11" &&
+            key !== "T12" &&
+            key !== "T13" &&
+            key !== "T14" &&
+            key !== "T15"
           ) {
             barCategories.push(key);
             // barSeries.push(parseFloat(dataFromApp[0][key]));

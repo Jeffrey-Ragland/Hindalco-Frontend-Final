@@ -121,12 +121,11 @@ const Reports = ({dataFromApp}) => {
 
   const generateAverageExcel = async (e) => {
     try {
-<<<<<<< HEAD
+
       console.log("before api");
-=======
+
       e.preventDefault();
       setLoading(true);
->>>>>>> 3d96725e7ec6fe17effa461b8badaa085d826e6a
       const response = await axios.get(
         "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
         // "http://localhost:4000/backend/getHindalcoAverageReport",

@@ -8,7 +8,7 @@ import { FaUserCheck } from "react-icons/fa";
 import { PiPasswordFill } from "react-icons/pi";
 
 const Login = () => {
-  const [Username, setUsername] = useState("");
+  const [Username, setUsername] = useState(""); 
   const [Password, setPassword] = useState("");
 
   const navigate = useNavigate();
@@ -16,7 +16,10 @@ const Login = () => {
   const handleLoginFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://hindalco.xyma.live/backend/login", {
+      const response = await fetch(
+        "https://hindalco.xyma.live/backend/login", 
+        // "http://localhost:4000/backend/login", 
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

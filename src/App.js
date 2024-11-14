@@ -1,20 +1,20 @@
-import React from 'react';
+import React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Login from './Components/Pages/Login';
+import Login from "./Components/Pages/Login";
 import ProtectedRoute from "./Components/Pages/ProtectedRoute";
 import { Route, Routes } from "react-router-dom";
-import Dashboard from './Components/Pages/Dashboard';
-import Reports from './Components/Pages/Reports';
-import Analysis from './Components/Pages/Analytics';
+import Dashboard from "./Components/Pages/Dashboard";
+import Reports from "./Components/Pages/Reports";
+import Analysis from "./Components/Pages/Analytics";
 
 const App = () => {
-
   const [hindalcoData, setHindalcoData] = useState([]);
   const [thresholdGraphData, setThresholdGraphData] = useState([]);
   const [thresholdGraphDateRange, setThresholdGraphDateRange] = useState([]);
   const [processIsRunning, setProcessIsRunning] = useState();
-  const [processTimeLeft, setProcessTimeLeft] = useState('');
+  const [processTimeLeft, setProcessTimeLeft] = useState("");
+  const [fixedThermocouples, setFixedThermocouples] = useState([]);
   // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
   // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
@@ -36,12 +36,14 @@ const App = () => {
     try {
       const hindalcoLimit = localStorage.getItem("HindalcoLimit");
       // const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
-      const HindalcoCardsViewMore = localStorage.getItem("HindalcoCardsViewMore");
+      const HindalcoCardsViewMore = localStorage.getItem(
+        "HindalcoCardsViewMore"
+      );
       // console.log('localstorage', hindalcoLimit);
       if (hindalcoLimit && HindalcoCardsViewMore) {
         const response = await axios.get(
-          `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
-          // `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
+          // `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
+          `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
         );
         //console.log("response =",response.data.data)
         if (response.data.success) {
@@ -58,15 +60,16 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get(
-        'https://hindalco.xyma.live/backend/getHindalcoProcess'
-        // 'http://localhost:4000/backend/getHindalcoProcess'
+        // 'https://hindalco.xyma.live/backend/getHindalcoProcess'
+        "http://localhost:4000/backend/getHindalcoProcess"
       );
 
       setThresholdGraphDateRange(response.data.dateRange);
       setProcessIsRunning(response.data.inTimeRange);
       setProcessTimeLeft(response.data.timeLeft);
+      setFixedThermocouples(response.data.selectedThermocouples);
 
-      if(response.data.success && response.data.inTimeRange) {
+      if (response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
         setThresholdGraphData(response.data.data);
       } else if (response.data.success && !response.data.inTimeRange) {
@@ -74,9 +77,9 @@ const App = () => {
       } else if (!response.data.success) {
         // console.log("process stopped");
       }
-    } catch(error) {
-      console.log('Error fetching hindalco process', error);
-    };
+    } catch (error) {
+      console.log("Error fetching hindalco process", error);
+    }
   };
 
   // console.log('time left', processTimeLeft);
@@ -86,6 +89,7 @@ const App = () => {
 
   // console.log('hindalco process status', hindalcoProcessStatus);
   // console.log("hindalco process time", hindalcoProcessTime);
+  // console.log("fixed thermocouples in app", fixedThermocouples);
 
   // console.log('hindalco data', hindalcoData);
   // mac update
@@ -105,6 +109,7 @@ const App = () => {
                 thresholdGraphDateRange={thresholdGraphDateRange}
                 processIsRunning={processIsRunning}
                 processTimeLeft={processTimeLeft}
+                fixedThermocouples={fixedThermocouples}
               />
             }
           />
@@ -117,6 +122,6 @@ const App = () => {
       </Routes>
     </>
   );
-}
- 
+};
+
 export default App;

@@ -8,7 +8,7 @@ import { FaUserCheck } from "react-icons/fa";
 import { PiPasswordFill } from "react-icons/pi";
 
 const Login = () => {
-  const [Username, setUsername] = useState(""); 
+  const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
 
   const navigate = useNavigate();
@@ -17,20 +17,20 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://hindalco.xyma.live/backend/login", 
-        // "http://localhost:4000/backend/login", 
+        "https://hindalco.xyma.live/backend/login",
+        // "http://localhost:4000/backend/login",
         {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ Username, Password }),
-      });
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ Username, Password }),
+        }
+      );
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("HindalcoLimit", '100');
-        // localStorage.setItem("HindalcoAlertLimit", "75");
+        localStorage.setItem("HindalcoLimit", "100");
         localStorage.setItem("HindalcoCardsViewMore", "false");
         navigate(data.redirectUrl);
       } else {

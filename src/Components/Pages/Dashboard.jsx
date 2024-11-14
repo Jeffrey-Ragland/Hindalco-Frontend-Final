@@ -59,11 +59,13 @@ const Dashboard = ({
   thresholdGraphDateRange,
   processIsRunning,
   processTimeLeft,
+  fixedThermocouples,
 }) => {
   // console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
 
   console.log("data", dataFromApp);
+  console.log("fixed thermocouples", fixedThermocouples);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -71,9 +73,39 @@ const Dashboard = ({
     useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
   const [clickedLegends, setClickedLegends] = useState(["T1"]);
+  const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
   const [coords, setCoords] = useState([0, 0]);
-  const [meshName, setMeshName] = useState('');
+  const [meshName, setMeshName] = useState("");
+  const [selectedThermocouples, setSelectedThermocouples] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [potNumber, setPotNumber] = useState("");
+
+  // console.log("selected thermocouples", selectedThermocouples);
+  // console.log("pot number", potNumber);
+  // console.log("line name", selectedLine);
+
+  // thermocouple selection
+  const thermocouples = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+
+  const toggleThermocouple = (name) => {
+    setSelectedThermocouples((prevselected) =>
+      prevselected.includes(name)
+        ? prevselected.filter((item) => item !== name)
+        : [...prevselected, name]
+    );
+  };
+
+  // console.log("selected thermocouples", selectedThermocouples);
+
+  // const getInitialSelectedThermocouples = () => {
+  //   const storedThermocouples = localStorage.getItem("selectedThermocouples");
+  //   return storedThermocouples ? JSON.parse(storedThermocouples) : [];
+  // };
+
+  // const [fixedThermocouples, setFixedThermocouples] = useState(
+  //   getInitialSelectedThermocouples
+  // );
 
   // 3d model hover
   const handleCoordsUpdate = (newCoords) => {
@@ -177,10 +209,12 @@ const Dashboard = ({
     const axisFontSize = screenWidth < 1536 ? "6px" : "8px";
 
     return {
-      series: [{
-        name: 'Temperature',
-        data: []
-      }],
+      series: [
+        {
+          name: "Temperature",
+          data: [],
+        },
+      ],
       options: {
         chart: {
           type: "bar",
@@ -254,7 +288,7 @@ const Dashboard = ({
       },
     };
   });
-//mac commit
+  //mac commit
   const [lineData, setLineData] = useState({
     labels: [],
     datasets: [],
@@ -646,14 +680,39 @@ const Dashboard = ({
 
   const updateHindalcoProcess = async (processStatus) => {
     try {
-      // console.log("process status", processStatus);
-      await axios.post(
-        "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-        // "http://localhost:4000/backend/updateHindalcoProcess",
-        {
-          processStatus,
+      if (processStatus === "Start") {
+        if (
+          selectedLine === "" ||
+          potNumber === "" ||
+          selectedThermocouples.length <= 0
+        ) {
+          alert("Please fill all the inputs! ");
+        } else {
+          await axios.post(
+            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            "http://localhost:4000/backend/updateHindalcoProcess",
+            {
+              processStatus,
+              selectedThermocouples,
+              selectedLine,
+              potNumber,
+            }
+          );
+          setStartPopup(false);
+          setSelectedThermocouples([]);
+          setSelectedLine("");
+          setPotNumber("");
         }
-      );
+      } else if (processStatus === "Stop") {
+        await axios.post(
+          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          "http://localhost:4000/backend/updateHindalcoProcess",
+          {
+            processStatus,
+            selectedThermocouples,
+          }
+        );
+      }
     } catch (error) {
       console.error("Error updating hindalco process", error);
     }
@@ -852,7 +911,8 @@ const Dashboard = ({
           >
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
-                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A" ||
+                !fixedThermocouples.includes("T1")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T1")
                   ? "card-indicator"
@@ -885,7 +945,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T1)
-                  )
+                  ) || !fixedThermocouples.includes("T1")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T1
@@ -896,7 +956,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A" ||
+                !fixedThermocouples.includes("T2")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T2")
                   ? "card-indicator"
@@ -929,7 +990,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T2)
-                  )
+                  ) || !fixedThermocouples.includes("T2")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T2
@@ -940,7 +1001,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A" ||
+                !fixedThermocouples.includes("T3")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T3")
                   ? "card-indicator"
@@ -973,7 +1035,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T3)
-                  )
+                  ) || !fixedThermocouples.includes("T3")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T3
@@ -984,7 +1046,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A" ||
+                !fixedThermocouples.includes("T4")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T4")
                   ? "card-indicator"
@@ -1017,7 +1080,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T4)
-                  )
+                  ) || !fixedThermocouples.includes("T4")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T4
@@ -1028,7 +1091,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A" ||
+                !fixedThermocouples.includes("T5")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T5")
                   ? "card-indicator"
@@ -1061,7 +1125,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T5)
-                  )
+                  ) || !fixedThermocouples.includes("T5")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T5
@@ -1072,7 +1136,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A" ||
+                !fixedThermocouples.includes("T6")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T6")
                   ? "card-indicator"
@@ -1105,7 +1170,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T6)
-                  )
+                  ) || !fixedThermocouples.includes("T6")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T6
@@ -1116,7 +1181,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A" ||
+                !fixedThermocouples.includes("T7")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T7")
                   ? "card-indicator"
@@ -1149,7 +1215,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T7)
-                  )
+                  ) || !fixedThermocouples.includes("T7")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T7
@@ -1160,7 +1226,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A" ||
+                !fixedThermocouples.includes("T8")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T8")
                   ? "card-indicator"
@@ -1193,7 +1260,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T8)
-                  )
+                  ) || !fixedThermocouples.includes("T8")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T8
@@ -1204,7 +1271,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A" ||
+                !fixedThermocouples.includes("T9")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T9")
                   ? "card-indicator"
@@ -1237,7 +1305,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T9)
-                  )
+                  ) || !fixedThermocouples.includes("T9")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T9
@@ -1248,7 +1316,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A" ||
+                !fixedThermocouples.includes("T10")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T10")
                   ? "card-indicator"
@@ -1281,7 +1350,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T10)
-                  )
+                  ) || !fixedThermocouples.includes("T10")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T10
@@ -1295,7 +1364,8 @@ const Dashboard = ({
               <>
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A" ||
+                    !fixedThermocouples.includes("T11")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T11")
                       ? "card-indicator"
@@ -1328,7 +1398,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T11)
-                      )
+                      ) || !fixedThermocouples.includes("T11")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T11
@@ -1339,7 +1409,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A" ||
+                    !fixedThermocouples.includes("T12")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T12")
                       ? "card-indicator"
@@ -1372,7 +1443,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T12)
-                      )
+                      ) || !fixedThermocouples.includes("T12")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T12
@@ -1383,7 +1454,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A" ||
+                    !fixedThermocouples.includes("T13")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T13")
                       ? "card-indicator"
@@ -1416,7 +1488,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T13)
-                      )
+                      ) || !fixedThermocouples.includes("T13")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T13
@@ -1427,7 +1499,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A" ||
+                    !fixedThermocouples.includes("T14")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T14")
                       ? "card-indicator"
@@ -1460,7 +1533,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T14)
-                      )
+                      ) || !fixedThermocouples.includes("T14")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T14
@@ -1471,7 +1544,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A" ||
+                    !fixedThermocouples.includes("T15")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T15")
                       ? "card-indicator"
@@ -1504,7 +1578,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T15)
-                      )
+                      ) || !fixedThermocouples.includes("T15")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T15
@@ -1540,9 +1614,7 @@ const Dashboard = ({
                     <>
                       <button
                         className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-                        onClick={() => {
-                          updateHindalcoProcess("Start");
-                        }}
+                        onClick={() => setStartPopup(true)}
                       >
                         Start
                       </button>
@@ -1803,7 +1875,11 @@ const Dashboard = ({
       {/* 3d model hover */}
       {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
         <div
-          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${alertKeys.length > 0 && alertKeys.includes(meshName) ? 'bg-red-500' : 'bg-[#23439b]'}`}
+          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${
+            alertKeys.length > 0 && alertKeys.includes(meshName)
+              ? "bg-red-500"
+              : "bg-[#23439b]"
+          }`}
           style={{
             top: `${coords[1]}px`,
             left: `${coords[0]}px`,
@@ -1811,7 +1887,9 @@ const Dashboard = ({
         >
           <div>{meshName}:</div>
           <div>
-            {isNaN(parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName]))
+            {isNaN(
+              parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName])
+            )
               ? "N/A"
               : `${parseFloat(
                   dataFromApp.length > 0 && dataFromApp[0][meshName]
@@ -1820,9 +1898,90 @@ const Dashboard = ({
         </div>
       )}
 
+      {/* start popup */}
+      {startPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-4 py-6 flex flex-col gap-4 rounded-md text-sm 2xl:text-base font-medium">
+            <div className="text-black text-center text-base 2xl:text-lg font-medium">
+              Thermocouple Configuration
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="">Select Line:</div>
+              <label>
+                <input
+                  type="radio"
+                  value="lineA"
+                  name="line"
+                  checked={selectedLine === "lineA"}
+                  onChange={(e) => setSelectedLine(e.target.value)}
+                />{" "}
+                Line A
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  value="lineB"
+                  name="line"
+                  checked={selectedLine === "lineB"}
+                  onChange={(e) => setSelectedLine(e.target.value)}
+                />{" "}
+                Line B
+              </label>
+            </div>
+
+            <div className="flex gap-2">
+              <label>Enter Pot Number:</label>
+              <input
+                type="text"
+                className="border border-black rounded-sm px-1"
+                onChange={(e) => setPotNumber(e.target.value)}
+              />
+            </div>
+
+            <div>Select connected thermocouple:</div>
+
+            <div className="grid grid-cols-5 gap-2">
+              {thermocouples.map((name) => (
+                <div
+                  className={`border rounded-md text-center px-2 py-1 cursor-pointer hover:scale-110 duration-200 ${
+                    selectedThermocouples.includes(name)
+                      ? "bg-[#23439b] text-white"
+                      : "bg-white border-[#23439b] text-[#23439b]"
+                  }`}
+                  key={name}
+                  onClick={() => toggleThermocouple(name)}
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-4 justify-end items-center">
+              <button
+                className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  setStartPopup(false);
+                  setSelectedThermocouples([]);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  updateHindalcoProcess("Start");
+                }}
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* stop confirmation popup */}
       {stopPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center">
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
           <div className="bg-white px-4 py-6 flex flex-col gap-6 rounded-md">
             <div>Do you really want to stop the process?</div>
             <div className="flex items-center justify-end gap-4">

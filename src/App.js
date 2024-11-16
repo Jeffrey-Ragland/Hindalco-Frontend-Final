@@ -15,6 +15,9 @@ const App = () => {
   const [processIsRunning, setProcessIsRunning] = useState();
   const [processTimeLeft, setProcessTimeLeft] = useState("");
   const [fixedThermocouples, setFixedThermocouples] = useState([]);
+  const [thermocoupleConfiguration, setThermocoupleConfiguration] = useState(
+    []
+  );
   // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
   // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
@@ -65,6 +68,7 @@ const App = () => {
       );
 
       setThresholdGraphDateRange(response.data.dateRange);
+      setThermocoupleConfiguration(response.data.thermocoupleConfiguration);
       setProcessIsRunning(response.data.inTimeRange);
       setProcessTimeLeft(response.data.timeLeft);
       setFixedThermocouples(response.data.selectedThermocouples);
@@ -90,6 +94,10 @@ const App = () => {
   // console.log('hindalco process status', hindalcoProcessStatus);
   // console.log("hindalco process time", hindalcoProcessTime);
   // console.log("fixed thermocouples in app", fixedThermocouples);
+  // console.log(
+  //   "thermocouple configuration in app file",
+  //   thermocoupleConfiguration
+  // );
 
   // console.log('hindalco data', hindalcoData);
   // mac update
@@ -115,7 +123,12 @@ const App = () => {
           />
           <Route
             path="Reports"
-            element={<Reports dataFromApp={hindalcoData[0]} />}
+            element={
+              <Reports
+                dataFromApp={hindalcoData[0]}
+                thermocoupleConfiguration={thermocoupleConfiguration}
+              />
+            }
           />
           <Route path="Analytics" element={<Analysis />} />
         </Route>

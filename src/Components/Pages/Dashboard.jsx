@@ -61,7 +61,7 @@ const Dashboard = ({
   processTimeLeft,
   fixedThermocouples,
 }) => {
-  // console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
 
   console.log("data", dataFromApp);
@@ -72,7 +72,7 @@ const Dashboard = ({
   const [previousProcessDataLoading, setPreviousProcessDataLoading] =
     useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
-  const [clickedLegends, setClickedLegends] = useState(["T1"]);
+  // const [clickedLegends, setClickedLegends] = useState(["T2"]);
   const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
   const [coords, setCoords] = useState([0, 0]);
@@ -80,6 +80,9 @@ const Dashboard = ({
   const [selectedThermocouples, setSelectedThermocouples] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [potNumber, setPotNumber] = useState("");
+  const [clickedLegends, setClickedLegends] = useState(() =>
+    fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : []
+  );
 
   // console.log("selected thermocouples", selectedThermocouples);
   // console.log("pot number", potNumber);
@@ -95,6 +98,14 @@ const Dashboard = ({
         : [...prevselected, name]
     );
   };
+
+  // useEffect(() => {
+  //   if (fixedThermocouples.length > 0) {
+  //     setClickedLegends([fixedThermocouples[0]]); // Set to the first key
+  //   } else {
+  //     setClickedLegends([]); // Set to empty array if none selected
+  //   }
+  // }, [fixedThermocouples]);
 
   // console.log("selected thermocouples", selectedThermocouples);
 
@@ -496,82 +507,84 @@ const Dashboard = ({
         }
       }
 
-      Object.keys(dataFromApp[0]).forEach((key) => {
-        if (viewAllCards === true) {
-          if (
-            key !== "Time" &&
-            key !== "createdAt" &&
-            key !== "_id" &&
-            key !== "DeviceName" &&
-            key !== "DeviceTemperature" &&
-            key !== "DeviceBattery" &&
-            key !== "DeviceSignal"
-          ) {
-            barCategories.push(key);
-            // barSeries.push(parseFloat(dataFromApp[0][key]));
+      if (Array.isArray(thresholdGraphData) && thresholdGraphData.length > 0) {
+        Object.keys(thresholdGraphData[0]).forEach((key) => {
+          if (viewAllCards === true) {
             if (
-              dataFromApp[0][key] === "N/A" ||
-              isNaN(parseFloat(dataFromApp[0][key]))
+              key !== "Time" &&
+              key !== "createdAt" &&
+              key !== "_id" &&
+              key !== "DeviceName" &&
+              key !== "DeviceTemperature" &&
+              key !== "DeviceBattery" &&
+              key !== "DeviceSignal"
             ) {
-              barSeries.push(null);
-            } else {
-              barSeries.push(parseFloat(dataFromApp[0][key]));
+              barCategories.push(key);
+              // barSeries.push(parseFloat(dataFromApp[0][key]));
+              if (
+                thresholdGraphData[0][key] === "N/A" ||
+                isNaN(parseFloat(thresholdGraphData[0][key]))
+              ) {
+                barSeries.push(null);
+              } else {
+                barSeries.push(parseFloat(thresholdGraphData[0][key]));
+              }
+              if (alertKeys.includes(key)) {
+                barColors.push("#FF0000");
+              } else {
+                barColors.push("#23439B");
+              }
             }
-            if (alertKeys.includes(key)) {
-              barColors.push("#FF0000");
-            } else {
-              barColors.push("#23439B");
+          } else if (viewAllCards === false) {
+            if (
+              key !== "Time" &&
+              key !== "createdAt" &&
+              key !== "_id" &&
+              key !== "DeviceName" &&
+              key !== "DeviceTemperature" &&
+              key !== "DeviceBattery" &&
+              key !== "DeviceSignal" &&
+              key !== "T11" &&
+              key !== "T12" &&
+              key !== "T13" &&
+              key !== "T14" &&
+              key !== "T15"
+            ) {
+              barCategories.push(key);
+              // barSeries.push(parseFloat(dataFromApp[0][key]));
+              if (
+                thresholdGraphData[0][key] === "N/A" ||
+                isNaN(parseFloat(thresholdGraphData[0][key]))
+              ) {
+                barSeries.push(null);
+              } else {
+                barSeries.push(parseFloat(thresholdGraphData[0][key]));
+              }
+              if (alertKeys.includes(key)) {
+                barColors.push("#FF0000");
+              } else {
+                barColors.push("#23439B");
+              }
             }
           }
-        } else if (viewAllCards === false) {
-          if (
-            key !== "Time" &&
-            key !== "createdAt" &&
-            key !== "_id" &&
-            key !== "DeviceName" &&
-            key !== "DeviceTemperature" &&
-            key !== "DeviceBattery" &&
-            key !== "DeviceSignal" &&
-            key !== "T11" &&
-            key !== "T12" &&
-            key !== "T13" &&
-            key !== "T14" &&
-            key !== "T15"
-          ) {
-            barCategories.push(key);
-            // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (
-              dataFromApp[0][key] === "N/A" ||
-              isNaN(parseFloat(dataFromApp[0][key]))
-            ) {
-              barSeries.push(null);
-            } else {
-              barSeries.push(parseFloat(dataFromApp[0][key]));
-            }
-            if (alertKeys.includes(key)) {
-              barColors.push("#FF0000");
-            } else {
-              barColors.push("#23439B");
-            }
-          }
-        }
-      });
+        });
 
-      setBarData({
-        series: [
-          {
-            name: "Temperature",
-            data: barSeries,
+        setBarData({
+          series: [
+            {
+              name: "Temperature",
+              data: barSeries,
+            },
+          ],
+          options: {
+            ...barData.options,
+            xaxis: {
+              categories: barCategories,
+            },
+            colors: barColors,
           },
-        ],
-        options: {
-          ...barData.options,
-          xaxis: {
-            categories: barCategories,
-          },
-          colors: barColors,
-        },
-      });
+        });
+      }
 
       const reversedData = [...dataFromApp].reverse();
 
@@ -930,9 +943,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T1")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T1
                 </div>
@@ -975,9 +990,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T2")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T2
                 </div>
@@ -1020,9 +1037,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T3")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T3
                 </div>
@@ -1065,9 +1084,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T4")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T4
                 </div>
@@ -1110,9 +1131,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T5")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T5
                 </div>
@@ -1155,9 +1178,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T6")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T6
                 </div>
@@ -1200,9 +1225,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T7")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T7
                 </div>
@@ -1245,9 +1272,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T8")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T8
                 </div>
@@ -1290,9 +1319,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T9")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T9
                 </div>
@@ -1335,9 +1366,11 @@ const Dashboard = ({
                 <div
                   className={`${
                     alertKeys.length > 0 && alertKeys.includes("T10")
-                      ? "text-white"
+                      ? "text-black"
                       : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  } text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T10
                 </div>
@@ -1383,9 +1416,11 @@ const Dashboard = ({
                     <div
                       className={`${
                         alertKeys.length > 0 && alertKeys.includes("T11")
-                          ? "text-white"
+                          ? "text-black"
                           : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      } text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T11
                     </div>
@@ -1428,9 +1463,11 @@ const Dashboard = ({
                     <div
                       className={`${
                         alertKeys.length > 0 && alertKeys.includes("T12")
-                          ? "text-white"
+                          ? "text-black"
                           : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      } text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T12
                     </div>
@@ -1473,9 +1510,11 @@ const Dashboard = ({
                     <div
                       className={`${
                         alertKeys.length > 0 && alertKeys.includes("T13")
-                          ? "text-white"
+                          ? "text-black"
                           : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      } text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T13
                     </div>
@@ -1518,9 +1557,11 @@ const Dashboard = ({
                     <div
                       className={`${
                         alertKeys.length > 0 && alertKeys.includes("T14")
-                          ? "text-white"
+                          ? "text-black"
                           : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      } text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T14
                     </div>
@@ -1563,9 +1604,11 @@ const Dashboard = ({
                     <div
                       className={`${
                         alertKeys.length > 0 && alertKeys.includes("T15")
-                          ? "text-white"
+                          ? "text-black"
                           : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      } text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T15
                     </div>
@@ -1901,8 +1944,8 @@ const Dashboard = ({
       {/* start popup */}
       {startPopup && (
         <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
-          <div className="bg-white px-4 py-6 flex flex-col gap-4 rounded-md text-sm 2xl:text-base font-medium">
-            <div className="text-black text-center text-base 2xl:text-lg font-medium">
+          <div className="bg-white px-4 py-6 flex flex-col gap-4 rounded-md text-sm 2xl:text-base font-medium text-[#23439b]">
+            <div className="text-[#23439b] text-center text-base 2xl:text-lg font-medium">
               Thermocouple Configuration
             </div>
             <div className="flex gap-2 items-center">
@@ -1956,7 +1999,7 @@ const Dashboard = ({
                 </div>
               ))}
             </div>
-            <div className="flex gap-4 justify-end items-center">
+            <div className="flex gap-4 justify-end items-center text-black">
               <button
                 className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
                 onClick={() => {

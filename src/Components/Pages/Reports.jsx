@@ -1,6 +1,6 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import Navbar from './Navbar';
+import React from "react";
+import { useEffect, useState } from "react";
+import Navbar from "./Navbar";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { LuCalendarSearch } from "react-icons/lu";
@@ -13,31 +13,39 @@ import axios from "axios";
 import reportsImg from "../Assets/reports.jpeg";
 import loadingGif from "../Assets/loading.gif";
 
-const Reports = ({dataFromApp}) => {
+const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
   //build
 
   // console.log('reports page data', dataFromApp);
+  console.log(
+    "Thermocouple configuration in reports",
+    thermocoupleConfiguration
+  );
 
-  const [selectedReportOption, setSelectedReportOption] = useState("averageData");
+  const [selectedReportOption, setSelectedReportOption] =
+    useState("datePicker");
   const [count, setCount] = useState(100);
   const [enableCount, setEnableCount] = useState(false);
   const [parameters, setParameters] = useState({}); // for sensor-wise data
   const [selectedSensors, setSelectedSensors] = useState([]); //for sensor wise data
   const [unselectedSensors, setUnselectedSensors] = useState([]);
-  const [selectedSensorWiseReportOption, setSelectedSensorWiseReportOption] = useState("datePicker"); // for sensor wise data
+  const [selectedSensorWiseReportOption, setSelectedSensorWiseReportOption] =
+    useState("datePicker"); // for sensor wise data
   const [sensorWiseCount, setSensorWiseCount] = useState(100); // for sensor-wise data
   const [enableSensorWiseCount, setEnableSensorWiseCount] = useState(false); // for sensor-wise data
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [sensorWiseFromDate, setSensorWiseFromDate] = useState("");
   const [sensorWiseToDate, setSensorWiseToDate] = useState("");
-  const [avgFromDate, setAvgFromDate] = useState('');
-  const [avgToDate, setAvgToDate] = useState('');
-  const [averageOption, setAverageOption] = useState("minute");
-  const [intervalFromDate, setIntervalFromDate] = useState('');
+  const [avgFromDate, setAvgFromDate] = useState("");
+  const [avgToDate, setAvgToDate] = useState("");
+  const [averageOption, setAverageOption] = useState("hour");
+  const [intervalFromDate, setIntervalFromDate] = useState("");
   const [intervalToDate, setIntervalToDate] = useState("");
-  const [intervalOption, setIntervalOption] = useState('minute');
+  const [intervalOption, setIntervalOption] = useState("hour");
   const [loading, setLoading] = useState(false);
+  const [selectedThermocoupleConfig, setSelectedThermocoupleConfig] =
+    useState("");
 
   // console.log('avg opt', averageOption);
 
@@ -46,8 +54,9 @@ const Reports = ({dataFromApp}) => {
   // used for displaying the sensor names in sensor wise data option
   useEffect(() => {
     if (dataFromApp) {
-      const filteredData = Object.keys(dataFromApp).filter((key) =>
-        key.startsWith("T") && key !== 'Time'); 
+      const filteredData = Object.keys(dataFromApp).filter(
+        (key) => key.startsWith("T") && key !== "Time"
+      );
       setParameters(filteredData);
     }
   }, [dataFromApp]);
@@ -85,8 +94,8 @@ const Reports = ({dataFromApp}) => {
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
-        "https://hindalco.xyma.live/backend/getHindalcoReport",
-        // "http://localhost:4000/backend/getHindalcoReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoReport",
+        "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -116,19 +125,18 @@ const Reports = ({dataFromApp}) => {
       saveAs(info, `${projectName}_Report.xlsx`);
     } catch (error) {
       console.error(error);
-    };
+    }
   };
 
   const generateAverageExcel = async (e) => {
     try {
-
       console.log("before api");
 
       e.preventDefault();
       setLoading(true);
       const response = await axios.get(
-        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
-        // "http://localhost:4000/backend/getHindalcoAverageReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,
@@ -156,8 +164,6 @@ const Reports = ({dataFromApp}) => {
       console.error(error);
     }
   };
-  
-
 
   return (
     <div className="h-screen text-white p-4 flex flex-col gap-2">
@@ -167,54 +173,6 @@ const Reports = ({dataFromApp}) => {
       </div>
       <div className="relative h-[90%] flex flex-col justify-center text-sm md:text-base">
         <div className="flex gap-2 justify-evenly font-medium">
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
-              selectedReportOption === "averageData" &&
-              "text-[#e4ba4c] bg-white/10"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("averageData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
-              setEnableCount(false);
-              setIntervalFromDate("");
-              setIntervalToDate("");
-            }}
-          >
-            <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Average Data
-          </div>
-
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
-              selectedReportOption === "intervalData" &&
-              "text-[#e4ba4c] bg-white/10"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("intervalData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setSensorWiseCount();
-              setSelectedSensors([]);
-              setUnselectedSensors([]);
-              setSensorWiseFromDate("");
-              setSensorWiseToDate("");
-              setEnableCount(false);
-              setAvgFromDate("");
-              setAvgToDate("");
-            }}
-          >
-            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Interval Data
-          </div>
-
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
@@ -263,6 +221,54 @@ const Reports = ({dataFromApp}) => {
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
             Count-wise Data
+          </div>
+
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "averageData" &&
+              "text-[#e4ba4c] bg-white/10"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("averageData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setSensorWiseCount();
+              setSelectedSensors([]);
+              setUnselectedSensors([]);
+              setSensorWiseFromDate("");
+              setSensorWiseToDate("");
+              setEnableCount(false);
+              setIntervalFromDate("");
+              setIntervalToDate("");
+            }}
+          >
+            <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Average Data
+          </div>
+
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "intervalData" &&
+              "text-[#e4ba4c] bg-white/10"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("intervalData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setSensorWiseCount();
+              setSelectedSensors([]);
+              setUnselectedSensors([]);
+              setSensorWiseFromDate("");
+              setSensorWiseToDate("");
+              setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
+            }}
+          >
+            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Interval Data
           </div>
 
           <div
@@ -332,20 +338,19 @@ const Reports = ({dataFromApp}) => {
                 <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
                   <div className="text-center ">Average By:</div>
                   <div className="flex gap-2 items-center text-black">
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       <input
                         type="radio"
                         id="option1"
                         name="averageOption"
                         value={averageOption}
-                        defaultChecked
                         className="cursor-pointer mt-0.5"
                         onChange={() => setAverageOption("minute")}
                       />
                       <label htmlFor="option1" className="mr-2 cursor-pointer">
                         Minute
                       </label>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-center gap-1">
                       <input
@@ -353,6 +358,7 @@ const Reports = ({dataFromApp}) => {
                         id="option2"
                         name="averageOption"
                         value={averageOption}
+                        defaultChecked
                         className="cursor-pointer mt-0.5"
                         onChange={() => setAverageOption("hour")}
                       />
@@ -423,20 +429,19 @@ const Reports = ({dataFromApp}) => {
                   Get 1 data for every -
                 </div>
                 <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
-                  <div className="flex items-center gap-1">
+                  {/* <div className="flex items-center gap-1">
                     <input
                       type="radio"
                       id="intervaOption2"
                       name="intervalOptions"
                       value={intervalOption}
-                      defaultChecked
                       className="cursor-pointer mt-0.5"
                       onChange={() => setIntervalOption("minute")}
                     />
                     <label htmlFor="intervaOption2" className="cursor-pointer">
                       Minute
                     </label>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-center gap-1">
                     <input
@@ -444,6 +449,7 @@ const Reports = ({dataFromApp}) => {
                       id="intervaOption1"
                       name="intervalOptions"
                       value={intervalOption}
+                      defaultChecked
                       className="cursor-pointer mt-0.5"
                       onChange={() => setIntervalOption("hour")}
                     />
@@ -484,13 +490,42 @@ const Reports = ({dataFromApp}) => {
                 className="p-4 md:p-8 flex flex-col items-center justify-center gap-6"
                 onSubmit={generateExcel}
               >
-                <center className="text-xl font-medium">Select Date</center>
+                {/* <center className="text-xl font-medium">
+                  Select Thermocouple Configuration
+                </center> */}
+                <center className="text-xl font-medium">
+                  Select Date Range
+                </center>
+
                 <div className="flex gap-2">
                   <div className="flex flex-col gap-4 font-medium">
+                    <div>Configuration</div>
                     <label>From</label>
                     <label>To</label>
                   </div>
                   <div className="flex flex-col gap-4">
+                    <select
+                      name="thermocoupleConfiguration"
+                      className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                      onChange={(e) =>
+                        setSelectedThermocoupleConfig(e.target.value)
+                      }
+                      value={selectedThermocoupleConfig}
+                      required
+                    >
+                      <option value="" disabled>
+                        Select Configuration
+                      </option>
+                      {thermocoupleConfiguration.map((config, index) => (
+                        <option
+                          key={index}
+                          value={config.thermocoupleConfiguration}
+                        >
+                          {config.thermocoupleConfiguration}
+                        </option>
+                      ))}
+                    </select>
+
                     <input
                       type="date"
                       className="text-black rounded-md px-0.5"
@@ -498,6 +533,7 @@ const Reports = ({dataFromApp}) => {
                       value={fromDate}
                       onChange={(e) => setFromDate(e.target.value)}
                     />
+
                     <input
                       type="date"
                       className="text-black rounded-md px-0.5"
@@ -521,7 +557,10 @@ const Reports = ({dataFromApp}) => {
 
             {/* countwise option */}
             {selectedReportOption === "countWiseData" && (
-              <form className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center" onSubmit={generateExcel}>
+              <form
+                className="flex flex-col gap-4 py-4 md:py-8 px-5 md:px-10 items-center justify-center"
+                onSubmit={generateExcel}
+              >
                 <center className="text-xl font-medium">Select Count</center>
                 <div className="flex flex-col gap-2 md:gap-4 text-black">
                   <div className="flex items-center">
@@ -618,7 +657,7 @@ const Reports = ({dataFromApp}) => {
                 <div className="flex gap-4">
                   <button
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                    type='submit'
+                    type="submit"
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
@@ -629,7 +668,10 @@ const Reports = ({dataFromApp}) => {
 
             {/* sensorwise data option */}
             {selectedReportOption === "sensorWiseData" && (
-              <form className="px-4 md:px-8 py-2 md:py-4 flex flex-col items-center justify-center gap-4 text-sm md:text-base" onSubmit={generateExcel}>
+              <form
+                className="px-4 md:px-8 py-2 md:py-4 flex flex-col items-center justify-center gap-4 text-sm md:text-base"
+                onSubmit={generateExcel}
+              >
                 <center className="text-sm md:text-xl font-medium">
                   Select sensor
                 </center>
@@ -832,7 +874,7 @@ const Reports = ({dataFromApp}) => {
                 <div className="flex gap-4">
                   <button
                     className="rounded-md bg-[#e4ba4c] hover:scale-110 duration-200 py-1 px-2 2xl:py-2 2xl:px-4 flex items-center gap-1 text-black font-medium"
-                    type='submit'
+                    type="submit"
                   >
                     <FaFileDownload className="text-lg" />
                     Download Excel
@@ -851,6 +893,6 @@ const Reports = ({dataFromApp}) => {
       </div>
     </div>
   );
-}
+};
 
-export default Reports
+export default Reports;

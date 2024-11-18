@@ -34,22 +34,24 @@ ChartJS.register(
   zoomPlugin
 );
 
-const Analytics = () => {
+const Analytics = ({ thermocoupleConfiguration }) => {
   const [selectedReportOption, setSelectedReportOption] =
-    useState("averageData");
-  const [count, setCount] = useState(100);
+    useState("datePicker");
+  const [count, setCount] = useState();
   const [enableCount, setEnableCount] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [avgFromDate, setAvgFromDate] = useState("");
   const [avgToDate, setAvgToDate] = useState("");
   const [analyticsData, setAnalyticsData] = useState([]);
-  const [averageOption, setAverageOption] = useState("minute");
+  const [averageOption, setAverageOption] = useState("hour");
   const [intervalFromDate, setIntervalFromDate] = useState("");
   const [intervalToDate, setIntervalToDate] = useState("");
-  const [intervalOption, setIntervalOption] = useState("minute");
+  const [intervalOption, setIntervalOption] = useState("hour");
   const [loading, setLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
+  const [selectedThermocoupleConfig, setSelectedThermocoupleConfig] =
+    useState("");
 
   // console.log('average option', averageOption);
 
@@ -78,6 +80,7 @@ const Analytics = () => {
             fromDate: fromDate,
             toDate: toDate,
             count: count,
+            thermocoupleConfiguration: selectedThermocoupleConfig,
           },
         }
       );
@@ -105,6 +108,7 @@ const Analytics = () => {
             intervalFromDate: intervalFromDate,
             intervalToDate: intervalToDate,
             intervalOption: intervalOption,
+            thermocoupleConfiguration: selectedThermocoupleConfig,
           },
         }
       );
@@ -200,7 +204,7 @@ const Analytics = () => {
           pointRadius: 0,
           pointHoverRadius: 0,
           borderWidth: 1.25,
-          hidden: index > 0, // Only T1 is visible initially
+          // hidden: index > 0, // Only T1 is visible initially
         }));
 
         setLineData({
@@ -220,7 +224,7 @@ const Analytics = () => {
           pointRadius: 0,
           pointHoverRadius: 0,
           borderWidth: 1.25,
-          hidden: index !== 0, // only show avgT1 initially, hide others
+          // hidden: index !== 0, // only show avgT1 initially, hide others
         }));
 
         setLineData({
@@ -305,46 +309,6 @@ const Analytics = () => {
         <div className="flex gap-2 justify-evenly font-medium xl:h-[15%]">
           <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
-              selectedReportOption === "averageData" &&
-              "text-[#e4ba4c] bg-white/10"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("averageData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setEnableCount(false);
-              setAnalyticsData([]);
-              setIntervalFromDate("");
-              setIntervalToDate("");
-            }}
-          >
-            <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Average Data
-          </div>
-
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
-              selectedReportOption === "intervalData" &&
-              "text-[#e4ba4c] bg-white/10"
-            }`}
-            onClick={() => {
-              setSelectedReportOption("intervalData");
-              setFromDate("");
-              setToDate("");
-              setCount();
-              setEnableCount(false);
-              setAvgFromDate("");
-              setAvgToDate("");
-              setAnalyticsData([]);
-            }}
-          >
-            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
-            Interval Data
-          </div>
-
-          <div
-            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "datePicker" &&
               "text-[#e4ba4c] bg-white/10"
             }`}
@@ -357,6 +321,7 @@ const Analytics = () => {
               setAnalyticsData([]);
               setIntervalFromDate("");
               setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -379,10 +344,53 @@ const Analytics = () => {
               setAnalyticsData([]);
               setIntervalFromDate("");
               setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
             Count-wise Data
+          </div>
+
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "averageData" &&
+              "text-[#e4ba4c] bg-white/10"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("averageData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setEnableCount(false);
+              setAnalyticsData([]);
+              setIntervalFromDate("");
+              setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
+            }}
+          >
+            <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Average Data
+          </div>
+
+          <div
+            className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-xs md:text-base text-center rounded-md px-2 py-0.5 ${
+              selectedReportOption === "intervalData" &&
+              "text-[#e4ba4c] bg-white/10"
+            }`}
+            onClick={() => {
+              setSelectedReportOption("intervalData");
+              setFromDate("");
+              setToDate("");
+              setCount();
+              setEnableCount(false);
+              setAvgFromDate("");
+              setAvgToDate("");
+              setAnalyticsData([]);
+              setSelectedThermocoupleConfig("");
+            }}
+          >
+            <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
+            Interval Data
           </div>
         </div>
 
@@ -408,10 +416,32 @@ const Analytics = () => {
                   </center>
                   <div className="flex gap-2">
                     <div className="flex flex-col gap-4 font-medium">
+                      <div>Configuration</div>
                       <label>From</label>
                       <label>To</label>
                     </div>
                     <div className="flex flex-col gap-4">
+                      <select
+                        name="thermocoupleConfiguration"
+                        className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                        onChange={(e) =>
+                          setSelectedThermocoupleConfig(e.target.value)
+                        }
+                        value={selectedThermocoupleConfig}
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Configuration
+                        </option>
+                        {thermocoupleConfiguration.map((config, index) => (
+                          <option
+                            key={index}
+                            value={config.thermocoupleConfiguration}
+                          >
+                            {config.thermocoupleConfiguration}
+                          </option>
+                        ))}
+                      </select>
                       <input
                         type="date"
                         className="text-black rounded-md px-0.5"
@@ -428,10 +458,10 @@ const Analytics = () => {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 text-sm 2xl:text-base font-medium">
+                  <div className="flex gap-2 text-sm 2xl:text-base font-medium">
                     <div className="text-center">Average By:</div>
                     <div className="flex gap-2 items-center text-black">
-                      <div className="flex items-center gap-1">
+                      {/* <div className="flex items-center gap-1">
                         <input
                           type="radio"
                           id="option1"
@@ -447,7 +477,7 @@ const Analytics = () => {
                         >
                           Minute
                         </label>
-                      </div>
+                      </div> */}
 
                       <div className="flex items-center gap-1">
                         <input
@@ -455,6 +485,7 @@ const Analytics = () => {
                           id="option2"
                           name="averageOption"
                           value={averageOption}
+                          defaultChecked
                           className="cursor-pointer mt-0.5"
                           onChange={() => setAverageOption("hour")}
                         />
@@ -508,10 +539,33 @@ const Analytics = () => {
                   </center>
                   <div className="flex gap-2">
                     <div className="flex flex-col gap-4 font-medium">
+                      <div>Configuration</div>
                       <label>From</label>
                       <label>To</label>
                     </div>
                     <div className="flex flex-col gap-4">
+                      <select
+                        name="thermocoupleConfiguration"
+                        className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                        onChange={(e) =>
+                          setSelectedThermocoupleConfig(e.target.value)
+                        }
+                        value={selectedThermocoupleConfig}
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Configuration
+                        </option>
+                        {thermocoupleConfiguration.map((config, index) => (
+                          <option
+                            key={index}
+                            value={config.thermocoupleConfiguration}
+                          >
+                            {config.thermocoupleConfiguration}
+                          </option>
+                        ))}
+                      </select>
+
                       <input
                         type="date"
                         className="text-black rounded-md px-0.5"
@@ -528,11 +582,12 @@ const Analytics = () => {
                       />
                     </div>
                   </div>
-                  <div className="text-sm 2xl:text-base font-medium">
-                    Get 1 data for every -
-                  </div>
-                  <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
-                    <div className="flex items-center gap-1">
+                  <div className="flex gap-2 items-center">
+                    <div className="text-sm 2xl:text-base font-medium">
+                      Get 1 data for every -
+                    </div>
+                    <div className="flex gap-2 text-sm 2xl:text-base font-medium text-black">
+                      {/* <div className="flex items-center gap-1">
                       <input
                         type="radio"
                         id="intervaOption2"
@@ -548,40 +603,42 @@ const Analytics = () => {
                       >
                         Minute
                       </label>
-                    </div>
+                    </div> */}
 
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="intervaOption1"
-                        name="intervalOptions"
-                        value={intervalOption}
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setIntervalOption("hour")}
-                      />
-                      <label
-                        htmlFor="intervaOption1"
-                        className="cursor-pointer"
-                      >
-                        Hour
-                      </label>
-                    </div>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="intervaOption1"
+                          name="intervalOptions"
+                          value={intervalOption}
+                          defaultChecked
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setIntervalOption("hour")}
+                        />
+                        <label
+                          htmlFor="intervaOption1"
+                          className="cursor-pointer"
+                        >
+                          Hour
+                        </label>
+                      </div>
 
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        id="intervaOption3"
-                        name="intervalOptions"
-                        value={intervalOption}
-                        className="cursor-pointer mt-0.5"
-                        onChange={() => setIntervalOption("day")}
-                      />
-                      <label
-                        htmlFor="intervaOption3"
-                        className="cursor-pointer"
-                      >
-                        Day
-                      </label>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          id="intervaOption3"
+                          name="intervalOptions"
+                          value={intervalOption}
+                          className="cursor-pointer mt-0.5"
+                          onChange={() => setIntervalOption("day")}
+                        />
+                        <label
+                          htmlFor="intervaOption3"
+                          className="cursor-pointer"
+                        >
+                          Day
+                        </label>
+                      </div>
                     </div>
                   </div>
                   <div>
@@ -603,14 +660,37 @@ const Analytics = () => {
                   onSubmit={generateAnalyticsData}
                 >
                   <center className="text-xl 2xl:text-2xl font-medium">
-                    Select Date
+                    Select Date Range
                   </center>
                   <div className="flex gap-2">
                     <div className="flex flex-col gap-4 font-medium">
+                      <div>Configuration</div>
                       <label>From</label>
                       <label>To</label>
                     </div>
                     <div className="flex flex-col gap-4">
+                      <select
+                        name="thermocoupleConfiguration"
+                        className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                        onChange={(e) =>
+                          setSelectedThermocoupleConfig(e.target.value)
+                        }
+                        value={selectedThermocoupleConfig}
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Configuration
+                        </option>
+                        {thermocoupleConfiguration.map((config, index) => (
+                          <option
+                            key={index}
+                            value={config.thermocoupleConfiguration}
+                          >
+                            {config.thermocoupleConfiguration}
+                          </option>
+                        ))}
+                      </select>
+
                       <input
                         type="date"
                         className="text-black rounded-md px-0.5"

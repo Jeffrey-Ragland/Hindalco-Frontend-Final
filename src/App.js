@@ -18,6 +18,8 @@ const App = () => {
   const [thermocoupleConfiguration, setThermocoupleConfiguration] = useState(
     []
   );
+  const [lineName, setLineName] = useState("");
+  const [potNumber, setPotNumber] = useState("");
   // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
   // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
@@ -37,16 +39,16 @@ const App = () => {
   // get data api
   const getHindalcoData = async () => {
     try {
-      const hindalcoLimit = localStorage.getItem("HindalcoLimit");
+      // const hindalcoLimit = localStorage.getItem("HindalcoLimit");
       // const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
       const HindalcoCardsViewMore = localStorage.getItem(
         "HindalcoCardsViewMore"
       );
       // console.log('localstorage', hindalcoLimit);
-      if (hindalcoLimit && HindalcoCardsViewMore) {
+      if (HindalcoCardsViewMore) {
         const response = await axios.get(
-          // `https://hindalco.xyma.live/backend/getHindalcoData?limit=${hindalcoLimit}`
-          `http://localhost:4000/backend/getHindalcoData?limit=${hindalcoLimit}`
+          `https://hindalco.xyma.live/backend/getHindalcoData`
+          // `http://localhost:4000/backend/getHindalcoData`
         );
         //console.log("response =",response.data.data)
         if (response.data.success) {
@@ -63,15 +65,22 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get(
-        // 'https://hindalco.xyma.live/backend/getHindalcoProcess'
-        "http://localhost:4000/backend/getHindalcoProcess"
+        "https://hindalco.xyma.live/backend/getHindalcoProcess"
+        // "http://localhost:4000/backend/getHindalcoProcess"
       );
-
+      // if (
+      //   response.data &&
+      //   response.data.selectedThermocouples &&
+      //   response.data.lineName &&
+      //   response.data.potNumber
+      // ) {
       setThresholdGraphDateRange(response.data.dateRange);
       setThermocoupleConfiguration(response.data.thermocoupleConfiguration);
       setProcessIsRunning(response.data.inTimeRange);
       setProcessTimeLeft(response.data.timeLeft);
       setFixedThermocouples(response.data.selectedThermocouples);
+      setLineName(response.data.lineName);
+      setPotNumber(response.data.potNumber);
 
       if (response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
@@ -81,6 +90,7 @@ const App = () => {
       } else if (!response.data.success) {
         // console.log("process stopped");
       }
+      // }
     } catch (error) {
       console.log("Error fetching hindalco process", error);
     }
@@ -118,6 +128,8 @@ const App = () => {
                 processIsRunning={processIsRunning}
                 processTimeLeft={processTimeLeft}
                 fixedThermocouples={fixedThermocouples}
+                lineNameDB={lineName}
+                potNumberDB={potNumber}
               />
             }
           />
@@ -130,7 +142,15 @@ const App = () => {
               />
             }
           />
-          <Route path="Analytics" element={<Analysis />} />
+          <Route
+            path="Analytics"
+            element={
+              <Analysis
+                thermocoupleConfiguration={thermocoupleConfiguration}
+                fixedThermocouples={fixedThermocouples}
+              />
+            }
+          />
         </Route>
       </Routes>
     </>

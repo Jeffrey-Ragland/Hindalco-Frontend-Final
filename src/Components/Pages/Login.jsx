@@ -30,7 +30,7 @@ const Login = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("HindalcoLimit", "100");
+        // localStorage.setItem("HindalcoLimit", "100");
         localStorage.setItem("HindalcoCardsViewMore", "false");
         navigate(data.redirectUrl);
       } else {

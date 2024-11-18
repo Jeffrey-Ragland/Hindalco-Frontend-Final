@@ -24,7 +24,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
 
   const [selectedReportOption, setSelectedReportOption] =
     useState("datePicker");
-  const [count, setCount] = useState(100);
+  const [count, setCount] = useState();
   const [enableCount, setEnableCount] = useState(false);
   const [parameters, setParameters] = useState({}); // for sensor-wise data
   const [selectedSensors, setSelectedSensors] = useState([]); //for sensor wise data
@@ -94,8 +94,8 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
       setLoading(true);
       const response = await axios.get(
         // "http://34.93.162.58:4000/sensor/getDemokitUtmapsData",
-        // "https://hindalco.xyma.live/backend/getHindalcoReport",
-        "http://localhost:4000/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: projectName,
@@ -108,6 +108,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
             sensorWiseFromDate: sensorWiseFromDate,
             sensorWiseToDate: sensorWiseToDate,
             sensorWiseCount: sensorWiseCount,
+            thermocoupleConfiguration: selectedThermocoupleConfig,
           },
         }
       );
@@ -135,8 +136,8 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
       e.preventDefault();
       setLoading(true);
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
-        "http://localhost:4000/backend/getHindalcoAverageReport",
+        "https://hindalco.xyma.live/backend/getHindalcoAverageReport",
+        // "http://localhost:4000/backend/getHindalcoAverageReport",
         {
           params: {
             projectName: projectName,
@@ -146,6 +147,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
             intervalFromDate: intervalFromDate,
             intervalToDate: intervalToDate,
             intervalOption: intervalOption,
+            thermocoupleConfiguration: selectedThermocoupleConfig,
           },
         }
       );
@@ -191,6 +193,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
               setAvgToDate("");
               setIntervalFromDate("");
               setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <LuCalendarSearch className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -217,6 +220,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
               setAvgToDate("");
               setIntervalFromDate("");
               setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <TbHash className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -241,6 +245,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
               setEnableCount(false);
               setIntervalFromDate("");
               setIntervalToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <TbSum className="text-3xl md:text-6xl 2xl:text-8xl" />
@@ -265,13 +270,14 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
               setEnableCount(false);
               setAvgFromDate("");
               setAvgToDate("");
+              setSelectedThermocoupleConfig("");
             }}
           >
             <AiOutlineFieldTime className="text-3xl md:text-6xl 2xl:text-8xl" />
             Interval Data
           </div>
 
-          <div
+          {/* <div
             className={`flex flex-col gap-1 items-center hover:scale-125 duration-200 cursor-pointer hover:text-[#e4ba4c] hover:bg-white/10 text-[10px] md:text-base text-center rounded-md px-2 py-0.5 ${
               selectedReportOption === "sensorWiseData" &&
               "text-[#e4ba4c] bg-white/10"
@@ -291,7 +297,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
           >
             <MdOutlineSensors className="text-3xl md:text-6xl 2xl:text-8xl" />
             Sensor-wise Data
-          </div>
+          </div> */}
         </div>
 
         <div className="flex-1 flex items-center justify-center ">
@@ -315,10 +321,33 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
                 </center>
                 <div className="flex gap-2">
                   <div className="flex flex-col gap-4 font-medium">
+                    <div>Configuration</div>
                     <label>From</label>
                     <label>To</label>
                   </div>
                   <div className="flex flex-col gap-4">
+                    <select
+                      name="thermocoupleConfiguration"
+                      className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                      onChange={(e) =>
+                        setSelectedThermocoupleConfig(e.target.value)
+                      }
+                      value={selectedThermocoupleConfig}
+                      required
+                    >
+                      <option value="" disabled>
+                        Select Configuration
+                      </option>
+                      {thermocoupleConfiguration.map((config, index) => (
+                        <option
+                          key={index}
+                          value={config.thermocoupleConfiguration}
+                        >
+                          {config.thermocoupleConfiguration}
+                        </option>
+                      ))}
+                    </select>
+
                     <input
                       type="date"
                       className="text-black rounded-md px-0.5"
@@ -405,10 +434,33 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
                 </center>
                 <div className="flex gap-2">
                   <div className="flex flex-col gap-4 font-medium">
+                    <div>Configuration</div>
                     <label>From</label>
                     <label>To</label>
                   </div>
                   <div className="flex flex-col gap-4">
+                    <select
+                      name="thermocoupleConfiguration"
+                      className="text-black rounded-md p-1 text-sm 2xl:text-base"
+                      onChange={(e) =>
+                        setSelectedThermocoupleConfig(e.target.value)
+                      }
+                      value={selectedThermocoupleConfig}
+                      required
+                    >
+                      <option value="" disabled>
+                        Select Configuration
+                      </option>
+                      {thermocoupleConfiguration.map((config, index) => (
+                        <option
+                          key={index}
+                          value={config.thermocoupleConfiguration}
+                        >
+                          {config.thermocoupleConfiguration}
+                        </option>
+                      ))}
+                    </select>
+
                     <input
                       type="date"
                       className="text-black rounded-md px-0.5"
@@ -416,6 +468,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
                       value={intervalFromDate}
                       onChange={(e) => setIntervalFromDate(e.target.value)}
                     />
+
                     <input
                       type="date"
                       className="text-black rounded-md px-0.5"

@@ -60,11 +60,14 @@ const Dashboard = ({
   processIsRunning,
   processTimeLeft,
   fixedThermocouples,
+  lineNameDB,
+  potNumberDB,
 }) => {
   console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
+  // console.log("thermocouple configuration:", thermocoupleConfiguration);
 
-  console.log("data", dataFromApp);
+  // console.log("data", dataFromApp);
   console.log("fixed thermocouples", fixedThermocouples);
 
   const [activeStatus, setActiveStatus] = useState("");
@@ -72,7 +75,7 @@ const Dashboard = ({
   const [previousProcessDataLoading, setPreviousProcessDataLoading] =
     useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
-  // const [clickedLegends, setClickedLegends] = useState(["T2"]);
+  const [clickedLegends, setClickedLegends] = useState([]);
   const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
   const [coords, setCoords] = useState([0, 0]);
@@ -80,13 +83,23 @@ const Dashboard = ({
   const [selectedThermocouples, setSelectedThermocouples] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [potNumber, setPotNumber] = useState("");
-  const [clickedLegends, setClickedLegends] = useState(() =>
-    fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : []
-  );
+  // const [clickedLegends, setClickedLegends] = useState(() =>
+  //   fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : []
+  // );
 
   // console.log("selected thermocouples", selectedThermocouples);
   // console.log("pot number", potNumber);
   // console.log("line name", selectedLine);
+
+  const initialClickedLegends = useMemo(() => {
+    return fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : [];
+  }, [fixedThermocouples]);
+
+  useEffect(() => {
+    if (clickedLegends.length === 0 && initialClickedLegends.length > 0) {
+      setClickedLegends(initialClickedLegends);
+    }
+  }, [clickedLegends, initialClickedLegends]);
 
   // thermocouple selection
   const thermocouples = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
@@ -142,18 +155,18 @@ const Dashboard = ({
   // console.log('lower threshold data', lowerThresholdData);
 
   // line chart limit
-  const getInitialLimit = () => {
-    const storedLimit = localStorage.getItem("HindalcoLimit");
-    return storedLimit ? parseInt(storedLimit) : 100;
-  };
+  // const getInitialLimit = () => {
+  //   const storedLimit = localStorage.getItem("HindalcoLimit");
+  //   return storedLimit ? parseInt(storedLimit) : 100;
+  // };
 
-  const [hindalcoLimit, setHindalcoLimit] = useState(getInitialLimit);
+  // const [hindalcoLimit, setHindalcoLimit] = useState(getInitialLimit);
 
-  const handleLineLimit = (e) => {
-    const limit = parseInt(e.target.value);
-    setHindalcoLimit(limit);
-    localStorage.setItem("HindalcoLimit", limit.toString());
-  };
+  // const handleLineLimit = (e) => {
+  //   const limit = parseInt(e.target.value);
+  //   setHindalcoLimit(limit);
+  //   localStorage.setItem("HindalcoLimit", limit.toString());
+  // };
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -584,34 +597,34 @@ const Dashboard = ({
             colors: barColors,
           },
         });
+
+        const reversedData = [...thresholdGraphData].reverse();
+
+        const lineLabels = reversedData.map((item) => {
+          return item.Time;
+        });
+        const sensorData = Array.from({ length: 15 }, (_, i) =>
+          reversedData.map((item) => item[`T${i + 1}`])
+        );
+
+        const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+
+        setLineData({
+          labels: lineLabels,
+          datasets: sensorData.map((data, i) => ({
+            label: sensorLabels[i],
+            data,
+            borderColor: sensorColors[i],
+            backgroundColor: `${sensorColors[i]
+              .replace("rgb", "rgba")
+              .replace(")", ", 0.2)")}`,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: !clickedLegends.includes(sensorLabels[i]),
+          })),
+        });
       }
-
-      const reversedData = [...dataFromApp].reverse();
-
-      const lineLabels = reversedData.map((item) => {
-        return item.Time;
-      });
-      const sensorData = Array.from({ length: 15 }, (_, i) =>
-        reversedData.map((item) => item[`T${i + 1}`])
-      );
-
-      const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
-
-      setLineData({
-        labels: lineLabels,
-        datasets: sensorData.map((data, i) => ({
-          label: sensorLabels[i],
-          data,
-          borderColor: sensorColors[i],
-          backgroundColor: `${sensorColors[i]
-            .replace("rgb", "rgba")
-            .replace(")", ", 0.2)")}`,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          borderWidth: 1.25,
-          hidden: !clickedLegends.includes(sensorLabels[i]),
-        })),
-      });
     }
   }, [dataFromApp, viewAllCards, clickedLegends]);
 
@@ -702,8 +715,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            "http://localhost:4000/backend/updateHindalcoProcess",
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -718,8 +731,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          "http://localhost:4000/backend/updateHindalcoProcess",
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -780,7 +793,19 @@ const Dashboard = ({
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
             <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center  overflow-hidden h-[200px] xl:h-auto">
               {/* 3d model */}
-              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px] ">
+              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px]">
+                <div className="absolute top-0 left-0 h-full flex items-center justify-center ">
+                  <span className="text-sm 2xl:text-base font-medium transform -rotate-90 origin-center">
+                    Tap End
+                  </span>
+                </div>
+
+                <div className="absolute top-0 right-0 h-full flex items-center justify-center ">
+                  <span className="text-sm 2xl:text-base font-medium transform rotate-90 origin-center">
+                    Duct End
+                  </span>
+                </div>
+
                 <ThreeDModel
                   alertKeys={alertKeys}
                   coordsUpdateFunc={handleCoordsUpdate}
@@ -872,6 +897,17 @@ const Dashboard = ({
                     <IoWarningSharp className="text-xl 2xl:text-2xl" />
                   </div>
                 )}
+
+                {/* thermocouple configuration */}
+                {lineNameDB && potNumberDB ? (
+                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                    Device connected on: {lineNameDB}-Pot:{potNumberDB}
+                  </div>
+                ) : (
+                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                    Device connected on: N/A
+                  </div>
+                )}
               </div>
 
               {/* view all cards */}
@@ -941,11 +977,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T1")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -988,11 +1020,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T2")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1035,11 +1063,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T3")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1082,11 +1106,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T4")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1129,11 +1149,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T5")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1176,11 +1192,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T6")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1223,11 +1235,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T7")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1270,11 +1278,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T8")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1317,11 +1321,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T9")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1364,11 +1364,7 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T10")
-                      ? "text-black"
-                      : "text-black"
-                  } text-center font-medium  ${
+                  className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
                   }`}
                 >
@@ -1414,11 +1410,7 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T11")
-                          ? "text-black"
-                          : "text-black"
-                      } text-center font-medium  ${
+                      className={`text-center font-medium  ${
                         viewAllCards && "text-xs 2xl:text-sm"
                       }`}
                     >
@@ -1461,11 +1453,7 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T12")
-                          ? "text-black"
-                          : "text-black"
-                      } text-center font-medium  ${
+                      className={`text-center font-medium  ${
                         viewAllCards && "text-xs 2xl:text-sm"
                       }`}
                     >
@@ -1508,11 +1496,7 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T13")
-                          ? "text-black"
-                          : "text-black"
-                      } text-center font-medium  ${
+                      className={`text-center font-medium  ${
                         viewAllCards && "text-xs 2xl:text-sm"
                       }`}
                     >
@@ -1555,11 +1539,7 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T14")
-                          ? "text-black"
-                          : "text-black"
-                      } text-center font-medium  ${
+                      className={`text-center font-medium  ${
                         viewAllCards && "text-xs 2xl:text-sm"
                       }`}
                     >
@@ -1602,11 +1582,7 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T15")
-                          ? "text-black"
-                          : "text-black"
-                      } text-center font-medium  ${
+                      className={`text-center font-medium  ${
                         viewAllCards && "text-xs 2xl:text-sm"
                       }`}
                     >
@@ -1824,7 +1800,7 @@ const Dashboard = ({
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
-          <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
+          {/* <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
             <div className="mr-2 text-center font-medium text-[#23439b]">
               Data&nbsp;Limit
             </div>
@@ -1903,7 +1879,7 @@ const Dashboard = ({
                 1000&nbsp;Data
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <ReactTooltip

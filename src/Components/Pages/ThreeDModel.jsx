@@ -55,7 +55,7 @@ const Model = ({ alertKeys, coordsUpdateFunc, meshNameFunc }) => {
     // Update the color for each mesh based on `alertKeys`
     const updatedColors = { ...meshColors };
     Object.keys(updatedColors).forEach((key) => {
-      updatedColors[key] = alertKeys.includes(key) ? "red" : "white";
+      updatedColors[key] = alertKeys.includes(key) ? "red" : "blue";
     });
     setMeshColors(updatedColors);
   }, [alertKeys]);

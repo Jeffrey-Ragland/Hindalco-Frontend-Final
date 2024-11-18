@@ -13,30 +13,30 @@ const Login = () => {
 
  const navigate = useNavigate();
 
- const handleLoginFormSubmit = async (e) => {
-   e.preventDefault();
-   try {
-     const response = await fetch("https://hindalco.xyma.live/backend/login", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify({ Username, Password }),
-     });
-     const data = await response.json();
-     if (data.token) {
-       localStorage.setItem("token", data.token);
-       localStorage.setItem("HindalcoLimit", '100');
-       // localStorage.setItem("HindalcoAlertLimit", "75");
-       localStorage.setItem("HindalcoCardsViewMore", "false");
-       navigate(data.redirectUrl);
-     } else {
-       alert(data);
-     }
-   } catch (error) {
-     console.log(error);
-   }
- };
+  const handleLoginFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("https://hindalco.xyma.live/backend/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ Username, Password }),
+      });
+      const data = await response.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("HindalcoLimit", '100');
+        // localStorage.setItem("HindalcoAlertLimit", "75");
+        localStorage.setItem("HindalcoCardsViewMore", "false");
+        navigate(data.redirectUrl);
+      } else {
+        alert(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
  return (
    <div

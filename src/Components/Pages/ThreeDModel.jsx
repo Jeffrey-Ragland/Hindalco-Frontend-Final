@@ -55,7 +55,7 @@ const Model = ({ alertKeys, coordsUpdateFunc, meshNameFunc }) => {
     // Update the color for each mesh based on `alertKeys`
     const updatedColors = { ...meshColors };
     Object.keys(updatedColors).forEach((key) => {
-      updatedColors[key] = alertKeys.includes(key) ? "red" : "white";
+      updatedColors[key] = alertKeys.includes(key) ? "red" : "blue";
     });
     setMeshColors(updatedColors);
   }, [alertKeys]);
@@ -79,28 +79,28 @@ const Model = ({ alertKeys, coordsUpdateFunc, meshNameFunc }) => {
     const meshName = e.object.name;
 
     const meshNameMap = {
-        Circle: "T1",
-        Circle001: "T2",
-        Circle005: "T3",
-        Circle004: "T4",
-        Circle010: "T5",
-        Circle007: "T6",
-        Circle002: "T7",
-        Circle006: "T8",
-        Circle008: "T9",
-        Circle009: "T10",
-        Circle003: "T11",
-        Circle012: "T12",
-        Circle014: "T13",
-        Circle013: "T14",
-        Circle011: "T15",
-      };
-    
-      // Check if the meshName exists in the map
-      if (meshNameMap[meshName]) {
-        coordsUpdateFunc([e.clientX, e.clientY]);
-        meshNameFunc(meshNameMap[meshName]);
-      }
+      Circle: "T1",
+      Circle001: "T2",
+      Circle005: "T3",
+      Circle004: "T4",
+      Circle010: "T5",
+      Circle007: "T6",
+      Circle002: "T7",
+      Circle006: "T8",
+      Circle008: "T9",
+      Circle009: "T10",
+      Circle003: "T11",
+      Circle012: "T12",
+      Circle014: "T13",
+      Circle013: "T14",
+      Circle011: "T15",
+    };
+
+    // Check if the meshName exists in the map
+    if (meshNameMap[meshName]) {
+      coordsUpdateFunc([e.clientX, e.clientY]);
+      meshNameFunc(meshNameMap[meshName]);
+    }
 
     // if (meshName === "Circle") {
     //   coordsUpdateFunc([e.clientX, e.clientY]);

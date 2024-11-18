@@ -59,21 +59,77 @@ const Dashboard = ({
   thresholdGraphDateRange,
   processIsRunning,
   processTimeLeft,
+  fixedThermocouples,
+  lineNameDB,
+  potNumberDB,
 }) => {
-  // console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
+  // console.log("thermocouple configuration:", thermocoupleConfiguration);
 
   // console.log("data", dataFromApp);
+  console.log("fixed thermocouples", fixedThermocouples);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
   const [previousProcessDataLoading, setPreviousProcessDataLoading] =
     useState(false);
   const [previousProcessData, setPreviousProcessData] = useState([]);
-  const [clickedLegends, setClickedLegends] = useState(["T1"]);
+  const [clickedLegends, setClickedLegends] = useState([]);
+  const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
   const [coords, setCoords] = useState([0, 0]);
-  const [meshName, setMeshName] = useState('');
+  const [meshName, setMeshName] = useState("");
+  const [selectedThermocouples, setSelectedThermocouples] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [potNumber, setPotNumber] = useState("");
+  // const [clickedLegends, setClickedLegends] = useState(() =>
+  //   fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : []
+  // );
+
+  // console.log("selected thermocouples", selectedThermocouples);
+  // console.log("pot number", potNumber);
+  // console.log("line name", selectedLine);
+
+  const initialClickedLegends = useMemo(() => {
+    return fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : [];
+  }, [fixedThermocouples]);
+
+  useEffect(() => {
+    if (clickedLegends.length === 0 && initialClickedLegends.length > 0) {
+      setClickedLegends(initialClickedLegends);
+    }
+  }, [clickedLegends, initialClickedLegends]);
+
+  // thermocouple selection
+  const thermocouples = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+
+  const toggleThermocouple = (name) => {
+    setSelectedThermocouples((prevselected) =>
+      prevselected.includes(name)
+        ? prevselected.filter((item) => item !== name)
+        : [...prevselected, name]
+    );
+  };
+
+  // useEffect(() => {
+  //   if (fixedThermocouples.length > 0) {
+  //     setClickedLegends([fixedThermocouples[0]]); // Set to the first key
+  //   } else {
+  //     setClickedLegends([]); // Set to empty array if none selected
+  //   }
+  // }, [fixedThermocouples]);
+
+  // console.log("selected thermocouples", selectedThermocouples);
+
+  // const getInitialSelectedThermocouples = () => {
+  //   const storedThermocouples = localStorage.getItem("selectedThermocouples");
+  //   return storedThermocouples ? JSON.parse(storedThermocouples) : [];
+  // };
+
+  // const [fixedThermocouples, setFixedThermocouples] = useState(
+  //   getInitialSelectedThermocouples
+  // );
 
   // 3d model hover
   const handleCoordsUpdate = (newCoords) => {
@@ -84,7 +140,7 @@ const Dashboard = ({
     setMeshName(newName);
   };
 
-  console.log("coords in  main file", coords);
+  // console.log("coords in  main file", coords);
 
   const upperThresholdData = Array.from(
     { length: 732 },
@@ -99,18 +155,18 @@ const Dashboard = ({
   // console.log('lower threshold data', lowerThresholdData);
 
   // line chart limit
-  const getInitialLimit = () => {
-    const storedLimit = localStorage.getItem("HindalcoLimit");
-    return storedLimit ? parseInt(storedLimit) : 100;
-  };
+  // const getInitialLimit = () => {
+  //   const storedLimit = localStorage.getItem("HindalcoLimit");
+  //   return storedLimit ? parseInt(storedLimit) : 100;
+  // };
 
-  const [hindalcoLimit, setHindalcoLimit] = useState(getInitialLimit);
+  // const [hindalcoLimit, setHindalcoLimit] = useState(getInitialLimit);
 
-  const handleLineLimit = (e) => {
-    const limit = parseInt(e.target.value);
-    setHindalcoLimit(limit);
-    localStorage.setItem("HindalcoLimit", limit.toString());
-  };
+  // const handleLineLimit = (e) => {
+  //   const limit = parseInt(e.target.value);
+  //   setHindalcoLimit(limit);
+  //   localStorage.setItem("HindalcoLimit", limit.toString());
+  // };
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -165,7 +221,7 @@ const Dashboard = ({
 
   const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
 
-  // console.log("threshold graph data", thresholdGraphData);
+  console.log("threshold graph data", thresholdGraphData);
 
   // console.log("alerts array", alertsArray);
   // console.log("alert keys", alertKeys);
@@ -177,7 +233,12 @@ const Dashboard = ({
     const axisFontSize = screenWidth < 1536 ? "6px" : "8px";
 
     return {
-      series: [],
+      series: [
+        {
+          name: "Temperature",
+          data: [],
+        },
+      ],
       options: {
         chart: {
           type: "bar",
@@ -251,7 +312,7 @@ const Dashboard = ({
       },
     };
   });
-
+  //mac commit
   const [lineData, setLineData] = useState({
     labels: [],
     datasets: [],
@@ -459,109 +520,111 @@ const Dashboard = ({
         }
       }
 
-      Object.keys(dataFromApp[0]).forEach((key) => {
-        if (viewAllCards === true) {
-          if (
-            key !== "Time" &&
-            key !== "createdAt" &&
-            key !== "_id" &&
-            key !== "DeviceName" &&
-            key !== "DeviceTemperature" &&
-            key !== "DeviceBattery" &&
-            key !== "DeviceSignal"
-          ) {
-            barCategories.push(key);
-            // barSeries.push(parseFloat(dataFromApp[0][key]));
+      if (Array.isArray(thresholdGraphData) && thresholdGraphData.length > 0) {
+        Object.keys(thresholdGraphData[0]).forEach((key) => {
+          if (viewAllCards === true) {
             if (
-              dataFromApp[0][key] === "N/A" ||
-              isNaN(parseFloat(dataFromApp[0][key]))
+              key !== "Time" &&
+              key !== "createdAt" &&
+              key !== "_id" &&
+              key !== "DeviceName" &&
+              key !== "DeviceTemperature" &&
+              key !== "DeviceBattery" &&
+              key !== "DeviceSignal"
             ) {
-              barSeries.push(null);
-            } else {
-              barSeries.push(parseFloat(dataFromApp[0][key]));
+              barCategories.push(key);
+              // barSeries.push(parseFloat(dataFromApp[0][key]));
+              if (
+                thresholdGraphData[0][key] === "N/A" ||
+                isNaN(parseFloat(thresholdGraphData[0][key]))
+              ) {
+                barSeries.push(null);
+              } else {
+                barSeries.push(parseFloat(thresholdGraphData[0][key]));
+              }
+              if (alertKeys.includes(key)) {
+                barColors.push("#FF0000");
+              } else {
+                barColors.push("#23439B");
+              }
             }
-            if (alertKeys.includes(key)) {
-              barColors.push("#FF0000");
-            } else {
-              barColors.push("#23439B");
+          } else if (viewAllCards === false) {
+            if (
+              key !== "Time" &&
+              key !== "createdAt" &&
+              key !== "_id" &&
+              key !== "DeviceName" &&
+              key !== "DeviceTemperature" &&
+              key !== "DeviceBattery" &&
+              key !== "DeviceSignal" &&
+              key !== "T11" &&
+              key !== "T12" &&
+              key !== "T13" &&
+              key !== "T14" &&
+              key !== "T15"
+            ) {
+              barCategories.push(key);
+              // barSeries.push(parseFloat(dataFromApp[0][key]));
+              if (
+                thresholdGraphData[0][key] === "N/A" ||
+                isNaN(parseFloat(thresholdGraphData[0][key]))
+              ) {
+                barSeries.push(null);
+              } else {
+                barSeries.push(parseFloat(thresholdGraphData[0][key]));
+              }
+              if (alertKeys.includes(key)) {
+                barColors.push("#FF0000");
+              } else {
+                barColors.push("#23439B");
+              }
             }
           }
-        } else if (viewAllCards === false) {
-          if (
-            key !== "Time" &&
-            key !== "createdAt" &&
-            key !== "_id" &&
-            key !== "DeviceName" &&
-            key !== "DeviceTemperature" &&
-            key !== "DeviceBattery" &&
-            key !== "DeviceSignal" &&
-            key !== "S11" &&
-            key !== "S12" &&
-            key !== "S13" &&
-            key !== "S14" &&
-            key !== "S15"
-          ) {
-            barCategories.push(key);
-            // barSeries.push(parseFloat(dataFromApp[0][key]));
-            if (
-              dataFromApp[0][key] === "N/A" ||
-              isNaN(parseFloat(dataFromApp[0][key]))
-            ) {
-              barSeries.push(null);
-            } else {
-              barSeries.push(parseFloat(dataFromApp[0][key]));
-            }
-            if (alertKeys.includes(key)) {
-              barColors.push("#FF0000");
-            } else {
-              barColors.push("#23439B");
-            }
-          }
-        }
-      });
+        });
 
-      setBarData({
-        series: [
-          {
-            name: "Sensor Temp",
-            data: barSeries,
+        setBarData({
+          series: [
+            {
+              name: "Temperature",
+              data: barSeries,
+            },
+          ],
+          options: {
+            ...barData.options,
+            xaxis: {
+              categories: barCategories,
+            },
+            colors: barColors,
           },
-        ],
-        options: {
-          ...barData.options,
-          xaxis: {
-            categories: barCategories,
-          },
-          colors: barColors,
-        },
-      });
+        });
 
-      const reversedData = [...dataFromApp].reverse();
+        const reversedData = [...thresholdGraphData].reverse();
 
-      const lineLabels = reversedData.map((item) => {
-        return item.Time;
-      });
-      const sensorData = Array.from({ length: 15 }, (_, i) =>
-        reversedData.map((item) => item[`T${i + 1}`])
-      );
+        const lineLabels = reversedData.map((item) => {
+          return item.Time;
+        });
+        const sensorData = Array.from({ length: 15 }, (_, i) =>
+          reversedData.map((item) => item[`T${i + 1}`])
+        );
 
-      const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+        const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
 
-      setLineData({
-        labels: lineLabels,
-        datasets: sensorData.map((data, i) => ({
-          label: sensorLabels[i],
-          data,
-          borderColor: sensorColors[i],
-          backgroundColor: `${sensorColors[i]
-            .replace("rgb", "rgba")
-            .replace(")", ", 0.2)")}`,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          borderWidth: 1.25,
-          hidden: !clickedLegends.includes(sensorLabels[i]),
-        })),
-      });
+        setLineData({
+          labels: lineLabels,
+          datasets: sensorData.map((data, i) => ({
+            label: sensorLabels[i],
+            data,
+            borderColor: sensorColors[i],
+            backgroundColor: `${sensorColors[i]
+              .replace("rgb", "rgba")
+              .replace(")", ", 0.2)")}`,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 1.25,
+            hidden: !clickedLegends.includes(sensorLabels[i]),
+          })),
+        });
+      }
     }
   }, [dataFromApp, viewAllCards, clickedLegends]);
 
@@ -643,14 +706,39 @@ const Dashboard = ({
 
   const updateHindalcoProcess = async (processStatus) => {
     try {
-      // console.log("process status", processStatus);
-      await axios.post(
-        "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-        // "http://localhost:4000/backend/updateHindalcoProcess",
-        {
-          processStatus,
+      if (processStatus === "Start") {
+        if (
+          selectedLine === "" ||
+          potNumber === "" ||
+          selectedThermocouples.length <= 0
+        ) {
+          alert("Please fill all the inputs! ");
+        } else {
+          await axios.post(
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
+            {
+              processStatus,
+              selectedThermocouples,
+              selectedLine,
+              potNumber,
+            }
+          );
+          setStartPopup(false);
+          setSelectedThermocouples([]);
+          setSelectedLine("");
+          setPotNumber("");
         }
-      );
+      } else if (processStatus === "Stop") {
+        await axios.post(
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
+          {
+            processStatus,
+            selectedThermocouples,
+          }
+        );
+      }
     } catch (error) {
       console.error("Error updating hindalco process", error);
     }
@@ -705,7 +793,19 @@ const Dashboard = ({
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
             <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center  overflow-hidden h-[200px] xl:h-auto">
               {/* 3d model */}
-              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px] ">
+              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px]">
+                <div className="absolute top-0 left-0 h-full flex items-center justify-center ">
+                  <span className="text-sm 2xl:text-base font-medium transform -rotate-90 origin-center">
+                    Tap End
+                  </span>
+                </div>
+
+                <div className="absolute top-0 right-0 h-full flex items-center justify-center ">
+                  <span className="text-sm 2xl:text-base font-medium transform rotate-90 origin-center">
+                    Duct End
+                  </span>
+                </div>
+
                 <ThreeDModel
                   alertKeys={alertKeys}
                   coordsUpdateFunc={handleCoordsUpdate}
@@ -797,6 +897,17 @@ const Dashboard = ({
                     <IoWarningSharp className="text-xl 2xl:text-2xl" />
                   </div>
                 )}
+
+                {/* thermocouple configuration */}
+                {lineNameDB && potNumberDB ? (
+                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                    Device connected on: {lineNameDB}-Pot:{potNumberDB}
+                  </div>
+                ) : (
+                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                    Device connected on: N/A
+                  </div>
+                )}
               </div>
 
               {/* view all cards */}
@@ -849,7 +960,8 @@ const Dashboard = ({
           >
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
-                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A" ||
+                !fixedThermocouples.includes("T1")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T1")
                   ? "card-indicator"
@@ -865,11 +977,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T1")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T1
                 </div>
@@ -882,7 +992,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T1)
-                  )
+                  ) || !fixedThermocouples.includes("T1")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T1
@@ -893,7 +1003,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A" ||
+                !fixedThermocouples.includes("T2")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T2")
                   ? "card-indicator"
@@ -909,11 +1020,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T2")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T2
                 </div>
@@ -926,7 +1035,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T2)
-                  )
+                  ) || !fixedThermocouples.includes("T2")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T2
@@ -937,7 +1046,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A" ||
+                !fixedThermocouples.includes("T3")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T3")
                   ? "card-indicator"
@@ -953,11 +1063,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T3")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T3
                 </div>
@@ -970,7 +1078,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T3)
-                  )
+                  ) || !fixedThermocouples.includes("T3")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T3
@@ -981,7 +1089,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A" ||
+                !fixedThermocouples.includes("T4")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T4")
                   ? "card-indicator"
@@ -997,11 +1106,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T4")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T4
                 </div>
@@ -1014,7 +1121,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T4)
-                  )
+                  ) || !fixedThermocouples.includes("T4")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T4
@@ -1025,7 +1132,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A" ||
+                !fixedThermocouples.includes("T5")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T5")
                   ? "card-indicator"
@@ -1041,11 +1149,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T5")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T5
                 </div>
@@ -1058,7 +1164,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T5)
-                  )
+                  ) || !fixedThermocouples.includes("T5")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T5
@@ -1069,7 +1175,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A" ||
+                !fixedThermocouples.includes("T6")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T6")
                   ? "card-indicator"
@@ -1085,11 +1192,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T6")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T6
                 </div>
@@ -1102,7 +1207,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T6)
-                  )
+                  ) || !fixedThermocouples.includes("T6")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T6
@@ -1113,7 +1218,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A" ||
+                !fixedThermocouples.includes("T7")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T7")
                   ? "card-indicator"
@@ -1129,11 +1235,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T7")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T7
                 </div>
@@ -1146,7 +1250,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T7)
-                  )
+                  ) || !fixedThermocouples.includes("T7")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T7
@@ -1157,7 +1261,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A" ||
+                !fixedThermocouples.includes("T8")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T8")
                   ? "card-indicator"
@@ -1173,11 +1278,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T8")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T8
                 </div>
@@ -1190,7 +1293,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T8)
-                  )
+                  ) || !fixedThermocouples.includes("T8")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T8
@@ -1201,7 +1304,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A" ||
+                !fixedThermocouples.includes("T9")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T9")
                   ? "card-indicator"
@@ -1217,11 +1321,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T9")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T9
                 </div>
@@ -1234,7 +1336,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T9)
-                  )
+                  ) || !fixedThermocouples.includes("T9")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T9
@@ -1245,7 +1347,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A"
+                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A" ||
+                !fixedThermocouples.includes("T10")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T10")
                   ? "card-indicator"
@@ -1261,11 +1364,9 @@ const Dashboard = ({
               />
               <div>
                 <div
-                  className={`${
-                    alertKeys.length > 0 && alertKeys.includes("T10")
-                      ? "text-white"
-                      : "text-black"
-                  } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                  className={`text-center font-medium  ${
+                    viewAllCards && "text-xs 2xl:text-sm"
+                  }`}
                 >
                   T10
                 </div>
@@ -1278,7 +1379,7 @@ const Dashboard = ({
                 >
                   {isNaN(
                     parseFloat(dataFromApp.length > 0 && dataFromApp[0].T10)
-                  )
+                  ) || !fixedThermocouples.includes("T10")
                     ? "N/A"
                     : `${parseFloat(
                         dataFromApp.length > 0 && dataFromApp[0].T10
@@ -1292,7 +1393,8 @@ const Dashboard = ({
               <>
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A" ||
+                    !fixedThermocouples.includes("T11")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T11")
                       ? "card-indicator"
@@ -1308,11 +1410,9 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T11")
-                          ? "text-white"
-                          : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      className={`text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T11
                     </div>
@@ -1325,7 +1425,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T11)
-                      )
+                      ) || !fixedThermocouples.includes("T11")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T11
@@ -1336,7 +1436,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A" ||
+                    !fixedThermocouples.includes("T12")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T12")
                       ? "card-indicator"
@@ -1352,11 +1453,9 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T12")
-                          ? "text-white"
-                          : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      className={`text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T12
                     </div>
@@ -1369,7 +1468,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T12)
-                      )
+                      ) || !fixedThermocouples.includes("T12")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T12
@@ -1380,7 +1479,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A" ||
+                    !fixedThermocouples.includes("T13")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T13")
                       ? "card-indicator"
@@ -1396,11 +1496,9 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T13")
-                          ? "text-white"
-                          : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      className={`text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T13
                     </div>
@@ -1413,7 +1511,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T13)
-                      )
+                      ) || !fixedThermocouples.includes("T13")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T13
@@ -1424,7 +1522,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A" ||
+                    !fixedThermocouples.includes("T14")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T14")
                       ? "card-indicator"
@@ -1440,11 +1539,9 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T14")
-                          ? "text-white"
-                          : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      className={`text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T14
                     </div>
@@ -1457,7 +1554,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T14)
-                      )
+                      ) || !fixedThermocouples.includes("T14")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T14
@@ -1468,7 +1565,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A"
+                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A" ||
+                    !fixedThermocouples.includes("T15")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T15")
                       ? "card-indicator"
@@ -1484,11 +1582,9 @@ const Dashboard = ({
                   />
                   <div>
                     <div
-                      className={`${
-                        alertKeys.length > 0 && alertKeys.includes("T15")
-                          ? "text-white"
-                          : "text-black"
-                      } text-center ${viewAllCards && "text-xs 2xl:text-sm"}`}
+                      className={`text-center font-medium  ${
+                        viewAllCards && "text-xs 2xl:text-sm"
+                      }`}
                     >
                       T15
                     </div>
@@ -1501,7 +1597,7 @@ const Dashboard = ({
                     >
                       {isNaN(
                         parseFloat(dataFromApp.length > 0 && dataFromApp[0].T15)
-                      )
+                      ) || !fixedThermocouples.includes("T15")
                         ? "N/A"
                         : `${parseFloat(
                             dataFromApp.length > 0 && dataFromApp[0].T15
@@ -1537,9 +1633,7 @@ const Dashboard = ({
                     <>
                       <button
                         className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
-                        onClick={() => {
-                          updateHindalcoProcess("Start");
-                        }}
+                        onClick={() => setStartPopup(true)}
                       >
                         Start
                       </button>
@@ -1706,7 +1800,7 @@ const Dashboard = ({
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
-          <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
+          {/* <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
             <div className="mr-2 text-center font-medium text-[#23439b]">
               Data&nbsp;Limit
             </div>
@@ -1785,7 +1879,7 @@ const Dashboard = ({
                 1000&nbsp;Data
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <ReactTooltip
@@ -1800,7 +1894,11 @@ const Dashboard = ({
       {/* 3d model hover */}
       {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
         <div
-          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${alertKeys.length > 0 && alertKeys.includes(meshName) ? 'bg-red-500' : 'bg-[#23439b]'}`}
+          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${
+            alertKeys.length > 0 && alertKeys.includes(meshName)
+              ? "bg-red-500"
+              : "bg-[#23439b]"
+          }`}
           style={{
             top: `${coords[1]}px`,
             left: `${coords[0]}px`,
@@ -1808,7 +1906,9 @@ const Dashboard = ({
         >
           <div>{meshName}:</div>
           <div>
-            {isNaN(parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName]))
+            {isNaN(
+              parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName])
+            )
               ? "N/A"
               : `${parseFloat(
                   dataFromApp.length > 0 && dataFromApp[0][meshName]
@@ -1817,9 +1917,90 @@ const Dashboard = ({
         </div>
       )}
 
+      {/* start popup */}
+      {startPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-4 py-6 flex flex-col gap-4 rounded-md text-sm 2xl:text-base font-medium text-[#23439b]">
+            <div className="text-[#23439b] text-center text-base 2xl:text-lg font-medium">
+              Thermocouple Configuration
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="">Select Line:</div>
+              <label>
+                <input
+                  type="radio"
+                  value="lineA"
+                  name="line"
+                  checked={selectedLine === "lineA"}
+                  onChange={(e) => setSelectedLine(e.target.value)}
+                />{" "}
+                Line A
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  value="lineB"
+                  name="line"
+                  checked={selectedLine === "lineB"}
+                  onChange={(e) => setSelectedLine(e.target.value)}
+                />{" "}
+                Line B
+              </label>
+            </div>
+
+            <div className="flex gap-2">
+              <label>Enter Pot Number:</label>
+              <input
+                type="text"
+                className="border border-black rounded-sm px-1"
+                onChange={(e) => setPotNumber(e.target.value)}
+              />
+            </div>
+
+            <div>Select connected thermocouple:</div>
+
+            <div className="grid grid-cols-5 gap-2">
+              {thermocouples.map((name) => (
+                <div
+                  className={`border rounded-md text-center px-2 py-1 cursor-pointer hover:scale-110 duration-200 ${
+                    selectedThermocouples.includes(name)
+                      ? "bg-[#23439b] text-white"
+                      : "bg-white border-[#23439b] text-[#23439b]"
+                  }`}
+                  key={name}
+                  onClick={() => toggleThermocouple(name)}
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-4 justify-end items-center text-black">
+              <button
+                className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  setStartPopup(false);
+                  setSelectedThermocouples([]);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+                onClick={() => {
+                  updateHindalcoProcess("Start");
+                }}
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* stop confirmation popup */}
       {stopPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center">
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
           <div className="bg-white px-4 py-6 flex flex-col gap-6 rounded-md">
             <div>Do you really want to stop the process?</div>
             <div className="flex items-center justify-end gap-4">

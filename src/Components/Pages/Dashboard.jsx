@@ -1,10 +1,9 @@
 import React from "react";
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import potline from "../Assets/potline.png";
 import ThreeDModel from "./ThreeDModel";
 import loadingGif from "../Assets/loading.gif";
-import { FaBell, FaBatteryFull } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
 import { TiArrowRightThick, TiArrowLeftThick } from "react-icons/ti";
 import {
@@ -22,6 +21,8 @@ import {
   GiBattery75,
   GiBattery100,
 } from "react-icons/gi";
+import { PiBatteryWarningBold } from "react-icons/pi";
+import { TbAlertTriangle } from "react-icons/tb";
 import ApexCharts from "react-apexcharts";
 import Navbar from "./Navbar";
 import "react-tooltip/dist/react-tooltip.css";
@@ -68,7 +69,7 @@ const Dashboard = ({
   // console.log("thermocouple configuration:", thermocoupleConfiguration);
 
   // console.log("data", dataFromApp);
-  console.log("fixed thermocouples", fixedThermocouples);
+  // console.log("fixed thermocouples", fixedThermocouples);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -83,9 +84,8 @@ const Dashboard = ({
   const [selectedThermocouples, setSelectedThermocouples] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [potNumber, setPotNumber] = useState("");
-  // const [clickedLegends, setClickedLegends] = useState(() =>
-  //   fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : []
-  // );
+  const [batteryPopup, setBatteryPopup] = useState(false);
+  const [startConfirmationPopup, setStartConfirmationPopup] = useState(false);
 
   // console.log("selected thermocouples", selectedThermocouples);
   // console.log("pot number", potNumber);
@@ -497,6 +497,18 @@ const Dashboard = ({
     }
   }, [previousProcessData, clickedLegends]);
 
+  const batteryPercentage =
+    Array.isArray(dataFromApp) && dataFromApp.length > 0
+      ? dataFromApp[0].DeviceBattery
+      : null;
+
+  useEffect(() => {
+    //for battery popup
+    if (batteryPercentage !== null && batteryPercentage <= 10) {
+      setBatteryPopup(true);
+    }
+  }, [batteryPercentage]);
+
   // chart data assignment
   useEffect(() => {
     if (Array.isArray(dataFromApp) && dataFromApp.length > 0) {
@@ -725,6 +737,7 @@ const Dashboard = ({
             }
           );
           setStartPopup(false);
+          setStartConfirmationPopup(false);
           setSelectedThermocouples([]);
           setSelectedLine("");
           setPotNumber("");
@@ -857,7 +870,11 @@ const Dashboard = ({
                 <div
                   className="flex items-center gap-0.5 text-[#23439b]"
                   data-tooltip-id="tooltip-style"
-                  data-tooltip-content="Battery Percentage"
+                  data-tooltip-content={
+                    batteryPercentage !== null
+                      ? `Battery Percentage: ${batteryPercentage}%`
+                      : "Battery Percentage"
+                  }
                 >
                   {dataFromApp.length > 0 && (
                     <>
@@ -960,8 +977,8 @@ const Dashboard = ({
           >
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
-                (dataFromApp.length > 0 && dataFromApp[0].T1) === "N/A" ||
-                !fixedThermocouples.includes("T1")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T1) ===
+                  "N/A" || !fixedThermocouples.includes("T1")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T1")
                   ? "card-indicator"
@@ -991,11 +1008,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T1)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T1
+                    )
                   ) || !fixedThermocouples.includes("T1")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T1
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T1
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1003,8 +1023,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T2) === "N/A" ||
-                !fixedThermocouples.includes("T2")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T2) ===
+                  "N/A" || !fixedThermocouples.includes("T2")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T2")
                   ? "card-indicator"
@@ -1034,11 +1054,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T2)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T2
+                    )
                   ) || !fixedThermocouples.includes("T2")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T2
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T2
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1046,8 +1069,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T3) === "N/A" ||
-                !fixedThermocouples.includes("T3")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T3) ===
+                  "N/A" || !fixedThermocouples.includes("T3")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T3")
                   ? "card-indicator"
@@ -1077,11 +1100,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T3)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T3
+                    )
                   ) || !fixedThermocouples.includes("T3")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T3
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T3
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1089,8 +1115,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T4) === "N/A" ||
-                !fixedThermocouples.includes("T4")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T4) ===
+                  "N/A" || !fixedThermocouples.includes("T4")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T4")
                   ? "card-indicator"
@@ -1120,11 +1146,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T4)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T4
+                    )
                   ) || !fixedThermocouples.includes("T4")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T4
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T4
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1132,8 +1161,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T5) === "N/A" ||
-                !fixedThermocouples.includes("T5")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T5) ===
+                  "N/A" || !fixedThermocouples.includes("T5")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T5")
                   ? "card-indicator"
@@ -1163,11 +1192,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T5)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T5
+                    )
                   ) || !fixedThermocouples.includes("T5")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T5
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T5
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1175,8 +1207,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T6) === "N/A" ||
-                !fixedThermocouples.includes("T6")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T6) ===
+                  "N/A" || !fixedThermocouples.includes("T6")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T6")
                   ? "card-indicator"
@@ -1206,11 +1238,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T6)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T6
+                    )
                   ) || !fixedThermocouples.includes("T6")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T6
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T6
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1218,8 +1253,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T7) === "N/A" ||
-                !fixedThermocouples.includes("T7")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T7) ===
+                  "N/A" || !fixedThermocouples.includes("T7")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T7")
                   ? "card-indicator"
@@ -1249,11 +1284,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T7)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T7
+                    )
                   ) || !fixedThermocouples.includes("T7")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T7
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T7
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1261,8 +1299,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T8) === "N/A" ||
-                !fixedThermocouples.includes("T8")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T8) ===
+                  "N/A" || !fixedThermocouples.includes("T8")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T8")
                   ? "card-indicator"
@@ -1292,11 +1330,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T8)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T8
+                    )
                   ) || !fixedThermocouples.includes("T8")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T8
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T8
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1304,8 +1345,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T9) === "N/A" ||
-                !fixedThermocouples.includes("T9")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T9) ===
+                  "N/A" || !fixedThermocouples.includes("T9")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T9")
                   ? "card-indicator"
@@ -1335,11 +1376,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T9)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T9
+                    )
                   ) || !fixedThermocouples.includes("T9")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T9
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T9
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1347,8 +1391,8 @@ const Dashboard = ({
 
             <div
               className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                (dataFromApp.length > 0 && dataFromApp[0].T10) === "N/A" ||
-                !fixedThermocouples.includes("T10")
+                (thresholdGraphData.length > 0 && thresholdGraphData[0].T10) ===
+                  "N/A" || !fixedThermocouples.includes("T10")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                   : alertKeys.length > 0 && alertKeys.includes("T10")
                   ? "card-indicator"
@@ -1378,11 +1422,14 @@ const Dashboard = ({
                   }`}
                 >
                   {isNaN(
-                    parseFloat(dataFromApp.length > 0 && dataFromApp[0].T10)
+                    parseFloat(
+                      thresholdGraphData.length > 0 && thresholdGraphData[0].T10
+                    )
                   ) || !fixedThermocouples.includes("T10")
                     ? "N/A"
                     : `${parseFloat(
-                        dataFromApp.length > 0 && dataFromApp[0].T10
+                        thresholdGraphData.length > 0 &&
+                          thresholdGraphData[0].T10
                       ).toFixed(1)}°C`}
                 </div>
               </div>
@@ -1393,7 +1440,8 @@ const Dashboard = ({
               <>
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T11) === "N/A" ||
+                    (thresholdGraphData.length > 0 &&
+                      thresholdGraphData[0].T11) === "N/A" ||
                     !fixedThermocouples.includes("T11")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T11")
@@ -1424,11 +1472,15 @@ const Dashboard = ({
                       }`}
                     >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T11)
+                        parseFloat(
+                          thresholdGraphData.length > 0 &&
+                            thresholdGraphData[0].T11
+                        )
                       ) || !fixedThermocouples.includes("T11")
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].T11
+                            thresholdGraphData.length > 0 &&
+                              thresholdGraphData[0].T11
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1436,7 +1488,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T12) === "N/A" ||
+                    (thresholdGraphData.length > 0 &&
+                      thresholdGraphData[0].T12) === "N/A" ||
                     !fixedThermocouples.includes("T12")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T12")
@@ -1467,11 +1520,15 @@ const Dashboard = ({
                       }`}
                     >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T12)
+                        parseFloat(
+                          thresholdGraphData.length > 0 &&
+                            thresholdGraphData[0].T12
+                        )
                       ) || !fixedThermocouples.includes("T12")
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].T12
+                            thresholdGraphData.length > 0 &&
+                              thresholdGraphData[0].T12
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1479,7 +1536,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T13) === "N/A" ||
+                    (thresholdGraphData.length > 0 &&
+                      thresholdGraphData[0].T13) === "N/A" ||
                     !fixedThermocouples.includes("T13")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T13")
@@ -1510,11 +1568,15 @@ const Dashboard = ({
                       }`}
                     >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T13)
+                        parseFloat(
+                          thresholdGraphData.length > 0 &&
+                            thresholdGraphData[0].T13
+                        )
                       ) || !fixedThermocouples.includes("T13")
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].T13
+                            thresholdGraphData.length > 0 &&
+                              thresholdGraphData[0].T13
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1522,7 +1584,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T14) === "N/A" ||
+                    (thresholdGraphData.length > 0 &&
+                      thresholdGraphData[0].T14) === "N/A" ||
                     !fixedThermocouples.includes("T14")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T14")
@@ -1553,11 +1616,15 @@ const Dashboard = ({
                       }`}
                     >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T14)
+                        parseFloat(
+                          thresholdGraphData.length > 0 &&
+                            thresholdGraphData[0].T14
+                        )
                       ) || !fixedThermocouples.includes("T14")
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].T14
+                            thresholdGraphData.length > 0 &&
+                              thresholdGraphData[0].T14
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1565,7 +1632,8 @@ const Dashboard = ({
 
                 <div
                   className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
-                    (dataFromApp.length > 0 && dataFromApp[0].T15) === "N/A" ||
+                    (thresholdGraphData.length > 0 &&
+                      thresholdGraphData[0].T15) === "N/A" ||
                     !fixedThermocouples.includes("T15")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
                       : alertKeys.length > 0 && alertKeys.includes("T15")
@@ -1596,11 +1664,15 @@ const Dashboard = ({
                       }`}
                     >
                       {isNaN(
-                        parseFloat(dataFromApp.length > 0 && dataFromApp[0].T15)
+                        parseFloat(
+                          thresholdGraphData.length > 0 &&
+                            thresholdGraphData[0].T15
+                        )
                       ) || !fixedThermocouples.includes("T15")
                         ? "N/A"
                         : `${parseFloat(
-                            dataFromApp.length > 0 && dataFromApp[0].T15
+                            thresholdGraphData.length > 0 &&
+                              thresholdGraphData[0].T15
                           ).toFixed(1)}°C`}
                     </div>
                   </div>
@@ -1958,7 +2030,7 @@ const Dashboard = ({
               />
             </div>
 
-            <div>Select connected thermocouple:</div>
+            <div>Select connected thermocouple(s):</div>
 
             <div className="grid grid-cols-5 gap-2">
               {thermocouples.map((name) => (
@@ -1984,6 +2056,49 @@ const Dashboard = ({
                 }}
               >
                 Cancel
+              </button>
+              <button
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+                // onClick={() => {
+                //   updateHindalcoProcess("Start");
+                // }}
+                onClick={() => {
+                  if (
+                    selectedLine === "" ||
+                    potNumber === "" ||
+                    selectedThermocouples.length <= 0
+                  ) {
+                    alert("Please fill all the inputs! ");
+                  } else {
+                    setStartConfirmationPopup(true);
+                  }
+                }}
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* start cofirmation popup */}
+      {startConfirmationPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-6 py-6 flex flex-col gap-2 rounded-md text-center md:w-96">
+            <div className="flex justify-center items-center">
+              <TbAlertTriangle className="text-6xl 2xl:text-7xl text-orange-400" />
+            </div>
+
+            <div>
+              Are you sure that the selected thermocouples are properly
+              connected with the data logger, If yes click start.{" "}
+            </div>
+            <div className="flex gap-4 justify-end items-center text-black">
+              <button
+                className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-3 py-1 hover:scale-110 duration-200"
+                onClick={() => setStartConfirmationPopup(false)}
+              >
+                Back
               </button>
               <button
                 className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
@@ -2015,9 +2130,32 @@ const Dashboard = ({
                 onClick={() => {
                   setStopPopup(false);
                   updateHindalcoProcess("Stop");
+                  window.location.reload();
                 }}
               >
                 Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* low battery popup */}
+      {batteryPopup && (
+        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-6 py-4 flex flex-col gap-6 rounded-md">
+            <div className="flex gap-2 items-center">
+              <PiBatteryWarningBold className="text-2xl 2xl:text-3xl text-red-500" />
+              <div className="text-sm 2xl:text-base font-medium">
+                Low Device Battery!
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setBatteryPopup(false)}
+                className="bg-[#e4ba4c] text-sm 2xl:text-lg font-medium rounded-md px-4 py-1 hover:scale-110 duration-200"
+              >
+                Close
               </button>
             </div>
           </div>

@@ -727,8 +727,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            // "http://localhost:4000/backend/updateHindalcoProcess",
+            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -744,8 +744,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          // "http://localhost:4000/backend/updateHindalcoProcess",
+          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -766,8 +766,8 @@ const Dashboard = ({
         const stopDate = split[1];
 
         const response = await axios.get(
-          "https://hindalco.xyma.live/backend/getHindalcoReport",
-          // "http://localhost:4000/backend/getHindalcoReport",
+          // "https://hindalco.xyma.live/backend/getHindalcoReport",
+          "http://localhost:4000/backend/getHindalcoReport",
           {
             params: {
               projectName: "XY001",
@@ -2143,12 +2143,16 @@ const Dashboard = ({
       {/* low battery popup */}
       {batteryPopup && (
         <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
-          <div className="bg-white px-6 py-4 flex flex-col gap-6 rounded-md">
+          <div className="bg-white px-6 py-4 flex flex-col gap-6 rounded-md md:w-96">
             <div className="flex gap-2 items-center">
               <PiBatteryWarningBold className="text-2xl 2xl:text-3xl text-red-500" />
-              <div className="text-sm 2xl:text-base font-medium">
+              <div className="text-base 2xl:text-lg font-medium">
                 Low Device Battery!
               </div>
+            </div>
+            <div className="text-sm 2xl:text-base text-gray-700 text-center">
+              The device battery is critically low. Please charge the data
+              logger ASAP.
             </div>
             <div className="flex justify-center">
               <button

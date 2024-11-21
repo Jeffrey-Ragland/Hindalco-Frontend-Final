@@ -64,7 +64,7 @@ const Dashboard = ({
   lineNameDB,
   potNumberDB,
 }) => {
-  console.log("threshold graph data", thresholdGraphData);
+  // console.log("threshold graph data", thresholdGraphData);
   // console.log("time left", processTimeLeft);
   // console.log("thermocouple configuration:", thermocoupleConfiguration);
 
@@ -221,7 +221,7 @@ const Dashboard = ({
 
   const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
 
-  console.log("threshold graph data", thresholdGraphData);
+  // console.log("threshold graph data", thresholdGraphData);
 
   // console.log("alerts array", alertsArray);
   // console.log("alert keys", alertKeys);

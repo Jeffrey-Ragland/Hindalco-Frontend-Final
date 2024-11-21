@@ -17,10 +17,10 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
   //build
 
   // console.log('reports page data', dataFromApp);
-  console.log(
-    "Thermocouple configuration in reports",
-    thermocoupleConfiguration
-  );
+  // console.log(
+  //   "Thermocouple configuration in reports",
+  //   thermocoupleConfiguration
+  // );
 
   const [selectedReportOption, setSelectedReportOption] =
     useState("datePicker");
@@ -131,7 +131,7 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
 
   const generateAverageExcel = async (e) => {
     try {
-      console.log("before api");
+      // console.log("before api");
 
       e.preventDefault();
       setLoading(true);
@@ -151,9 +151,9 @@ const Reports = ({ dataFromApp, thermocoupleConfiguration }) => {
           },
         }
       );
-      console.log("after api");
+      // console.log("after api");
       setLoading(false);
-      console.log("report data", response.data.data);
+      // console.log("report data", response.data.data);
       const ws = XLSX.utils.json_to_sheet(response.data.data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");

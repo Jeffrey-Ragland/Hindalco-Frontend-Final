@@ -119,7 +119,7 @@ const Analytics = ({ thermocoupleConfiguration }) => {
     }
   };
 
-  console.log("analytics data", analyticsData);
+  // console.log("analytics data", analyticsData);
 
   const sensorColors = [
     {

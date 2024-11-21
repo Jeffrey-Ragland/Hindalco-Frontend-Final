@@ -47,8 +47,8 @@ const App = () => {
       // console.log('localstorage', hindalcoLimit);
       if (HindalcoCardsViewMore) {
         const response = await axios.get(
-          // `https://hindalco.xyma.live/backend/getHindalcoData`
-          `http://localhost:4000/backend/getHindalcoData`
+          `https://hindalco.xyma.live/backend/getHindalcoData`
+          // `http://localhost:4000/backend/getHindalcoData`
         );
         //console.log("response =",response.data.data)
         if (response.data.success) {
@@ -65,8 +65,8 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoProcess"
-        "http://localhost:4000/backend/getHindalcoProcess"
+        "https://hindalco.xyma.live/backend/getHindalcoProcess"
+        // "http://localhost:4000/backend/getHindalcoProcess"
       );
       // if (
       //   response.data &&

@@ -525,7 +525,7 @@ const Dashboard = ({
         const timeDifference = currentDate.getTime() - lastDataTime.getTime();
         const differenceInMinutes = timeDifference / (1000 * 60);
 
-        if (differenceInMinutes < 5) {
+        if (differenceInMinutes < 6) {
           setActiveStatus("Active");
         } else {
           setActiveStatus("Inactive");
@@ -727,8 +727,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            "http://localhost:4000/backend/updateHindalcoProcess",
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -744,8 +744,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          "http://localhost:4000/backend/updateHindalcoProcess",
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -766,8 +766,8 @@ const Dashboard = ({
         const stopDate = split[1];
 
         const response = await axios.get(
-          // "https://hindalco.xyma.live/backend/getHindalcoReport",
-          "http://localhost:4000/backend/getHindalcoReport",
+          "https://hindalco.xyma.live/backend/getHindalcoReport",
+          // "http://localhost:4000/backend/getHindalcoReport",
           {
             params: {
               projectName: "XY001",
@@ -909,7 +909,7 @@ const Dashboard = ({
                   <div
                     className="status-indicator"
                     data-tooltip-id="tooltip-style"
-                    data-tooltip-content="No data is being recieved for more than 5 minutes"
+                    data-tooltip-content="No data is being recieved for more than 6 minutes"
                   >
                     <IoWarningSharp className="text-xl 2xl:text-2xl" />
                   </div>

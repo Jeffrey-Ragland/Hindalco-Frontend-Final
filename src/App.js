@@ -20,8 +20,6 @@ const App = () => {
   );
   const [lineName, setLineName] = useState("");
   const [potNumber, setPotNumber] = useState("");
-  // const [hindalcoProcessStatus, setHindalcoProcessStatus] = useState('');
-  // const [hindalcoProcessTime, setHindalcoProcessTime] = useState('');
 
   // fetching data
   useEffect(() => {
@@ -39,18 +37,14 @@ const App = () => {
   // get data api
   const getHindalcoData = async () => {
     try {
-      // const hindalcoLimit = localStorage.getItem("HindalcoLimit");
-      // const hindalcoAlertLimit = localStorage.getItem("HindalcoAlertLimit");
       const HindalcoCardsViewMore = localStorage.getItem(
         "HindalcoCardsViewMore"
       );
-      // console.log('localstorage', hindalcoLimit);
       if (HindalcoCardsViewMore) {
         const response = await axios.get(
-          // `https://hindalco.xyma.live/backend/getHindalcoData`
-          `http://localhost:4000/backend/getHindalcoData`
+          `https://hindalco.xyma.live/backend/getHindalcoData`
+          // `http://localhost:4000/backend/getHindalcoData`
         );
-        //console.log("response =",response.data.data)
         if (response.data.success) {
           setHindalcoData(response.data.data);
         } else {
@@ -65,15 +59,9 @@ const App = () => {
   const getHindalcoProcess = async () => {
     try {
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoProcess"
-        "http://localhost:4000/backend/getHindalcoProcess"
+        "https://hindalco.xyma.live/backend/getHindalcoProcess"
+        // "http://localhost:4000/backend/getHindalcoProcess"
       );
-      // if (
-      //   response.data &&
-      //   response.data.selectedThermocouples &&
-      //   response.data.lineName &&
-      //   response.data.potNumber
-      // ) {
       setThresholdGraphDateRange(response.data.dateRange);
       setThermocoupleConfiguration(response.data.thermocoupleConfiguration);
       setProcessIsRunning(response.data.inTimeRange);
@@ -95,23 +83,6 @@ const App = () => {
       console.log("Error fetching hindalco process", error);
     }
   };
-
-  // console.log('time left', processTimeLeft);
-  // console.log("process is running", processIsRunning);
-  // console.log('threshold graph date range', thresholdGraphDateRange);
-  // console.log('threshold graph data', thresholdGraphData);
-
-  // console.log('hindalco process status', hindalcoProcessStatus);
-  // console.log("hindalco process time", hindalcoProcessTime);
-  // console.log("fixed thermocouples in app", fixedThermocouples);
-  // console.log(
-  //   "thermocouple configuration in app file",
-  //   thermocoupleConfiguration
-  // );
-
-  // console.log('hindalco data', hindalcoData);
-  // mac update
-  // mac update 2
 
   return (
     <>

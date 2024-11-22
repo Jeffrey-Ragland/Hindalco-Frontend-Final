@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.e36590ae.css",
-    "main.js": "/static/js/main.a25bab93.js",
+    "main.css": "/static/css/main.e98e4ecf.css",
+    "main.js": "/static/js/main.2bf73beb.js",
     "static/js/453.8ab44547.chunk.js": "/static/js/453.8ab44547.chunk.js",
-    "static/media/potline.png": "/static/media/potline.3ab938b69ff7064eb1c5.png",
     "static/media/loginCover.jpg": "/static/media/loginCover.a20cc14de790b8c50806.jpg",
+    "static/media/potlineTop2.png": "/static/media/potlineTop2.b59bc7c2e00e86fc6730.png",
     "static/media/loginVector.jpg": "/static/media/loginVector.60e7f9b880911c8800d7.jpg",
     "static/media/reports.jpeg": "/static/media/reports.30047afd3d8aa4e62039.jpeg",
     "static/media/xymaLogoWhite.png": "/static/media/xymaLogoWhite.4e2ffa7fd8e87d8d9843.png",
     "static/media/hindalcoLogo.png": "/static/media/hindalcoLogo.025ccb8535d1f07e2bce.png",
     "static/media/loading.gif": "/static/media/loading.07d74df2cb194b8223fb.gif",
     "index.html": "/index.html",
-    "main.e36590ae.css.map": "/static/css/main.e36590ae.css.map",
-    "main.a25bab93.js.map": "/static/js/main.a25bab93.js.map",
+    "main.e98e4ecf.css.map": "/static/css/main.e98e4ecf.css.map",
+    "main.2bf73beb.js.map": "/static/js/main.2bf73beb.js.map",
     "453.8ab44547.chunk.js.map": "/static/js/453.8ab44547.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e36590ae.css",
-    "static/js/main.a25bab93.js"
+    "static/css/main.e98e4ecf.css",
+    "static/js/main.2bf73beb.js"
   ]
 }

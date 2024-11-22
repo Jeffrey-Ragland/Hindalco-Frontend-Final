@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import potlineTop from "../Assets/potlineTop.png";
 import potlineTop2 from "../Assets/potlineTop2.png";
 import loadingGif from "../Assets/loading.gif";
 import { FaBell } from "react-icons/fa";
@@ -65,14 +64,6 @@ const Dashboard = ({
   lineNameDB,
   potNumberDB,
 }) => {
-  // console.log("threshold graph data", thresholdGraphData);
-  // console.log("time left", processTimeLeft);
-  // console.log("thermocouple configuration:", thermocoupleConfiguration);
-
-  // console.log("data", dataFromApp);
-  // console.log("fixed thermocouples", fixedThermocouples);'
-  // console.log("threshold graph date range", thresholdGraphDateRange);
-
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
   const [previousProcessDataLoading, setPreviousProcessDataLoading] =
@@ -81,8 +72,6 @@ const Dashboard = ({
   const [clickedLegends, setClickedLegends] = useState([]);
   const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
-  // const [coords, setCoords] = useState([0, 0]);
-  // const [meshName, setMeshName] = useState("");
   const [selectedThermocouples, setSelectedThermocouples] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [potNumber, setPotNumber] = useState("");
@@ -90,9 +79,6 @@ const Dashboard = ({
   const [startConfirmationPopup, setStartConfirmationPopup] = useState(false);
   const [previousSelectedDateRange, setPreviousSelectedDateRange] =
     useState("");
-  console.log("selected thermocouples", selectedThermocouples);
-  // console.log("pot number", potNumber);
-  // console.log("line name", selectedLine);
 
   const initialClickedLegends = useMemo(() => {
     return fixedThermocouples.length > 0 ? [fixedThermocouples[0]] : [];
@@ -104,9 +90,6 @@ const Dashboard = ({
     }
   }, [clickedLegends, initialClickedLegends]);
 
-  // thermocouple selection
-  const thermocouples = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
-
   const toggleThermocouple = (name) => {
     setSelectedThermocouples((prevselected) =>
       prevselected.includes(name)
@@ -114,36 +97,6 @@ const Dashboard = ({
         : [...prevselected, name]
     );
   };
-
-  // useEffect(() => {
-  //   if (fixedThermocouples.length > 0) {
-  //     setClickedLegends([fixedThermocouples[0]]); // Set to the first key
-  //   } else {
-  //     setClickedLegends([]); // Set to empty array if none selected
-  //   }
-  // }, [fixedThermocouples]);
-
-  // console.log("selected thermocouples", selectedThermocouples);
-
-  // const getInitialSelectedThermocouples = () => {
-  //   const storedThermocouples = localStorage.getItem("selectedThermocouples");
-  //   return storedThermocouples ? JSON.parse(storedThermocouples) : [];
-  // };
-
-  // const [fixedThermocouples, setFixedThermocouples] = useState(
-  //   getInitialSelectedThermocouples
-  // );
-
-  // 3d model hover
-  // const handleCoordsUpdate = (newCoords) => {
-  //   setCoords(newCoords);
-  // };
-
-  // const handleMeshName = (newName) => {
-  //   setMeshName(newName);
-  // };
-
-  // console.log("coords in  main file", coords);
 
   const upperThresholdData = Array.from(
     { length: 732 },
@@ -153,23 +106,6 @@ const Dashboard = ({
     { length: 732 },
     (_, i) => (i * 400) / 731
   );
-
-  // console.log('upper threshold data', upperThresholdData);
-  // console.log('lower threshold data', lowerThresholdData);
-
-  // line chart limit
-  // const getInitialLimit = () => {
-  //   const storedLimit = localStorage.getItem("HindalcoLimit");
-  //   return storedLimit ? parseInt(storedLimit) : 100;
-  // };
-
-  // const [hindalcoLimit, setHindalcoLimit] = useState(getInitialLimit);
-
-  // const handleLineLimit = (e) => {
-  //   const limit = parseInt(e.target.value);
-  //   setHindalcoLimit(limit);
-  //   localStorage.setItem("HindalcoLimit", limit.toString());
-  // };
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -223,12 +159,6 @@ const Dashboard = ({
   }
 
   const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
-
-  // console.log("threshold graph data", thresholdGraphData);
-
-  // console.log("alerts array", alertsArray);
-  // console.log("alert keys", alertKeys);
-  // const alertKeys = [];
 
   // bar chart options
   const [barData, setBarData] = useState(() => {
@@ -315,14 +245,11 @@ const Dashboard = ({
       },
     };
   });
-  //mac commit
+
   const [lineData, setLineData] = useState({
     labels: [],
     datasets: [],
   });
-
-  // console.log("upperThresholdData ", upperThresholdData);
-  // console.log("second Line Data", secondLineData);
 
   const allLabels = Array.from(
     { length: 732 },
@@ -333,8 +260,6 @@ const Dashboard = ({
   const displayLabels = allLabels.map((label, index) =>
     index % 12 === 0 ? label.toString() : ""
   );
-
-  // console.log('display labels', displayLabels);
 
   const initialData = {
     labels: displayLabels,
@@ -558,17 +483,6 @@ const Dashboard = ({
       setLineData3((prevData) => ({
         ...prevData,
         labels: prevData.labels,
-        // datasets: [
-        //   ...prevData.datasets,
-        //   ...sensorData.map((data, i) => ({
-        //     label: sensorLabels[i],
-        //     data,
-        //     borderColor: sensorColors[i],
-        //     borderWidth: 1.25,
-        //     pointRadius: 0,
-        //     pointHoverRadius: 0,
-        //   })),
-        // ],
         datasets: [
           // Keep the original datasets (upper and lower threshold)
           ...prevData.datasets.filter(
@@ -669,7 +583,6 @@ const Dashboard = ({
               key !== "T15"
             ) {
               barCategories.push(key);
-              // barSeries.push(parseFloat(dataFromApp[0][key]));
               if (
                 thresholdGraphData[0][key] === "N/A" ||
                 isNaN(parseFloat(thresholdGraphData[0][key]))
@@ -820,8 +733,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            "http://localhost:4000/backend/updateHindalcoProcess",
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -837,8 +750,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          "http://localhost:4000/backend/updateHindalcoProcess",
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -858,8 +771,8 @@ const Dashboard = ({
       const stopDate = split[1];
 
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoReport",
-        "http://localhost:4000/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: "XY001",
@@ -893,30 +806,366 @@ const Dashboard = ({
         {/* 2d image */}
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
-            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center border border-black h-[200px] xl:h-auto">
-              {/* 3d model */}
-              {/* <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px]">
-                <div className="absolute top-0 left-0 h-full flex items-center justify-center ">
-                  <span className="text-sm 2xl:text-base font-medium transform -rotate-90 origin-center">
-                    Tap End
-                  </span>
-                </div>
-
-                <div className="absolute top-0 right-0 h-full flex items-center justify-center ">
-                  <span className="text-sm 2xl:text-base font-medium transform rotate-90 origin-center">
-                    Duct End
-                  </span>
-                </div>
-
-                <ThreeDModel
-                  alertKeys={alertKeys}
-                  coordsUpdateFunc={handleCoordsUpdate}
-                  meshNameFunc={handleMeshName}
+            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center h-[200px] xl:h-auto">
+              {/* 2d model */}
+              <div className="relative font-bold">
+                <img
+                  src={potlineTop2}
+                  className="max-w-[320px] md:max-w-[410px]"
                 />
-              </div> */}
-              <div className="border border-black relative">
-                <img src={potlineTop} className="border border-black" />
-                <div></div>
+
+                <div className="absolute top-4 right-14 text-sm font-medium">
+                  Side A
+                </div>
+
+                <div className="absolute bottom-0 right-12 text-sm font-medium">
+                  Side B
+                </div>
+
+                <div className="absolute bottom-[35px] md:bottom-[48px] left-[15px] md:left-[24px] flex items-center gap-0.5">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T2")
+                        ? alertKeys.includes("T2")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T2
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T2")
+                        ? alertKeys.includes("T2")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[20px] md:left-[30px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T1")
+                        ? alertKeys.includes("T1")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T1
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T1")
+                        ? alertKeys.includes("T1")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[80px] md:bottom-[105px] left-[15px] md:left-[25px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T12")
+                        ? alertKeys.includes("T12")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T12
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T12")
+                        ? alertKeys.includes("T12")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[60px] md:left-[80px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T11")
+                        ? alertKeys.includes("T11")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T11
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T11")
+                        ? alertKeys.includes("T11")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[75px] md:left-[96px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T4")
+                        ? alertKeys.includes("T4")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T4
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T4")
+                        ? alertKeys.includes("T4")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[135px] md:left-[165px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T5")
+                        ? alertKeys.includes("T5")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T5
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T5")
+                        ? alertKeys.includes("T5")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[185px] md:left-[240px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T6")
+                        ? alertKeys.includes("T6")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T6
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T6")
+                        ? alertKeys.includes("T6")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[267px] md:left-[345px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T8")
+                        ? alertKeys.includes("T8")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T8")
+                        ? alertKeys.includes("T8")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T8
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[150px] md:left-[215px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T14")
+                        ? alertKeys.includes("T14")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T14
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T14")
+                        ? alertKeys.includes("T14")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[175px] md:left-[245px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T10")
+                        ? alertKeys.includes("T10")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T10
+                  </div>
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T10")
+                        ? alertKeys.includes("T10")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                </div>
+
+                <div className="absolute bottom-[85px] md:bottom-[105px] left-[265px] md:left-[343px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T9")
+                        ? alertKeys.includes("T9")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T9")
+                        ? alertKeys.includes("T9")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T9
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[105px] md:left-[130px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T3")
+                        ? alertKeys.includes("T3")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T3")
+                        ? alertKeys.includes("T3")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T3
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[240px] md:left-[305px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T7")
+                        ? alertKeys.includes("T7")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T7")
+                        ? alertKeys.includes("T7")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T7
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[265px] md:left-[340px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T13")
+                        ? alertKeys.includes("T13")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T13")
+                        ? alertKeys.includes("T13")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T13
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[180px] md:left-[230px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                  <div
+                    className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                      fixedThermocouples.includes("T15")
+                        ? alertKeys.includes("T15")
+                          ? "card-indicator"
+                          : "bg-[#23439b]"
+                        : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div
+                    className={`duration-200 ${
+                      fixedThermocouples.includes("T15")
+                        ? alertKeys.includes("T15")
+                          ? "text-red-500"
+                          : "text-[#23439b]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    T15
+                  </div>
+                </div>
               </div>
 
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
@@ -2003,35 +2252,6 @@ const Dashboard = ({
         }}
       />
 
-      {/* 3d model hover */}
-      {/* {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
-        <div
-          className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${
-            alertKeys.length > 0 && alertKeys.includes(meshName)
-              ? "bg-red-500"
-              : "bg-[#23439b]"
-          }`}
-          style={{
-            top: `${coords[1]}px`,
-            left: `${coords[0]}px`,
-          }}
-        >
-          <div>{meshName}:</div>
-          <div>
-            {isNaN(
-              parseFloat(
-                thresholdGraphData.length > 0 && thresholdGraphData[0][meshName]
-              )
-            )
-              ? "N/A"
-              : `${parseFloat(
-                  thresholdGraphData.length > 0 &&
-                    thresholdGraphData[0][meshName]
-                ).toFixed(1)}°C`}{" "}
-          </div>
-        </div>
-      )} */}
-
       {/* start popup */}
       {startPopup && (
         <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
@@ -2075,21 +2295,6 @@ const Dashboard = ({
 
             <div>Select connected thermocouple(s):</div>
 
-            {/* <div className="grid grid-cols-5 gap-2">
-              {thermocouples.map((name) => (
-                <div
-                  className={`border rounded-md text-center px-2 py-1 cursor-pointer hover:scale-110 duration-200 ${
-                    selectedThermocouples.includes(name)
-                      ? "bg-[#23439b] text-white"
-                      : "bg-white border-[#23439b] text-[#23439b]"
-                  }`}
-                  key={name}
-                  onClick={() => toggleThermocouple(name)}
-                >
-                  {name}
-                </div>
-              ))}
-            </div> */}
             <div className="relative text-xs md:text-sm font-bold">
               <img
                 src={potlineTop2}

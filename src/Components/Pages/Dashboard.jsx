@@ -71,7 +71,7 @@ const Dashboard = ({
 
   // console.log("data", dataFromApp);
   // console.log("fixed thermocouples", fixedThermocouples);'
-  console.log("threshold graph date range", thresholdGraphDateRange);
+  // console.log("threshold graph date range", thresholdGraphDateRange);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -81,8 +81,8 @@ const Dashboard = ({
   const [clickedLegends, setClickedLegends] = useState([]);
   const [startPopup, setStartPopup] = useState(false);
   const [stopPopup, setStopPopup] = useState(false);
-  const [coords, setCoords] = useState([0, 0]);
-  const [meshName, setMeshName] = useState("");
+  // const [coords, setCoords] = useState([0, 0]);
+  // const [meshName, setMeshName] = useState("");
   const [selectedThermocouples, setSelectedThermocouples] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [potNumber, setPotNumber] = useState("");
@@ -90,7 +90,7 @@ const Dashboard = ({
   const [startConfirmationPopup, setStartConfirmationPopup] = useState(false);
   const [previousSelectedDateRange, setPreviousSelectedDateRange] =
     useState("");
-  // console.log("selected thermocouples", selectedThermocouples);
+  console.log("selected thermocouples", selectedThermocouples);
   // console.log("pot number", potNumber);
   // console.log("line name", selectedLine);
 
@@ -135,13 +135,13 @@ const Dashboard = ({
   // );
 
   // 3d model hover
-  const handleCoordsUpdate = (newCoords) => {
-    setCoords(newCoords);
-  };
+  // const handleCoordsUpdate = (newCoords) => {
+  //   setCoords(newCoords);
+  // };
 
-  const handleMeshName = (newName) => {
-    setMeshName(newName);
-  };
+  // const handleMeshName = (newName) => {
+  //   setMeshName(newName);
+  // };
 
   // console.log("coords in  main file", coords);
 
@@ -2004,7 +2004,7 @@ const Dashboard = ({
       />
 
       {/* 3d model hover */}
-      {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
+      {/* {meshName && coords && coords[0] !== 0 && coords[1] !== 0 && (
         <div
           className={`absolute  text-white p-2 rounded-md text-xs 2xl:text-base font-medium shadow-2xl flex gap-1 ${
             alertKeys.length > 0 && alertKeys.includes(meshName)
@@ -2030,7 +2030,7 @@ const Dashboard = ({
                 ).toFixed(1)}°C`}{" "}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* start popup */}
       {startPopup && (
@@ -2090,87 +2090,343 @@ const Dashboard = ({
                 </div>
               ))}
             </div> */}
-            <div className="relative text-[#23439b]">
+            <div className="relative text-xs md:text-sm font-bold">
               <img
                 src={potlineTop2}
                 className="max-w-[300px] md:max-w-[400px]"
               />
 
-              <div className="absolute bottom-[48px] left-[24px] flex items-center gap-0.5 ">
-                <div className=" text-sm font-bold">T2</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[35px] md:bottom-[48px] left-[15px] md:left-[24px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T2")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T2")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T2
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T2")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[74px] left-[28px] flex items-center gap-0.5 ">
-                <div className=" text-sm font-bold">T1</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[55px] md:bottom-[74px] left-[20px] md:left-[28px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T1")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T1")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T1
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T1")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[100px] left-[22px] flex items-center gap-0.5 ">
-                <div className=" textsm font-bold">T12</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[80px] md:bottom-[100px] left-[15px] md:left-[22px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T12")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T12")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T12
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T12")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[105px] left-[80px] flex flex-col items-center gap-0.5 ">
-                <div className=" textsm font-bold">T11</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[80px] md:bottom-[105px] left-[60px] md:left-[80px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T11")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T11")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T11
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T11")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[74px] left-[96px] flex items-center gap-0.5 ">
-                <div className=" text-sm font-bold">T4</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[55px] md:bottom-[74px] left-[65px] md:left-[96px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T4")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T4")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T4
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T4")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[74px] left-[165px] flex items-center gap-0.5 ">
-                <div className=" text-sm font-bold">T5</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[55px] md:bottom-[74px] left-[125px] md:left-[165px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T5")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T5")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T5
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T5")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[74px] left-[240px] flex items-center gap-0.5 ">
-                <div className=" text-sm font-bold">T6</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[55px] md:bottom-[74px] left-[175px] md:left-[240px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T6")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T6")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T6
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T6")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[74px] left-[335px] flex items-center gap-0.5 ">
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
-                <div className=" text-sm font-bold">T8</div>
+              <div
+                className="absolute bottom-[55px] md:bottom-[74px] left-[250px] md:left-[335px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T8")}
+              >
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T8")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T8")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T8
+                </div>
               </div>
 
-              <div className="absolute bottom-[105px] left-[215px] flex flex-col items-center gap-0.5 ">
-                <div className=" textsm font-bold">T14</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[80px] md:bottom-[105px] left-[160px] md:left-[215px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T14")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T14")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T14
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T14")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[105px] left-[245px] flex flex-col items-center gap-0.5 ">
-                <div className=" textsm font-bold">T10</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[80px] md:bottom-[105px] left-[185px] md:left-[245px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T10")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T10")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T10
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T10")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[105px] left-[330px] flex flex-col items-center gap-0.5 ">
-                <div className=" textsm font-bold">T9</div>
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              <div
+                className="absolute bottom-[80px] md:bottom-[105px] left-[245px] md:left-[330px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T9")}
+              >
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T9")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T9
+                </div>
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T9")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
               </div>
 
-              <div className="absolute bottom-[15px] left-[130px] flex flex-col items-center gap-1.5 ">
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
-                <div className=" text-sm font-bold">T3</div>
+              <div
+                className="absolute bottom-[12px] md:bottom-[15px] left-[95px] md:left-[130px] flex flex-col items-center gap-1.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T3")}
+              >
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T3")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T3")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T3
+                </div>
               </div>
 
-              <div className="absolute bottom-[15px] left-[305px] flex flex-col items-center gap-1.5 ">
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
-                <div className=" text-sm font-bold">T7</div>
+              <div
+                className="absolute bottom-[12px] md:bottom-[15px] left-[230px] md:left-[305px] flex flex-col items-center gap-1.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T7")}
+              >
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T7")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T7")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T7
+                </div>
               </div>
 
-              <div className="absolute bottom-[15px] left-[340px] flex flex-col items-center gap-1.5 ">
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
-                <div className=" text-sm font-bold">T13</div>
+              <div
+                className="absolute bottom-[12px] md:bottom-[15px] left-[250px] md:left-[340px] flex flex-col items-center gap-1.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T13")}
+              >
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T13")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T13")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T13
+                </div>
               </div>
 
-              <div className="absolute bottom-[15px] left-[230px] flex flex-col items-center gap-1.5 ">
-                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
-                <div className=" text-sm font-bold">T15</div>
+              <div
+                className="absolute bottom-[12px] md:bottom-[15px] left-[170px] md:left-[230px] flex flex-col items-center gap-1.5 cursor-pointer hover:scale-125 duration-200"
+                onClick={() => toggleThermocouple("T15")}
+              >
+                <div
+                  className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
+                    selectedThermocouples.includes("T15")
+                      ? "bg-green-500"
+                      : "bg-[#23439b]"
+                  }`}
+                ></div>
+                <div
+                  className={` duration-200 ${
+                    selectedThermocouples.includes("T15")
+                      ? "text-green-500"
+                      : "text-[#23439b]"
+                  }`}
+                >
+                  T15
+                </div>
               </div>
             </div>
+
             <div className="flex gap-4 justify-end items-center text-black">
               <button
                 className="bg-gray-200 text-sm 2xl:text-lg font-medium rounded-md px-1 py-1 hover:scale-110 duration-200"

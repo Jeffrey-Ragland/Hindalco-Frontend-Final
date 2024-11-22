@@ -1,7 +1,8 @@
 import React from "react";
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import ThreeDModel from "./ThreeDModel";
+import potlineTop from "../Assets/potlineTop.png";
+import potlineTop2 from "../Assets/potlineTop2.png";
 import loadingGif from "../Assets/loading.gif";
 import { FaBell } from "react-icons/fa";
 import { FaMobileScreenButton } from "react-icons/fa6";
@@ -69,7 +70,8 @@ const Dashboard = ({
   // console.log("thermocouple configuration:", thermocoupleConfiguration);
 
   // console.log("data", dataFromApp);
-  // console.log("fixed thermocouples", fixedThermocouples);
+  // console.log("fixed thermocouples", fixedThermocouples);'
+  console.log("threshold graph date range", thresholdGraphDateRange);
 
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -86,7 +88,8 @@ const Dashboard = ({
   const [potNumber, setPotNumber] = useState("");
   const [batteryPopup, setBatteryPopup] = useState(false);
   const [startConfirmationPopup, setStartConfirmationPopup] = useState(false);
-
+  const [previousSelectedDateRange, setPreviousSelectedDateRange] =
+    useState("");
   // console.log("selected thermocouples", selectedThermocouples);
   // console.log("pot number", potNumber);
   // console.log("line name", selectedLine);
@@ -467,6 +470,79 @@ const Dashboard = ({
     []
   );
 
+  const lineOptions3 = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          position: "top",
+          align: "start",
+          labels: {
+            color: "#4B5563",
+            font: {
+              size: 9,
+            },
+            boxWidth: 12,
+            padding: 5,
+            filter: (legendItem) => {
+              return (
+                legendItem.text !== "Upper Threshold" &&
+                legendItem.text !== "Lower Threshold"
+              );
+            },
+          },
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: "x",
+          },
+          zoom: {
+            mode: "x",
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          min: 0,
+          max: 732, // x-axis range
+          ticks: {
+            font: {
+              size: 7,
+            },
+            autoSkip: false,
+            maxRotation: 0,
+            callback: function (value, index) {
+              return index % 24 === 0 ? this.getLabelForValue(value) : "";
+            },
+          },
+        },
+        y: {
+          min: 0,
+          max: 1000, // y-axis range
+          ticks: {
+            stepSize: 100,
+            font: {
+              size: 8,
+            },
+          },
+        },
+      },
+    }),
+    []
+  );
+
   const [lineData3, setLineData3] = useState(initialData);
 
   useEffect(() => {
@@ -477,25 +553,42 @@ const Dashboard = ({
         reversedData.map((item) => item[`T${i + 1}`])
       );
 
-      const datasets = clickedLegends.map((legendLabel, index) => {
-        const sensorIndex = parseInt(legendLabel.replace("T", "")) - 1;
-        return {
-          label: legendLabel,
-          data: sensorData[sensorIndex],
-          borderColor: sensorColors[sensorIndex],
-          borderWidth: 1.25,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          fill: false,
-        };
-      });
+      const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
 
       setLineData3((prevData) => ({
         ...prevData,
-        datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
+        labels: prevData.labels,
+        // datasets: [
+        //   ...prevData.datasets,
+        //   ...sensorData.map((data, i) => ({
+        //     label: sensorLabels[i],
+        //     data,
+        //     borderColor: sensorColors[i],
+        //     borderWidth: 1.25,
+        //     pointRadius: 0,
+        //     pointHoverRadius: 0,
+        //   })),
+        // ],
+        datasets: [
+          // Keep the original datasets (upper and lower threshold)
+          ...prevData.datasets.filter(
+            (dataset) =>
+              dataset.label === "Upper Threshold" ||
+              dataset.label === "Lower Threshold"
+          ),
+          // Add the new sensor datasets
+          ...sensorData.map((data, i) => ({
+            label: sensorLabels[i],
+            data,
+            borderColor: sensorColors[i],
+            borderWidth: 1.25,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+          })),
+        ],
       }));
     }
-  }, [previousProcessData, clickedLegends]);
+  }, [previousProcessData]);
 
   const batteryPercentage =
     Array.isArray(dataFromApp) && dataFromApp.length > 0
@@ -727,8 +820,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            // "http://localhost:4000/backend/updateHindalcoProcess",
+            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -744,8 +837,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          // "http://localhost:4000/backend/updateHindalcoProcess",
+          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -759,38 +852,34 @@ const Dashboard = ({
 
   const getProcessDateRangeData = async (selectedDateRange) => {
     try {
-      if (selectedDateRange !== "default") {
-        setPreviousProcessDataLoading(true);
-        const split = selectedDateRange.split("to");
-        const startDate = split[0];
-        const stopDate = split[1];
+      setPreviousProcessDataLoading(true);
+      const split = selectedDateRange.split("to");
+      const startDate = split[0];
+      const stopDate = split[1];
 
-        const response = await axios.get(
-          "https://hindalco.xyma.live/backend/getHindalcoReport",
-          // "http://localhost:4000/backend/getHindalcoReport",
-          {
-            params: {
-              projectName: "XY001",
-              startDate: startDate,
-              stopDate: stopDate,
-            },
-          }
-        );
-        setPreviousProcessDataLoading(false);
-        if (response.data.success) {
-          setPreviousProcessData(response.data.data);
-        } else {
-          console.log("Error fetching previous process data");
+      const response = await axios.get(
+        // "https://hindalco.xyma.live/backend/getHindalcoReport",
+        "http://localhost:4000/backend/getHindalcoReport",
+        {
+          params: {
+            projectName: "XY001",
+            startDate: startDate,
+            stopDate: stopDate,
+          },
         }
+      );
+      setPreviousProcessDataLoading(false);
+      if (response.data.success) {
+        setPreviousProcessData(response.data.data);
       } else {
-        alert("Please pick a valid Date Range!");
+        console.log("Error fetching previous process data");
       }
     } catch (error) {
       console.error("Error getting date range data", error);
     }
   };
 
-  // console.log("previous process data", previousProcessData);
+  console.log("previous process data", previousProcessData);
 
   return (
     <div className="relative xl:h-screen p-4 flex flex-col gap-2">
@@ -804,9 +893,9 @@ const Dashboard = ({
         {/* 2d image */}
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
-            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center  overflow-hidden h-[200px] xl:h-auto">
+            <div className="relative w-full md:w-[55%] p-0 xl:p-4 flex items-center justify-center border border-black h-[200px] xl:h-auto">
               {/* 3d model */}
-              <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px]">
+              {/* <div className="h-[250px] md:h-[350px] xl:h-[400px] xl:w-[450px] 2xl:h-[500px]">
                 <div className="absolute top-0 left-0 h-full flex items-center justify-center ">
                   <span className="text-sm 2xl:text-base font-medium transform -rotate-90 origin-center">
                     Tap End
@@ -824,6 +913,10 @@ const Dashboard = ({
                   coordsUpdateFunc={handleCoordsUpdate}
                   meshNameFunc={handleMeshName}
                 />
+              </div> */}
+              <div className="border border-black relative">
+                <img src={potlineTop} className="border border-black" />
+                <div></div>
               </div>
 
               <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
@@ -1775,6 +1868,7 @@ const Dashboard = ({
                   onClick={() => {
                     setPreviousProcessDataOpen(false);
                     setPreviousProcessData([]);
+                    // window.location.reload();
                   }}
                   className="flex gap-1 items-center bg-[#23439b] text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
                 >
@@ -1782,12 +1876,38 @@ const Dashboard = ({
                   Live&nbsp;Data
                 </button>
 
+                {previousSelectedDateRange && thresholdGraphDateRange && (
+                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                    {
+                      thresholdGraphDateRange.find(
+                        (data) =>
+                          previousSelectedDateRange ===
+                          `${data.startTime}to${data.stopTime}`
+                      )?.lineName
+                    }
+                    , Pot Number:{" "}
+                    {
+                      thresholdGraphDateRange.find(
+                        (data) =>
+                          previousSelectedDateRange ===
+                          `${data.startTime}to${data.stopTime}`
+                      )?.potNumber
+                    }
+                  </div>
+                )}
+
                 <div className="flex gap-1 text-xs 2xl:text-base font-medium items-center">
                   <select
-                    onChange={(e) => getProcessDateRangeData(e.target.value)}
+                    onChange={(e) => {
+                      getProcessDateRangeData(e.target.value);
+                      setPreviousSelectedDateRange(e.target.value);
+                    }}
                     className="rounded-md px-1 py-0.5 cursor-pointer"
+                    value={previousSelectedDateRange}
                   >
-                    <option value="default">Pick Date Range</option>
+                    <option value="" disabled>
+                      Pick Date Range
+                    </option>
                     {thresholdGraphDateRange &&
                       thresholdGraphDateRange.length > 0 &&
                       thresholdGraphDateRange.map((data, i) => (
@@ -1802,7 +1922,7 @@ const Dashboard = ({
                 </div>
               </div>
               <div className="h-full w-full">
-                <Line data={lineData3} options={lineOptions2} width={"100%"} />
+                <Line data={lineData3} options={lineOptions3} width={"100%"} />
               </div>
             </div>
           )}
@@ -1872,86 +1992,6 @@ const Dashboard = ({
           <div className="w-full h-full">
             <Line data={lineData} options={lineOptions} width={"100%"} />
           </div>
-          {/* <div className="flex flex-row flex-wrap md:flex-col justify-center gap-0 md:gap-2 text-sm 2xl:text-base">
-            <div className="mr-2 text-center font-medium text-[#23439b]">
-              Data&nbsp;Limit
-            </div>
-            <div
-              className="flex items-center gap-1"
-              data-tooltip-id="tooltip-style"
-              data-tooltip-content="Plot last 100 data"
-            >
-              <input
-                type="radio"
-                id="option1"
-                name="options"
-                value={100}
-                checked={hindalcoLimit === 100}
-                className="cursor-pointer"
-                onChange={handleLineLimit}
-              />
-              <label htmlFor="option1" className="mr-2 cursor-pointer">
-                100&nbsp;Data
-              </label>
-            </div>
-
-            <div
-              className="flex items-center gap-1"
-              data-tooltip-id="tooltip-style"
-              data-tooltip-content="Plot last 300 data"
-            >
-              <input
-                type="radio"
-                id="option2"
-                name="options"
-                value={300}
-                checked={hindalcoLimit === 300}
-                className="cursor-pointer"
-                onChange={handleLineLimit}
-              />
-              <label htmlFor="option2" className="mr-2 cursor-pointer">
-                300&nbsp;Data
-              </label>
-            </div>
-
-            <div
-              className="flex items-center gap-1"
-              data-tooltip-id="tooltip-style"
-              data-tooltip-content="Plot last 500 data"
-            >
-              <input
-                type="radio"
-                id="option3"
-                name="options"
-                value={500}
-                checked={hindalcoLimit === 500}
-                className="cursor-pointer"
-                onChange={handleLineLimit}
-              />
-              <label htmlFor="option3" className="mr-2 cursor-pointer">
-                500&nbsp;Data
-              </label>
-            </div>
-
-            <div
-              className="flex items-center gap-1"
-              data-tooltip-id="tooltip-style"
-              data-tooltip-content="Plot last 1000 data"
-            >
-              <input
-                type="radio"
-                id="option4"
-                name="options"
-                value={1000}
-                checked={hindalcoLimit === 1000}
-                className="cursor-pointer"
-                onChange={handleLineLimit}
-              />
-              <label htmlFor="option4" className="mr-2 cursor-pointer">
-                1000&nbsp;Data
-              </label>
-            </div>
-          </div> */}
         </div>
       </div>
       <ReactTooltip
@@ -1979,11 +2019,14 @@ const Dashboard = ({
           <div>{meshName}:</div>
           <div>
             {isNaN(
-              parseFloat(dataFromApp.length > 0 && dataFromApp[0][meshName])
+              parseFloat(
+                thresholdGraphData.length > 0 && thresholdGraphData[0][meshName]
+              )
             )
               ? "N/A"
               : `${parseFloat(
-                  dataFromApp.length > 0 && dataFromApp[0][meshName]
+                  thresholdGraphData.length > 0 &&
+                    thresholdGraphData[0][meshName]
                 ).toFixed(1)}°C`}{" "}
           </div>
         </div>
@@ -2032,7 +2075,7 @@ const Dashboard = ({
 
             <div>Select connected thermocouple(s):</div>
 
-            <div className="grid grid-cols-5 gap-2">
+            {/* <div className="grid grid-cols-5 gap-2">
               {thermocouples.map((name) => (
                 <div
                   className={`border rounded-md text-center px-2 py-1 cursor-pointer hover:scale-110 duration-200 ${
@@ -2046,6 +2089,87 @@ const Dashboard = ({
                   {name}
                 </div>
               ))}
+            </div> */}
+            <div className="relative text-[#23439b]">
+              <img
+                src={potlineTop2}
+                className="max-w-[300px] md:max-w-[400px]"
+              />
+
+              <div className="absolute bottom-[48px] left-[24px] flex items-center gap-0.5 ">
+                <div className=" text-sm font-bold">T2</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[74px] left-[28px] flex items-center gap-0.5 ">
+                <div className=" text-sm font-bold">T1</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[100px] left-[22px] flex items-center gap-0.5 ">
+                <div className=" textsm font-bold">T12</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[105px] left-[80px] flex flex-col items-center gap-0.5 ">
+                <div className=" textsm font-bold">T11</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[74px] left-[96px] flex items-center gap-0.5 ">
+                <div className=" text-sm font-bold">T4</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[74px] left-[165px] flex items-center gap-0.5 ">
+                <div className=" text-sm font-bold">T5</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[74px] left-[240px] flex items-center gap-0.5 ">
+                <div className=" text-sm font-bold">T6</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[74px] left-[335px] flex items-center gap-0.5 ">
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+                <div className=" text-sm font-bold">T8</div>
+              </div>
+
+              <div className="absolute bottom-[105px] left-[215px] flex flex-col items-center gap-0.5 ">
+                <div className=" textsm font-bold">T14</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[105px] left-[245px] flex flex-col items-center gap-0.5 ">
+                <div className=" textsm font-bold">T10</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[105px] left-[330px] flex flex-col items-center gap-0.5 ">
+                <div className=" textsm font-bold">T9</div>
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+              </div>
+
+              <div className="absolute bottom-[15px] left-[130px] flex flex-col items-center gap-1.5 ">
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+                <div className=" text-sm font-bold">T3</div>
+              </div>
+
+              <div className="absolute bottom-[15px] left-[305px] flex flex-col items-center gap-1.5 ">
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+                <div className=" text-sm font-bold">T7</div>
+              </div>
+
+              <div className="absolute bottom-[15px] left-[340px] flex flex-col items-center gap-1.5 ">
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+                <div className=" text-sm font-bold">T13</div>
+              </div>
+
+              <div className="absolute bottom-[15px] left-[230px] flex flex-col items-center gap-1.5 ">
+                <div className="h-5 w-5 shadow-2xl rounded-full bg-[#23439b] border border-white"></div>
+                <div className=" text-sm font-bold">T15</div>
+              </div>
             </div>
             <div className="flex gap-4 justify-end items-center text-black">
               <button

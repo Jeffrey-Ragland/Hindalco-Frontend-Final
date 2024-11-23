@@ -23,6 +23,7 @@ import {
 } from "react-icons/gi";
 import { PiBatteryWarningBold } from "react-icons/pi";
 import { TbAlertTriangle } from "react-icons/tb";
+import { FiInfo } from "react-icons/fi";
 import ApexCharts from "react-apexcharts";
 import Navbar from "./Navbar";
 import "react-tooltip/dist/react-tooltip.css";
@@ -791,8 +792,6 @@ const Dashboard = ({
       console.error("Error getting date range data", error);
     }
   };
-
-  console.log("previous process data", previousProcessData);
 
   return (
     <div className="relative xl:h-screen p-4 flex flex-col gap-2">
@@ -2046,7 +2045,7 @@ const Dashboard = ({
                   ) : processIsRunning === false ? (
                     <>
                       <button
-                        className="bg-[#e4ba4c] text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
+                        className="bg-green-500 text-white text-xs 2xl:text-base font-medium rounded-md px-1 py-0.5 hover:scale-110 duration-200"
                         onClick={() => setStartPopup(true)}
                       >
                         Start
@@ -2126,22 +2125,39 @@ const Dashboard = ({
                 </button>
 
                 {previousSelectedDateRange && thresholdGraphDateRange && (
-                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
-                    {
-                      thresholdGraphDateRange.find(
-                        (data) =>
-                          previousSelectedDateRange ===
-                          `${data.startTime}to${data.stopTime}`
-                      )?.lineName
-                    }
-                    , Pot Number:{" "}
-                    {
-                      thresholdGraphDateRange.find(
-                        (data) =>
-                          previousSelectedDateRange ===
-                          `${data.startTime}to${data.stopTime}`
-                      )?.potNumber
-                    }
+                  <div className="flex gap-2 items-center">
+                    <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                      {
+                        thresholdGraphDateRange.find(
+                          (data) =>
+                            previousSelectedDateRange ===
+                            `${data.startTime}to${data.stopTime}`
+                        )?.lineName
+                      }
+                      , Pot Number:{" "}
+                      {
+                        thresholdGraphDateRange.find(
+                          (data) =>
+                            previousSelectedDateRange ===
+                            `${data.startTime}to${data.stopTime}`
+                        )?.potNumber
+                      }
+                    </div>
+
+                    <div
+                      data-tooltip-id="tooltip-style"
+                      data-tooltip-content={`Selected Thermocouples: ${
+                        thresholdGraphDateRange
+                          .find(
+                            (data) =>
+                              previousSelectedDateRange ===
+                              `${data.startTime}to${data.stopTime}`
+                          )
+                          ?.selectedThermocouples?.join(", ") || "None"
+                      }`}
+                    >
+                      <FiInfo className="text-lg 2xl:text-xl text-[#23439b]" />
+                    </div>
                   </div>
                 )}
 

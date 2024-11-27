@@ -99,14 +99,72 @@ const Dashboard = ({
     );
   };
 
-  const upperThresholdData = Array.from(
-    { length: 732 },
-    (_, i) => 150 + (i * (900 - 150)) / 731
-  );
-  const lowerThresholdData = Array.from(
-    { length: 732 },
-    (_, i) => (i * 400) / 731
-  );
+  console.log("fixed termocouples", fixedThermocouples);
+
+  // const upperThresholdData = Array.from(
+  //   { length: 732 },
+  //   (_, i) => 150 + (i * (900 - 150)) / 731
+  // );
+  // const lowerThresholdData = Array.from(
+  //   { length: 732 },
+  //   (_, i) => (i * 400) / 731
+  // );
+
+  const timeIntervals = [
+    0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160, 2340,
+    2520, 2700, 2880, 3060, 3240, 3420,
+  ];
+  const lowerLimits = [
+    57, 122, 176, 222, 263, 294, 326, 360, 394, 433, 475, 509, 549, 581, 607,
+    636, 659, 679, 701, 711,
+  ];
+  const upperLimits = [
+    70, 151, 218, 273, 322, 365, 406, 452, 495, 549, 606, 660, 707, 746, 782,
+    816, 842, 861, 886, 896,
+  ];
+
+  // Number of data points for 5-minute intervals
+  const totalPoints = 732; // (60 hours * 12 intervals per hour)
+
+  // Function to calculate interpolated values
+  const interpolate = (x, x1, y1, x2, y2) =>
+    y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
+
+  // Generate thresholds for 5-minute intervals
+  const upperThresholdData = Array.from({ length: totalPoints }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervals.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervals[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervals[index];
+    const y1 = upperLimits[index];
+    const x2 = timeIntervals[index + 1];
+    const y2 = upperLimits[index + 1];
+    return interpolate(currentTime, x1, y1, x2, y2);
+  });
+
+  const lowerThresholdData = Array.from({ length: totalPoints }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervals.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervals[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervals[index];
+    const y1 = lowerLimits[index];
+    const x2 = timeIntervals[index + 1];
+    const y2 = lowerLimits[index + 1];
+    return interpolate(currentTime, x1, y1, x2, y2);
+  });
+
+  // console.log("upper threshold", upperThresholdData);
+  // console.log("lower threshold data", lowerThresholdData);
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -252,15 +310,15 @@ const Dashboard = ({
     datasets: [],
   });
 
-  const allLabels = Array.from(
-    { length: 732 },
-    (_, i) => Math.floor(i / 12) + 1
-  );
+  const allLabels = Array.from({ length: 733 }, (_, i) => Math.floor(i / 12));
 
   // Only display the unique section labels and leave the rest as empty strings
   const displayLabels = allLabels.map((label, index) =>
     index % 12 === 0 ? label.toString() : ""
   );
+
+  // console.log("display labels", displayLabels);
+  console.log("threshold graph data", thresholdGraphData);
 
   const initialData = {
     labels: displayLabels,
@@ -274,7 +332,7 @@ const Dashboard = ({
         pointHoverRadius: 0,
         fill: false,
         tooltip: { enabled: false },
-        borderDash: [5, 5], // Disable tooltip
+        borderDash: [5, 5],
       },
       {
         label: "Lower Threshold",
@@ -285,7 +343,7 @@ const Dashboard = ({
         pointHoverRadius: 0,
         fill: false,
         tooltip: { enabled: false },
-        borderDash: [5, 5], // Disable tooltip
+        borderDash: [5, 5],
       },
     ],
   };
@@ -314,16 +372,15 @@ const Dashboard = ({
     if (thresholdGraphData && thresholdGraphData.length > 0) {
       const reversedData = [...thresholdGraphData].reverse();
 
-      const sensorData = Array.from({ length: 15 }, (_, i) =>
-        reversedData.map((item) => item[`T${i + 1}`])
-      );
+      const sensorData = fixedThermocouples.map((sensor) => {
+        return reversedData.map((item) => item[sensor]);
+      });
 
-      const datasets = clickedLegends.map((legendLabel, index) => {
-        const sensorIndex = parseInt(legendLabel.replace("T", "")) - 1;
+      const datasets = fixedThermocouples.map((sensor, index) => {
         return {
-          label: legendLabel,
-          data: sensorData[sensorIndex],
-          borderColor: sensorColors[sensorIndex],
+          label: sensor,
+          data: sensorData[index],
+          borderColor: sensorColors[index],
           borderWidth: 2,
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -336,7 +393,7 @@ const Dashboard = ({
         datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
       }));
     }
-  }, [thresholdGraphData, clickedLegends]);
+  }, [thresholdGraphData]);
 
   const lineOptions2 = useMemo(
     () => ({
@@ -345,7 +402,24 @@ const Dashboard = ({
       animation: false,
       plugins: {
         legend: {
-          display: false, // Disable legend
+          display: true,
+          labels: {
+            filter: (legendItem) => {
+              if (
+                legendItem.datasetIndex === 0 ||
+                legendItem.datasetIndex === 1
+              ) {
+                return false; // Hide the "Upper Threshold" and "Lower Threshold" from the legend
+              }
+              return true; // Keep other legends visible and interactive
+            },
+            color: "#4B5563",
+            font: {
+              size: 9,
+            },
+            boxWidth: 15,
+            padding: 5,
+          },
         },
         zoom: {
           pan: {
@@ -622,11 +696,12 @@ const Dashboard = ({
         const lineLabels = reversedData.map((item) => {
           return item.Time;
         });
-        const sensorData = Array.from({ length: 15 }, (_, i) =>
-          reversedData.map((item) => item[`T${i + 1}`])
-        );
 
-        const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+        const sensorData = fixedThermocouples.map((sensor) => {
+          return reversedData.map((item) => item[sensor]);
+        });
+
+        const sensorLabels = fixedThermocouples;
 
         setLineData({
           labels: lineLabels,
@@ -734,8 +809,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            // "http://localhost:4000/backend/updateHindalcoProcess",
+            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -751,8 +826,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          // "http://localhost:4000/backend/updateHindalcoProcess",
+          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -772,8 +847,8 @@ const Dashboard = ({
       const stopDate = split[1];
 
       const response = await axios.get(
-        "https://hindalco.xyma.live/backend/getHindalcoReport",
-        // "http://localhost:4000/backend/getHindalcoReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoReport",
+        "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: "XY001",

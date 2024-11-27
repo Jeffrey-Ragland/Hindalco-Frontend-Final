@@ -99,17 +99,20 @@ const Dashboard = ({
     );
   };
 
+  const isMobile = window.matchMedia("(max-width: 768px)").matches; //to restrict mobile graph wheel zoom
+
   // console.log("fixed termocouples", fixedThermocouples);
 
-  const upperThresholdData1 = Array.from(
+  const upperThresholdDataX = Array.from(
     { length: 732 },
     (_, i) => 150 + (i * (900 - 150)) / 731
   );
-  const lowerThresholdData1 = Array.from(
+  const lowerThresholdDataX = Array.from(
     { length: 732 },
     (_, i) => (i * 400) / 731
   );
 
+  // threshold calculation for T4, T5, T6
   const timeIntervals = [
     0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160, 2340,
     2520, 2700, 2880, 3060, 3240, 3420,
@@ -163,8 +166,116 @@ const Dashboard = ({
     return interpolate(currentTime, x1, y1, x2, y2);
   });
 
-  // console.log("upper threshold", upperThresholdData);
-  // console.log("lower threshold data", lowerThresholdData);
+  // threshold calculation for T1
+  const timeIntervalsT1 = [
+    0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160, 2340,
+    2520, 2700, 2880, 3060, 3240, 3420, 3600,
+  ];
+
+  const lowerLimitsT1 = [
+    36, 108, 166, 207, 240, 268, 296, 319, 343, 374, 410, 450, 490, 529, 563,
+    591, 615, 635, 685, 708, 720,
+  ];
+
+  const upperLimitsT1 = [
+    47, 152, 224, 285, 328, 365, 406, 446, 496, 542, 584, 621, 647, 670, 694,
+    717, 732, 744, 731, 745, 753,
+  ];
+
+  const interpolateT1 = (x, x1, y1, x2, y2) =>
+    y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
+
+  const totalPointsT1 = 732;
+
+  // Generate upper and lower threshold data for 5-minute intervals
+  const upperThresholdDataT1 = Array.from({ length: totalPointsT1 }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervalsT1.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervalsT1[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervalsT1[index];
+    const y1 = upperLimitsT1[index];
+    const x2 = timeIntervalsT1[index + 1];
+    const y2 = upperLimitsT1[index + 1];
+    return interpolateT1(currentTime, x1, y1, x2, y2);
+  });
+
+  const lowerThresholdDataT1 = Array.from({ length: totalPointsT1 }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervalsT1.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervalsT1[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervalsT1[index];
+    const y1 = lowerLimitsT1[index];
+    const x2 = timeIntervalsT1[index + 1];
+    const y2 = lowerLimitsT1[index + 1];
+    return interpolateT1(currentTime, x1, y1, x2, y2);
+  });
+
+  // threshold calculation for T8
+  const timeIntervalsT8 = [
+    0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160, 2340,
+    2520, 2700, 2880, 3060, 3240, 3420, 3600,
+  ];
+
+  const lowerLimitsT8 = [
+    33, 97, 150, 189, 221, 250, 278, 310, 344, 379, 410, 446, 479, 511, 537,
+    558, 586, 611, 647, 697, 710,
+  ];
+
+  const upperLimitsT8 = [
+    48, 155, 237, 297, 343, 383, 419, 451, 486, 526, 555, 585, 611, 640, 664,
+    686, 703, 715, 723, 738, 749,
+  ];
+
+  const interpolateT8 = (x, x1, y1, x2, y2) =>
+    y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
+
+  const totalPointsT8 = 732;
+
+  // Generate upper and lower threshold data for 5-minute intervals
+  const upperThresholdDataT8 = Array.from({ length: totalPointsT8 }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervalsT8.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervalsT8[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervalsT8[index];
+    const y1 = upperLimitsT8[index];
+    const x2 = timeIntervalsT8[index + 1];
+    const y2 = upperLimitsT8[index + 1];
+    return interpolateT8(currentTime, x1, y1, x2, y2);
+  });
+
+  const lowerThresholdDataT8 = Array.from({ length: totalPointsT8 }, (_, i) => {
+    const currentTime = i * 5; // 5-minute intervals
+
+    // Find the interval where currentTime falls
+    const index = timeIntervalsT8.findIndex(
+      (t, idx) => t <= currentTime && currentTime <= timeIntervalsT8[idx + 1]
+    );
+
+    // Perform linear interpolation
+    const x1 = timeIntervalsT8[index];
+    const y1 = lowerLimitsT8[index];
+    const x2 = timeIntervalsT8[index + 1];
+    const y2 = lowerLimitsT8[index + 1];
+    return interpolateT8(currentTime, x1, y1, x2, y2);
+  });
+
+  // console.log("upper threshold t8", upperThresholdDataT8);
+  // console.log("lower threshold t8", lowerThresholdDataT8);
 
   // cards view more condition
   const getInitialViewMoreCondition = () => {
@@ -186,32 +297,134 @@ const Dashboard = ({
 
   const alertsArray = [];
 
+  // if (thresholdGraphData.length > 0) {
+  //   const latestData = thresholdGraphData[0];
+  //   const time = thresholdGraphData[0].Time;
+  //   const index = thresholdGraphData.length - 1;
+
+  //   Object.entries(latestData)
+  //     .filter(([key]) => key !== "Time" && key !== "_id")
+  //     .forEach(([key, value]) => {
+  //       const sensorValue = parseFloat(value);
+  //       const upperThresholdValue = upperThresholdData456[index];
+  //       const lowerThresholdValue = lowerThresholdData456[index];
+
+  //       const alertIndex = alertsArray.findIndex((alert) => alert[key]);
+
+  //       if (
+  //         sensorValue > upperThresholdValue ||
+  //         sensorValue < lowerThresholdValue
+  //       ) {
+  //         if (alertIndex === -1) {
+  //           alertsArray.push({ [key]: sensorValue, Time: time });
+  //         } else {
+  //           alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
+  //         }
+  //       } else {
+  //         if (alertIndex !== -1) {
+  //           alertsArray.splice(alertIndex, 1);
+  //         }
+  //       }
+  //     });
+  // }
+
   if (thresholdGraphData.length > 0) {
     const latestData = thresholdGraphData[0];
     const time = thresholdGraphData[0].Time;
     const index = thresholdGraphData.length - 1;
 
+    // Mapping of sensors to their respective threshold data
+    const thresholdMapping = {
+      T1: {
+        upper: upperThresholdDataT1,
+        lower: lowerThresholdDataT1,
+      },
+      T4: {
+        upper: upperThresholdData456,
+        lower: lowerThresholdData456,
+      },
+      T5: {
+        upper: upperThresholdData456,
+        lower: lowerThresholdData456,
+      },
+      T6: {
+        upper: upperThresholdData456,
+        lower: lowerThresholdData456,
+      },
+      T8: {
+        upper: upperThresholdDataT8,
+        lower: lowerThresholdDataT8,
+      },
+      T2: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T3: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T7: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T9: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T10: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T11: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T12: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T13: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T14: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+      T15: {
+        upper: upperThresholdDataX,
+        lower: lowerThresholdDataX,
+      },
+    };
+
     Object.entries(latestData)
       .filter(([key]) => key !== "Time" && key !== "_id")
       .forEach(([key, value]) => {
         const sensorValue = parseFloat(value);
-        const upperThresholdValue = upperThresholdData456[index];
-        const lowerThresholdValue = lowerThresholdData456[index];
 
-        const alertIndex = alertsArray.findIndex((alert) => alert[key]);
+        // Check if a threshold mapping exists for the sensor (T1, T4, etc.)
+        const threshold = thresholdMapping[key];
 
-        if (
-          sensorValue > upperThresholdValue ||
-          sensorValue < lowerThresholdValue
-        ) {
-          if (alertIndex === -1) {
-            alertsArray.push({ [key]: sensorValue, Time: time });
+        if (threshold) {
+          const upperThresholdValue = threshold.upper[index];
+          const lowerThresholdValue = threshold.lower[index];
+
+          // Check if the sensor value is outside the threshold
+          const alertIndex = alertsArray.findIndex((alert) => alert[key]);
+
+          if (
+            sensorValue > upperThresholdValue ||
+            sensorValue < lowerThresholdValue
+          ) {
+            if (alertIndex === -1) {
+              alertsArray.push({ [key]: sensorValue, Time: time });
+            } else {
+              alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
+            }
           } else {
-            alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
-          }
-        } else {
-          if (alertIndex !== -1) {
-            alertsArray.splice(alertIndex, 1);
+            if (alertIndex !== -1) {
+              alertsArray.splice(alertIndex, 1);
+            }
           }
         }
       });
@@ -318,7 +531,7 @@ const Dashboard = ({
   );
 
   // console.log("display labels", displayLabels);
-  console.log("threshold graph data", thresholdGraphData);
+  // console.log("threshold graph data", thresholdGraphData);
 
   const initialData = {
     labels: displayLabels,
@@ -455,8 +668,56 @@ const Dashboard = ({
         },
         {
           label: "UT1",
-          data: upperThresholdData1,
+          data: upperThresholdDataT1,
+          borderColor: "green",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) => ["T1"].includes(legend)),
+        },
+        {
+          label: "LT1",
+          data: lowerThresholdDataT1,
+          borderColor: "green",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) => ["T1"].includes(legend)),
+        },
+        {
+          label: "UT8",
+          data: upperThresholdDataT8,
           borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) => ["T8"].includes(legend)),
+        },
+        {
+          label: "LT8",
+          data: lowerThresholdDataT8,
+          borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) => ["T8"].includes(legend)),
+        },
+        {
+          label: "UTX",
+          data: upperThresholdDataX,
+          borderColor: "black",
           borderWidth: 1.5,
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -465,11 +726,9 @@ const Dashboard = ({
           borderDash: [5, 5],
           hidden: !clickedLegends.some((legend) =>
             [
-              "T1",
               "T2",
               "T3",
               "T7",
-              "T8",
               "T9",
               "T10",
               "T11",
@@ -481,9 +740,9 @@ const Dashboard = ({
           ),
         },
         {
-          label: "LT1",
-          data: lowerThresholdData1,
-          borderColor: "blue",
+          label: "LTX",
+          data: lowerThresholdDataX,
+          borderColor: "black",
           borderWidth: 1.5,
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -492,11 +751,9 @@ const Dashboard = ({
           borderDash: [5, 5],
           hidden: !clickedLegends.some((legend) =>
             [
-              "T1",
               "T2",
               "T3",
               "T7",
-              "T8",
               "T9",
               "T10",
               "T11",
@@ -553,7 +810,7 @@ const Dashboard = ({
           zoom: {
             mode: "x",
             wheel: {
-              enabled: true,
+              enabled: !isMobile,
             },
             pinch: {
               enabled: true,
@@ -626,7 +883,7 @@ const Dashboard = ({
           zoom: {
             mode: "x",
             wheel: {
-              enabled: true,
+              enabled: !isMobile,
             },
             pinch: {
               enabled: true,
@@ -887,7 +1144,7 @@ const Dashboard = ({
           zoom: {
             mode: "x",
             wheel: {
-              enabled: true,
+              enabled: !isMobile,
             },
             pinch: {
               enabled: true,
@@ -933,8 +1190,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            "http://localhost:4000/backend/updateHindalcoProcess",
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -950,8 +1207,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          "http://localhost:4000/backend/updateHindalcoProcess",
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -971,8 +1228,8 @@ const Dashboard = ({
       const stopDate = split[1];
 
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoReport",
-        "http://localhost:4000/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: "XY001",
@@ -1043,7 +1300,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[58px] md:bottom-[75px] left-[20px] md:left-[30px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[20px] md:left-[30px] flex items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T1")
@@ -1066,7 +1323,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[80px] md:bottom-[105px] left-[15px] md:left-[25px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[80px] md:bottom-[105px] left-[15px] md:left-[25px] flex items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T12")
@@ -1089,7 +1346,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[85px] md:bottom-[110px] left-[60px] md:left-[80px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[60px] md:left-[80px] flex flex-col items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T11")
@@ -1112,7 +1369,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[58px] md:bottom-[75px] left-[75px] md:left-[96px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[75px] md:left-[96px] flex items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T4")
@@ -1135,7 +1392,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[58px] md:bottom-[75px] left-[135px] md:left-[165px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[135px] md:left-[165px] flex items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T5")
@@ -1158,7 +1415,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[58px] md:bottom-[75px] left-[185px] md:left-[240px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[185px] md:left-[240px] flex items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T6")
@@ -1181,7 +1438,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[58px] md:bottom-[75px] left-[267px] md:left-[345px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[58px] md:bottom-[75px] left-[267px] md:left-[345px] flex items-center gap-0.5">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T8")
@@ -1204,7 +1461,7 @@ const Dashboard = ({
                   </div>
                 </div>
 
-                <div className="absolute bottom-[85px] md:bottom-[110px] left-[150px] md:left-[215px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[150px] md:left-[215px] flex flex-col items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T14")
@@ -1227,7 +1484,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[85px] md:bottom-[110px] left-[175px] md:left-[245px] flex flex-col items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[85px] md:bottom-[110px] left-[175px] md:left-[245px] flex flex-col items-center gap-0.5">
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T10")
@@ -1250,7 +1507,7 @@ const Dashboard = ({
                   ></div>
                 </div>
 
-                <div className="absolute bottom-[85px] md:bottom-[105px] left-[265px] md:left-[343px] flex items-center gap-0.5 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[85px] md:bottom-[105px] left-[265px] md:left-[343px] flex items-center gap-0.5">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T9")
@@ -1273,7 +1530,7 @@ const Dashboard = ({
                   </div>
                 </div>
 
-                <div className="absolute bottom-[10px] md:bottom-[15px] left-[105px] md:left-[130px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[105px] md:left-[130px] flex flex-col items-center gap-2">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T3")
@@ -1296,7 +1553,7 @@ const Dashboard = ({
                   </div>
                 </div>
 
-                <div className="absolute bottom-[10px] md:bottom-[15px] left-[240px] md:left-[305px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[240px] md:left-[305px] flex flex-col items-center gap-2">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T7")
@@ -1319,7 +1576,7 @@ const Dashboard = ({
                   </div>
                 </div>
 
-                <div className="absolute bottom-[10px] md:bottom-[15px] left-[265px] md:left-[340px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[265px] md:left-[340px] flex flex-col items-center gap-2">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T13")
@@ -1342,7 +1599,7 @@ const Dashboard = ({
                   </div>
                 </div>
 
-                <div className="absolute bottom-[10px] md:bottom-[15px] left-[180px] md:left-[230px] flex flex-col items-center gap-2 cursor-pointer hover:scale-125 duration-200">
+                <div className="absolute bottom-[10px] md:bottom-[15px] left-[180px] md:left-[230px] flex flex-col items-center gap-2">
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T15")

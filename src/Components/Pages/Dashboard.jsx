@@ -99,16 +99,16 @@ const Dashboard = ({
     );
   };
 
-  console.log("fixed termocouples", fixedThermocouples);
+  // console.log("fixed termocouples", fixedThermocouples);
 
-  // const upperThresholdData = Array.from(
-  //   { length: 732 },
-  //   (_, i) => 150 + (i * (900 - 150)) / 731
-  // );
-  // const lowerThresholdData = Array.from(
-  //   { length: 732 },
-  //   (_, i) => (i * 400) / 731
-  // );
+  const upperThresholdData1 = Array.from(
+    { length: 732 },
+    (_, i) => 150 + (i * (900 - 150)) / 731
+  );
+  const lowerThresholdData1 = Array.from(
+    { length: 732 },
+    (_, i) => (i * 400) / 731
+  );
 
   const timeIntervals = [
     0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160, 2340,
@@ -131,7 +131,7 @@ const Dashboard = ({
     y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
 
   // Generate thresholds for 5-minute intervals
-  const upperThresholdData = Array.from({ length: totalPoints }, (_, i) => {
+  const upperThresholdData456 = Array.from({ length: totalPoints }, (_, i) => {
     const currentTime = i * 5; // 5-minute intervals
 
     // Find the interval where currentTime falls
@@ -147,7 +147,7 @@ const Dashboard = ({
     return interpolate(currentTime, x1, y1, x2, y2);
   });
 
-  const lowerThresholdData = Array.from({ length: totalPoints }, (_, i) => {
+  const lowerThresholdData456 = Array.from({ length: totalPoints }, (_, i) => {
     const currentTime = i * 5; // 5-minute intervals
 
     // Find the interval where currentTime falls
@@ -195,8 +195,8 @@ const Dashboard = ({
       .filter(([key]) => key !== "Time" && key !== "_id")
       .forEach(([key, value]) => {
         const sensorValue = parseFloat(value);
-        const upperThresholdValue = upperThresholdData[index];
-        const lowerThresholdValue = lowerThresholdData[index];
+        const upperThresholdValue = upperThresholdData456[index];
+        const lowerThresholdValue = lowerThresholdData456[index];
 
         const alertIndex = alertsArray.findIndex((alert) => alert[key]);
 
@@ -322,31 +322,36 @@ const Dashboard = ({
 
   const initialData = {
     labels: displayLabels,
-    datasets: [
-      {
-        label: "Upper Threshold",
-        data: upperThresholdData,
-        borderColor: "red",
-        borderWidth: 1.5,
-        pointRadius: 0,
-        pointHoverRadius: 0,
-        fill: false,
-        tooltip: { enabled: false },
-        borderDash: [5, 5],
-      },
-      {
-        label: "Lower Threshold",
-        data: lowerThresholdData,
-        borderColor: "red",
-        borderWidth: 1.5,
-        pointRadius: 0,
-        pointHoverRadius: 0,
-        fill: false,
-        tooltip: { enabled: false },
-        borderDash: [5, 5],
-      },
-    ],
+    datasets: [], // Start with an empty datasets array
   };
+
+  // const initialData = {
+  //   labels: displayLabels,
+  //   datasets: [
+  //     {
+  //       label: "Upper Threshold",
+  //       data: upperThresholdData,
+  //       borderColor: "red",
+  //       borderWidth: 1.5,
+  //       pointRadius: 0,
+  //       pointHoverRadius: 0,
+  //       fill: false,
+  //       tooltip: { enabled: false },
+  //       borderDash: [5, 5],
+  //     },
+  //     {
+  //       label: "Lower Threshold",
+  //       data: lowerThresholdData,
+  //       borderColor: "red",
+  //       borderWidth: 1.5,
+  //       pointRadius: 0,
+  //       pointHoverRadius: 0,
+  //       fill: false,
+  //       tooltip: { enabled: false },
+  //       borderDash: [5, 5],
+  //     },
+  //   ],
+  // };
 
   const sensorColors = [
     "rgb(35, 67, 155)",
@@ -368,30 +373,147 @@ const Dashboard = ({
 
   const [lineData2, setLineData2] = useState(initialData);
 
+  // useEffect(() => {
+  //   if (thresholdGraphData && thresholdGraphData.length > 0) {
+  //     const reversedData = [...thresholdGraphData].reverse();
+
+  //     const sensorData = fixedThermocouples.map((sensor) => {
+  //       return reversedData.map((item) => item[sensor]);
+  //     });
+
+  //     const datasets = fixedThermocouples.map((sensor, index) => {
+  //       return {
+  //         label: sensor,
+  //         data: sensorData[index],
+  //         borderColor: sensorColors[index],
+  //         borderWidth: 2,
+  //         pointRadius: 0,
+  //         pointHoverRadius: 0,
+  //         fill: false,
+  //         hidden: index !== 0,
+  //       };
+  //     });
+
+  //     setLineData2((prevData) => ({
+  //       ...prevData,
+  //       datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
+  //     }));
+  //   }
+  // }, [thresholdGraphData]);
+
   useEffect(() => {
     if (thresholdGraphData && thresholdGraphData.length > 0) {
       const reversedData = [...thresholdGraphData].reverse();
 
-      const sensorData = fixedThermocouples.map((sensor) => {
-        return reversedData.map((item) => item[sensor]);
-      });
+      // Extract sensor data for each thermocouple
+      const sensorData = fixedThermocouples.map((sensor) =>
+        reversedData.map((item) => item[sensor])
+      );
 
-      const datasets = fixedThermocouples.map((sensor, index) => {
-        return {
-          label: sensor,
-          data: sensorData[index],
-          borderColor: sensorColors[index],
-          borderWidth: 2,
+      // Create datasets for the thermocouples
+      const sensorDatasets = fixedThermocouples.map((sensor, index) => ({
+        label: sensor,
+        data: sensorData[index],
+        borderColor: sensorColors[index],
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        // hidden: index !== 0, // Hide all sensors except the first one by default
+        hidden: !clickedLegends.includes(sensor),
+      }));
+
+      // Add Upper and Lower Threshold datasets
+      const thresholdDatasets = [
+        {
+          label: "UT4,UT5,UT6",
+          data: upperThresholdData456,
+          borderColor: "red",
+          borderWidth: 1.5,
           pointRadius: 0,
           pointHoverRadius: 0,
           fill: false,
-        };
-      });
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) =>
+            ["T4", "T5", "T6"].includes(legend)
+          ),
+        },
+        {
+          label: "LT4,LT5,LT6",
+          data: lowerThresholdData456,
+          borderColor: "red",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) =>
+            ["T4", "T5", "T6"].includes(legend)
+          ),
+        },
+        {
+          label: "UT1",
+          data: upperThresholdData1,
+          borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) =>
+            [
+              "T1",
+              "T2",
+              "T3",
+              "T7",
+              "T8",
+              "T9",
+              "T10",
+              "T11",
+              "T12",
+              "T13",
+              "T14",
+              "T15",
+            ].includes(legend)
+          ),
+        },
+        {
+          label: "LT1",
+          data: lowerThresholdData1,
+          borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: !clickedLegends.some((legend) =>
+            [
+              "T1",
+              "T2",
+              "T3",
+              "T7",
+              "T8",
+              "T9",
+              "T10",
+              "T11",
+              "T12",
+              "T13",
+              "T14",
+              "T15",
+            ].includes(legend)
+          ),
+        },
+      ];
 
-      setLineData2((prevData) => ({
-        ...prevData,
-        datasets: [prevData.datasets[0], prevData.datasets[1], ...datasets],
-      }));
+      // Update the state with the thresholds and actual sensor data
+      setLineData2({
+        labels: displayLabels,
+        datasets: [...thresholdDatasets, ...sensorDatasets],
+      });
     }
   }, [thresholdGraphData]);
 
@@ -402,24 +524,26 @@ const Dashboard = ({
       animation: false,
       plugins: {
         legend: {
-          display: true,
-          labels: {
-            filter: (legendItem) => {
-              if (
-                legendItem.datasetIndex === 0 ||
-                legendItem.datasetIndex === 1
-              ) {
-                return false; // Hide the "Upper Threshold" and "Lower Threshold" from the legend
-              }
-              return true; // Keep other legends visible and interactive
-            },
-            color: "#4B5563",
-            font: {
-              size: 9,
-            },
-            boxWidth: 15,
-            padding: 5,
-          },
+          display: false,
+          // labels: {
+          //   filter: (legendItem) => {
+          //     if (
+          //       legendItem.datasetIndex === 0 ||
+          //       legendItem.datasetIndex === 1 ||
+          //       legendItem.datasetIndex === 2 ||
+          //       legendItem.datasetIndex === 3
+          //     ) {
+          //       return false; // Hide the "Upper Threshold" and "Lower Threshold" from the legend
+          //     }
+          //     return true; // Keep other legends visible and interactive
+          //   },
+          //   color: "#4B5563",
+          //   font: {
+          //     size: 9,
+          //   },
+          //   boxWidth: 15,
+          //   padding: 5,
+          // },
         },
         zoom: {
           pan: {

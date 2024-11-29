@@ -20,6 +20,9 @@ const App = () => {
   );
   const [lineName, setLineName] = useState("");
   const [potNumber, setPotNumber] = useState("");
+  const [t4Status, setT4Status] = useState([]);
+  const [t5Status, setT5Status] = useState([]);
+  const [t6Status, setT6Status] = useState([]);
 
   // fetching data
   useEffect(() => {
@@ -69,6 +72,9 @@ const App = () => {
       setFixedThermocouples(response.data.selectedThermocouples);
       setLineName(response.data.lineName);
       setPotNumber(response.data.potNumber);
+      setT4Status(response.data.t4Status);
+      setT5Status(response.data.t5Status);
+      setT6Status(response.data.t6Status);
 
       if (response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
@@ -83,6 +89,8 @@ const App = () => {
       console.log("Error fetching hindalco process", error);
     }
   };
+
+  // console.log("t4 status", t4Status);
 
   return (
     <>
@@ -101,6 +109,9 @@ const App = () => {
                 fixedThermocouples={fixedThermocouples}
                 lineNameDB={lineName}
                 potNumberDB={potNumber}
+                t4Status={t4Status}
+                t5Status={t5Status}
+                t6Status={t6Status}
               />
             }
           />

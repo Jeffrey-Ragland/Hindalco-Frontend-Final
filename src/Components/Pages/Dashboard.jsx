@@ -22,7 +22,7 @@ import {
   GiBattery100,
 } from "react-icons/gi";
 import { PiBatteryWarningBold } from "react-icons/pi";
-import { TbAlertTriangle } from "react-icons/tb";
+import { TbAlertTriangle, TbDelta } from "react-icons/tb";
 import { FiInfo } from "react-icons/fi";
 import ApexCharts from "react-apexcharts";
 import Navbar from "./Navbar";
@@ -64,6 +64,9 @@ const Dashboard = ({
   fixedThermocouples,
   lineNameDB,
   potNumberDB,
+  t4Status,
+  t5Status,
+  t6Status,
 }) => {
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -101,8 +104,12 @@ const Dashboard = ({
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches; //to restrict mobile graph wheel zoom
 
-  // console.log("fixed termocouples", fixedThermocouples);
+  // console.log("fixed termocouples", fixegdThermocouples);
+  // console.log("datarange", thresholdGraphDateRange);
   console.log("threshold graph data", thresholdGraphData);
+  console.log("t4 status", t4Status);
+  console.log("t5 status", t5Status);
+  console.log("t6 status", t6Status);
 
   const upperThresholdDataX = Array.from(
     { length: 732 },
@@ -298,200 +305,27 @@ const Dashboard = ({
 
   const alertsArray = [];
 
-  const deviationValues = [
-    24.33, // 0-3 hours
-    20.17, // 3-6 hours
-    16.83, // 6-9 hours
-    15.0, // 9-12 hours
-    12.33, // 12-15 hours
-    12.17, // 15-18 hours
-    13.33, // 18-21 hours
-    12.83, // 21-24 hours
-    15.5, // 24-27 hours
-    16.5, // 27-30 hours
-    14.67, // 30-33 hours
-    14.5, // 33-36 hours
-    11.83, // 36-39 hours
-    10.33, // 39-42 hours
-    10.5, // 42-45 hours
-    8.17, // 45-48 hours
-    6.5, // 48-51 hours
-    7.83, // 51-54 hours
-    3.33,
-  ];
-
-  // const calculateDeviation = () => {
-  //   const deviationResults = [];
-  //   for (let i = 0; i + 12 < thresholdGraphData.length; i += 12) {
-  //     const firstData = thresholdGraphData[i]; // First data point (e.g., for hour 0)
-  //     const secondData = thresholdGraphData[i + 12]; // Data point after 12 minutes
-
-  //     // Get the values for T4, T5, T6
-  //     const t4Start = parseFloat(firstData["T4"]);
-  //     const t4End = parseFloat(secondData["T4"]);
-  //     const t5Start = parseFloat(firstData["T5"]);
-  //     const t5End = parseFloat(secondData["T5"]);
-  //     const t6Start = parseFloat(firstData["T6"]);
-  //     const t6End = parseFloat(secondData["T6"]);
-
-  //     // Calculate the absolute differences for T4, T5, and T6
-  //     const differenceT4 = Math.abs(t4End - t4Start);
-  //     const differenceT5 = Math.abs(t5End - t5Start);
-  //     const differenceT6 = Math.abs(t6End - t6Start);
-
-  //     // Get the correct deviation value based on the current time range
-  //     const deviationValue =
-  //       deviationValues[Math.floor(i / 36)] || deviationValues.at(-1);
-
-  //     // Determine if deviation is high or low
-  //     const statusT4 =
-  //       differenceT4 > deviationValue ? "High Deviation" : "Low Deviation";
-  //     const statusT5 =
-  //       differenceT5 > deviationValue ? "High Deviation" : "Low Deviation";
-  //     const statusT6 =
-  //       differenceT6 > deviationValue ? "High Deviation" : "Low Deviation";
-
-  //     // Store the results for T4, T5, T6 for the current hour
-  //     deviationResults.push({
-  //       hour: i / 12 + 1, // Hour (starting from 1)
-  //       T4: {
-  //         start: t4Start,
-  //         end: t4End,
-  //         difference: differenceT4,
-  //         status: statusT4,
-  //         currentDeviation: deviationValue,
-  //       },
-  //       T5: {
-  //         start: t5Start,
-  //         end: t5End,
-  //         difference: differenceT5,
-  //         status: statusT5,
-  //         currentDeviation: deviationValue,
-  //       },
-  //       T6: {
-  //         start: t6Start,
-  //         end: t6End,
-  //         difference: differenceT6,
-  //         status: statusT6,
-  //         currentDeviation: deviationValue,
-  //       },
-  //     });
-  //   }
-  //   return deviationResults;
-  // };
-
-  const calculateDeviation = () => {
-    const deviationResults = [];
-    const totalHours = Math.floor(thresholdGraphData.length / 12);
-
-    // Adjust the loop to start from the 12th data point, not from the start
-    for (let i = 0; i < thresholdGraphData.length; i += 12) {
-      if (i + 12 < thresholdGraphData.length) {
-        const startValueT4 = thresholdGraphData[i].T4;
-        const endValueT4 = thresholdGraphData[i + 12].T4;
-        const startValueT5 = thresholdGraphData[i].T5;
-        const endValueT5 = thresholdGraphData[i + 12].T5;
-        const startValueT6 = thresholdGraphData[i].T6;
-        const endValueT6 = thresholdGraphData[i + 12].T6;
-
-        const differenceT4 = Math.abs(endValueT4 - startValueT4);
-        const differenceT5 = Math.abs(endValueT5 - startValueT5);
-        const differenceT6 = Math.abs(endValueT6 - startValueT6);
-
-        // const currentDeviationValue =
-        //   deviationValues[Math.floor(i / 36)] || deviationValues.at(-1);
-
-        const currentHour = totalHours - Math.floor(i / 12); // Reverse hour calculation
-        const deviationIndex = Math.floor((currentHour - 1) / 3); // Divide hours by 3 to get the correct index
-
-        // Correctly select the deviation value based on the hour range
-        const currentDeviationValue =
-          deviationValues[deviationIndex] || deviationValues.at(-1);
-
-        // Check deviation for each sensor (T4, T5, T6)
-        const statusT4 =
-          differenceT4 > currentDeviationValue
-            ? "High Deviation"
-            : "Low Deviation";
-        const statusT5 =
-          differenceT5 > currentDeviationValue
-            ? "High Deviation"
-            : "Low Deviation";
-        const statusT6 =
-          differenceT6 > currentDeviationValue
-            ? "High Deviation"
-            : "Low Deviation";
-
-        // Calculate the hour number based on the current index
-        // const hour = Math.floor(i / 12) + 1; // Adjust hour calculation to ensure it's ordered correctly
-
-        const hour = totalHours - Math.floor(i / 12);
-
-        deviationResults.push({
-          T4: {
-            start: startValueT4,
-            end: endValueT4,
-            difference: differenceT4,
-            status: statusT4,
-            currentDeviation: currentDeviationValue,
-            hour: hour,
-          },
-          T5: {
-            start: startValueT5,
-            end: endValueT5,
-            difference: differenceT5,
-            status: statusT5,
-            currentDeviation: currentDeviationValue,
-            hour: hour,
-          },
-          T6: {
-            start: startValueT6,
-            end: endValueT6,
-            difference: differenceT6,
-            status: statusT6,
-            currentDeviation: currentDeviationValue,
-            hour: hour,
-          },
-        });
-      }
-    }
-    return deviationResults;
-  };
-
-  const deviationResults = calculateDeviation();
-
-  console.log("deviation results", deviationResults);
-
-  // if (thresholdGraphData.length > 0) {
-  //   const latestData = thresholdGraphData[0];
-  //   const time = thresholdGraphData[0].Time;
-  //   const index = thresholdGraphData.length - 1;
-
-  //   Object.entries(latestData)
-  //     .filter(([key]) => key !== "Time" && key !== "_id")
-  //     .forEach(([key, value]) => {
-  //       const sensorValue = parseFloat(value);
-  //       const upperThresholdValue = upperThresholdData456[index];
-  //       const lowerThresholdValue = lowerThresholdData456[index];
-
-  //       const alertIndex = alertsArray.findIndex((alert) => alert[key]);
-
-  //       if (
-  //         sensorValue > upperThresholdValue ||
-  //         sensorValue < lowerThresholdValue
-  //       ) {
-  //         if (alertIndex === -1) {
-  //           alertsArray.push({ [key]: sensorValue, Time: time });
-  //         } else {
-  //           alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
-  //         }
-  //       } else {
-  //         if (alertIndex !== -1) {
-  //           alertsArray.splice(alertIndex, 1);
-  //         }
-  //       }
-  //     });
-  // }
+  // const deviationValues = [
+  //   24.33, // 0-3 hours
+  //   20.17, // 3-6 hours
+  //   16.83, // 6-9 hours
+  //   15.0, // 9-12 hours
+  //   12.33, // 12-15 hours
+  //   12.17, // 15-18 hours
+  //   13.33, // 18-21 hours
+  //   12.83, // 21-24 hours
+  //   15.5, // 24-27 hours
+  //   16.5, // 27-30 hours
+  //   14.67, // 30-33 hours
+  //   14.5, // 33-36 hours
+  //   11.83, // 36-39 hours
+  //   10.33, // 39-42 hours
+  //   10.5, // 42-45 hours
+  //   8.17, // 45-48 hours
+  //   6.5, // 48-51 hours
+  //   7.83, // 51-54 hours
+  //   3.33,
+  // ];
 
   if (thresholdGraphData.length > 0) {
     const latestData = thresholdGraphData[0];
@@ -1422,7 +1256,7 @@ const Dashboard = ({
       </div>
 
       {/* main content 1 h-[50%] */}
-      <div className="xl:h-[50%] flex flex-col xl:flex-row gap-2 ">
+      <div className="xl:h-[55%] flex flex-col xl:flex-row gap-2 ">
         {/* 2d image */}
         <div className="w-full xl:w-[70%] flex flex-col gap-4 md:gap-2 rounded-xl p-2 bg-[#dde3f1]">
           <div className=" flex flex-col md:flex-row gap-4 md:gap-2 xl:h-[55%] text-sm 2xl:text-base">
@@ -1931,6 +1765,7 @@ const Dashboard = ({
               </div>
             </div>
           </div>
+
           {/* cards */}
           <div
             className={`xl:h-[45%] grid grid-cols-2 md:grid-cols-5 ${
@@ -1938,7 +1773,7 @@ const Dashboard = ({
             } gap-1 `}
           >
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T1) ===
                   "N/A" || !fixedThermocouples.includes("T1")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
@@ -1954,7 +1789,7 @@ const Dashboard = ({
                     : "text-3xl 2xl:text-4xl"
                 }`}
               />
-              <div>
+              <div className="border border-black">
                 <div
                   className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
@@ -1963,7 +1798,7 @@ const Dashboard = ({
                   T1
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -1979,6 +1814,9 @@ const Dashboard = ({
                         thresholdGraphData.length > 0 &&
                           thresholdGraphData[0].T1
                       ).toFixed(1)}°C`}
+                </div>
+                <div className="xl:absolute xl:top-0 xl:left-0.5 text-xs font-medium">
+                  High Deviation
                 </div>
               </div>
             </div>
@@ -2009,7 +1847,7 @@ const Dashboard = ({
                   T2
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2055,7 +1893,7 @@ const Dashboard = ({
                   T3
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2076,7 +1914,7 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T4) ===
                   "N/A" || !fixedThermocouples.includes("T4")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
@@ -2101,7 +1939,7 @@ const Dashboard = ({
                   T4
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2118,11 +1956,25 @@ const Dashboard = ({
                           thresholdGraphData[0].T4
                       ).toFixed(1)}°C`}
                 </div>
+
+                {t4Status &&
+                  (Array.isArray(t4Status)
+                    ? t4Status.length > 0
+                    : Object.keys(t4Status).length > 0) && (
+                    <div
+                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
+                      data-tooltip-id="tooltip-style"
+                      data-tooltip-content={`Required Δ: ${t4Status.DeviationUsed}°C | Current Δ: ${t4Status.Difference}°C`}
+                    >
+                      {t4Status.Hour}&nbsp;:&nbsp;{t4Status.Status}&nbsp;
+                      <TbDelta />
+                    </div>
+                  )}
               </div>
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T5) ===
                   "N/A" || !fixedThermocouples.includes("T5")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
@@ -2147,7 +1999,7 @@ const Dashboard = ({
                   T5
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2164,11 +2016,25 @@ const Dashboard = ({
                           thresholdGraphData[0].T5
                       ).toFixed(1)}°C`}
                 </div>
+
+                {t5Status &&
+                  (Array.isArray(t5Status)
+                    ? t5Status.length > 0
+                    : Object.keys(t5Status).length > 0) && (
+                    <div
+                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
+                      data-tooltip-id="tooltip-style"
+                      data-tooltip-content={`Required Δ: ${t5Status.DeviationUsed}°C | Current Δ: ${t5Status.Difference}°C`}
+                    >
+                      {t5Status.Hour}&nbsp;:&nbsp;{t5Status.Status}&nbsp;
+                      <TbDelta />
+                    </div>
+                  )}
               </div>
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T6) ===
                   "N/A" || !fixedThermocouples.includes("T6")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
@@ -2193,7 +2059,7 @@ const Dashboard = ({
                   T6
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2210,6 +2076,20 @@ const Dashboard = ({
                           thresholdGraphData[0].T6
                       ).toFixed(1)}°C`}
                 </div>
+
+                {t6Status &&
+                  (Array.isArray(t6Status)
+                    ? t6Status.length > 0
+                    : Object.keys(t6Status).length > 0) && (
+                    <div
+                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
+                      data-tooltip-id="tooltip-style"
+                      data-tooltip-content={`Required Δ: ${t6Status.DeviationUsed}°C | Current Δ: ${t6Status.Difference}°C`}
+                    >
+                      {t6Status.Hour}&nbsp;:&nbsp;{t6Status.Status}&nbsp;
+                      <TbDelta />
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -2239,7 +2119,7 @@ const Dashboard = ({
                   T7
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2285,7 +2165,7 @@ const Dashboard = ({
                   T8
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2331,7 +2211,7 @@ const Dashboard = ({
                   T9
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2377,7 +2257,7 @@ const Dashboard = ({
                   T10
                 </div>
                 <div
-                  className={`font-bold ${
+                  className={`font-bold text-center ${
                     viewAllCards
                       ? "text-base 2xl:text-2xl"
                       : "text-lg 2xl:text-3xl"
@@ -2427,7 +2307,7 @@ const Dashboard = ({
                       T11
                     </div>
                     <div
-                      className={`font-bold ${
+                      className={`font-bold text-center ${
                         viewAllCards
                           ? "text-base 2xl:text-2xl"
                           : "text-lg 2xl:text-3xl"
@@ -2475,7 +2355,7 @@ const Dashboard = ({
                       T12
                     </div>
                     <div
-                      className={`font-bold ${
+                      className={`font-bold text-center ${
                         viewAllCards
                           ? "text-base 2xl:text-2xl"
                           : "text-lg 2xl:text-3xl"
@@ -2523,7 +2403,7 @@ const Dashboard = ({
                       T13
                     </div>
                     <div
-                      className={`font-bold ${
+                      className={`font-bold text-center ${
                         viewAllCards
                           ? "text-base 2xl:text-2xl"
                           : "text-lg 2xl:text-3xl"
@@ -2571,7 +2451,7 @@ const Dashboard = ({
                       T14
                     </div>
                     <div
-                      className={`font-bold ${
+                      className={`font-bold text-center ${
                         viewAllCards
                           ? "text-base 2xl:text-2xl"
                           : "text-lg 2xl:text-3xl"
@@ -2619,7 +2499,7 @@ const Dashboard = ({
                       T15
                     </div>
                     <div
-                      className={`font-bold ${
+                      className={`font-bold text-center ${
                         viewAllCards
                           ? "text-base 2xl:text-2xl"
                           : "text-lg 2xl:text-3xl"
@@ -2823,7 +2703,7 @@ const Dashboard = ({
       </div>
 
       {/* main content 2 h-[40%] */}
-      <div className="h-[40%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
+      <div className="h-[35%] rounded-xl flex flex-col-reverse md:flex-row gap-2 ">
         {/* alert box */}
         <div className="relative w-full md:w-[25%] flex flex-col gap-2 h-[350px] xl:h-full rounded-xl p-1 bg-[#dde3f1] overflow-auto">
           <div className=" relative flex justify-center gap-2 items-center py-1 px-2 font-bold text-[#23439b] ">

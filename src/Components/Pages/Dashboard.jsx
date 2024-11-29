@@ -102,6 +102,7 @@ const Dashboard = ({
   const isMobile = window.matchMedia("(max-width: 768px)").matches; //to restrict mobile graph wheel zoom
 
   // console.log("fixed termocouples", fixedThermocouples);
+  console.log("threshold graph data", thresholdGraphData);
 
   const upperThresholdDataX = Array.from(
     { length: 732 },
@@ -296,6 +297,170 @@ const Dashboard = ({
   };
 
   const alertsArray = [];
+
+  const deviationValues = [
+    24.33, // 0-3 hours
+    20.17, // 3-6 hours
+    16.83, // 6-9 hours
+    15.0, // 9-12 hours
+    12.33, // 12-15 hours
+    12.17, // 15-18 hours
+    13.33, // 18-21 hours
+    12.83, // 21-24 hours
+    15.5, // 24-27 hours
+    16.5, // 27-30 hours
+    14.67, // 30-33 hours
+    14.5, // 33-36 hours
+    11.83, // 36-39 hours
+    10.33, // 39-42 hours
+    10.5, // 42-45 hours
+    8.17, // 45-48 hours
+    6.5, // 48-51 hours
+    7.83, // 51-54 hours
+    3.33,
+  ];
+
+  // const calculateDeviation = () => {
+  //   const deviationResults = [];
+  //   for (let i = 0; i + 12 < thresholdGraphData.length; i += 12) {
+  //     const firstData = thresholdGraphData[i]; // First data point (e.g., for hour 0)
+  //     const secondData = thresholdGraphData[i + 12]; // Data point after 12 minutes
+
+  //     // Get the values for T4, T5, T6
+  //     const t4Start = parseFloat(firstData["T4"]);
+  //     const t4End = parseFloat(secondData["T4"]);
+  //     const t5Start = parseFloat(firstData["T5"]);
+  //     const t5End = parseFloat(secondData["T5"]);
+  //     const t6Start = parseFloat(firstData["T6"]);
+  //     const t6End = parseFloat(secondData["T6"]);
+
+  //     // Calculate the absolute differences for T4, T5, and T6
+  //     const differenceT4 = Math.abs(t4End - t4Start);
+  //     const differenceT5 = Math.abs(t5End - t5Start);
+  //     const differenceT6 = Math.abs(t6End - t6Start);
+
+  //     // Get the correct deviation value based on the current time range
+  //     const deviationValue =
+  //       deviationValues[Math.floor(i / 36)] || deviationValues.at(-1);
+
+  //     // Determine if deviation is high or low
+  //     const statusT4 =
+  //       differenceT4 > deviationValue ? "High Deviation" : "Low Deviation";
+  //     const statusT5 =
+  //       differenceT5 > deviationValue ? "High Deviation" : "Low Deviation";
+  //     const statusT6 =
+  //       differenceT6 > deviationValue ? "High Deviation" : "Low Deviation";
+
+  //     // Store the results for T4, T5, T6 for the current hour
+  //     deviationResults.push({
+  //       hour: i / 12 + 1, // Hour (starting from 1)
+  //       T4: {
+  //         start: t4Start,
+  //         end: t4End,
+  //         difference: differenceT4,
+  //         status: statusT4,
+  //         currentDeviation: deviationValue,
+  //       },
+  //       T5: {
+  //         start: t5Start,
+  //         end: t5End,
+  //         difference: differenceT5,
+  //         status: statusT5,
+  //         currentDeviation: deviationValue,
+  //       },
+  //       T6: {
+  //         start: t6Start,
+  //         end: t6End,
+  //         difference: differenceT6,
+  //         status: statusT6,
+  //         currentDeviation: deviationValue,
+  //       },
+  //     });
+  //   }
+  //   return deviationResults;
+  // };
+
+  const calculateDeviation = () => {
+    const deviationResults = [];
+    const totalHours = Math.floor(thresholdGraphData.length / 12);
+
+    // Adjust the loop to start from the 12th data point, not from the start
+    for (let i = 0; i < thresholdGraphData.length; i += 12) {
+      if (i + 12 < thresholdGraphData.length) {
+        const startValueT4 = thresholdGraphData[i].T4;
+        const endValueT4 = thresholdGraphData[i + 12].T4;
+        const startValueT5 = thresholdGraphData[i].T5;
+        const endValueT5 = thresholdGraphData[i + 12].T5;
+        const startValueT6 = thresholdGraphData[i].T6;
+        const endValueT6 = thresholdGraphData[i + 12].T6;
+
+        const differenceT4 = Math.abs(endValueT4 - startValueT4);
+        const differenceT5 = Math.abs(endValueT5 - startValueT5);
+        const differenceT6 = Math.abs(endValueT6 - startValueT6);
+
+        // const currentDeviationValue =
+        //   deviationValues[Math.floor(i / 36)] || deviationValues.at(-1);
+
+        const currentHour = totalHours - Math.floor(i / 12); // Reverse hour calculation
+        const deviationIndex = Math.floor((currentHour - 1) / 3); // Divide hours by 3 to get the correct index
+
+        // Correctly select the deviation value based on the hour range
+        const currentDeviationValue =
+          deviationValues[deviationIndex] || deviationValues.at(-1);
+
+        // Check deviation for each sensor (T4, T5, T6)
+        const statusT4 =
+          differenceT4 > currentDeviationValue
+            ? "High Deviation"
+            : "Low Deviation";
+        const statusT5 =
+          differenceT5 > currentDeviationValue
+            ? "High Deviation"
+            : "Low Deviation";
+        const statusT6 =
+          differenceT6 > currentDeviationValue
+            ? "High Deviation"
+            : "Low Deviation";
+
+        // Calculate the hour number based on the current index
+        // const hour = Math.floor(i / 12) + 1; // Adjust hour calculation to ensure it's ordered correctly
+
+        const hour = totalHours - Math.floor(i / 12);
+
+        deviationResults.push({
+          T4: {
+            start: startValueT4,
+            end: endValueT4,
+            difference: differenceT4,
+            status: statusT4,
+            currentDeviation: currentDeviationValue,
+            hour: hour,
+          },
+          T5: {
+            start: startValueT5,
+            end: endValueT5,
+            difference: differenceT5,
+            status: statusT5,
+            currentDeviation: currentDeviationValue,
+            hour: hour,
+          },
+          T6: {
+            start: startValueT6,
+            end: endValueT6,
+            difference: differenceT6,
+            status: statusT6,
+            currentDeviation: currentDeviationValue,
+            hour: hour,
+          },
+        });
+      }
+    }
+    return deviationResults;
+  };
+
+  const deviationResults = calculateDeviation();
+
+  console.log("deviation results", deviationResults);
 
   // if (thresholdGraphData.length > 0) {
   //   const latestData = thresholdGraphData[0];
@@ -1190,8 +1355,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            // "http://localhost:4000/backend/updateHindalcoProcess",
+            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -1207,8 +1372,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          // "http://localhost:4000/backend/updateHindalcoProcess",
+          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -1228,8 +1393,8 @@ const Dashboard = ({
       const stopDate = split[1];
 
       const response = await axios.get(
-        "https://hindalco.xyma.live/backend/getHindalcoReport",
-        // "http://localhost:4000/backend/getHindalcoReport",
+        // "https://hindalco.xyma.live/backend/getHindalcoReport",
+        "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: "XY001",

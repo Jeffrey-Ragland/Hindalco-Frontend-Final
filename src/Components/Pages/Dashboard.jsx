@@ -64,9 +64,11 @@ const Dashboard = ({
   fixedThermocouples,
   lineNameDB,
   potNumberDB,
+  t1Status,
   t4Status,
   t5Status,
   t6Status,
+  t8Status,
 }) => {
   const [activeStatus, setActiveStatus] = useState("");
   const [previousProcessDataOpen, setPreviousProcessDataOpen] = useState(false);
@@ -110,6 +112,8 @@ const Dashboard = ({
   console.log("t4 status", t4Status);
   console.log("t5 status", t5Status);
   console.log("t6 status", t6Status);
+  console.log("t1 status", t1Status);
+  console.log("t8 status", t8Status);
 
   const upperThresholdDataX = Array.from(
     { length: 732 },
@@ -1789,7 +1793,7 @@ const Dashboard = ({
                     : "text-3xl 2xl:text-4xl"
                 }`}
               />
-              <div className="border border-black">
+              <div>
                 <div
                   className={`text-center font-medium  ${
                     viewAllCards && "text-xs 2xl:text-sm"
@@ -1815,9 +1819,41 @@ const Dashboard = ({
                           thresholdGraphData[0].T1
                       ).toFixed(1)}°C`}
                 </div>
-                <div className="xl:absolute xl:top-0 xl:left-0.5 text-xs font-medium">
-                  High Deviation
-                </div>
+
+                {t1Status &&
+                  t1Status.length > 0 &&
+                  t1Status[0].status !== "No" && (
+                    <>
+                      <div
+                        className={`xl:absolute flex items-center justify-center top-0 left-0.5  text-xs font-medium px-1 rounded-md mb-1 xl:mb-0 ${
+                          t1Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Hour ${t1Status[0].hour.substring(
+                          1
+                        )} | ${t1Status[0].status} Deviation`}
+                      >
+                        {t1Status[0].hour}&nbsp;:&nbsp;{t1Status[0].status}
+                        &nbsp;
+                        <TbDelta />
+                      </div>
+
+                      <div
+                        className={`xl:absolute flex items-center bottom-0 left-0.5 text-[8px] font-medium px-0.5 rounded-md mb-1 xl:mb-0 ${
+                          t1Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Required Δ: ${t1Status[0].deviationUsed}°C | Current Δ: ${t1Status[0].difference}°C`}
+                      >
+                        RΔ:&nbsp;{t1Status[0].deviationUsed}&nbsp;|&nbsp;CΔ
+                        :&nbsp;{t1Status[0].difference}
+                      </div>
+                    </>
+                  )}
               </div>
             </div>
 
@@ -1958,17 +1994,38 @@ const Dashboard = ({
                 </div>
 
                 {t4Status &&
-                  (Array.isArray(t4Status)
-                    ? t4Status.length > 0
-                    : Object.keys(t4Status).length > 0) && (
-                    <div
-                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
-                      data-tooltip-id="tooltip-style"
-                      data-tooltip-content={`Required Δ: ${t4Status.DeviationUsed}°C | Current Δ: ${t4Status.Difference}°C`}
-                    >
-                      {t4Status.Hour}&nbsp;:&nbsp;{t4Status.Status}&nbsp;
-                      <TbDelta />
-                    </div>
+                  t4Status.length > 0 &&
+                  t4Status[0].status !== "No" && (
+                    <>
+                      <div
+                        className={`xl:absolute flex items-center justify-center top-0 left-0.5  text-xs font-medium px-1 rounded-md mb-1 xl:mb-0 ${
+                          t4Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Hour ${t4Status[0].hour.substring(
+                          1
+                        )} | ${t4Status[0].status} Deviation`}
+                      >
+                        {t4Status[0].hour}&nbsp;:&nbsp;{t4Status[0].status}
+                        &nbsp;
+                        <TbDelta />
+                      </div>
+
+                      <div
+                        className={`xl:absolute flex items-center bottom-0 left-0.5 text-[8px] font-medium px-0.5 rounded-md mb-1 xl:mb-0 ${
+                          t4Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Required Δ: ${t4Status[0].deviationUsed}°C | Current Δ: ${t4Status[0].difference}°C`}
+                      >
+                        RΔ:&nbsp;{t4Status[0].deviationUsed}&nbsp;|&nbsp;CΔ
+                        :&nbsp;{t4Status[0].difference}
+                      </div>
+                    </>
                   )}
               </div>
             </div>
@@ -2018,17 +2075,38 @@ const Dashboard = ({
                 </div>
 
                 {t5Status &&
-                  (Array.isArray(t5Status)
-                    ? t5Status.length > 0
-                    : Object.keys(t5Status).length > 0) && (
-                    <div
-                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
-                      data-tooltip-id="tooltip-style"
-                      data-tooltip-content={`Required Δ: ${t5Status.DeviationUsed}°C | Current Δ: ${t5Status.Difference}°C`}
-                    >
-                      {t5Status.Hour}&nbsp;:&nbsp;{t5Status.Status}&nbsp;
-                      <TbDelta />
-                    </div>
+                  t5Status.length > 0 &&
+                  t5Status[0].status !== "No" && (
+                    <>
+                      <div
+                        className={`xl:absolute flex items-center justify-center top-0 left-0.5  text-xs font-medium px-1 rounded-md mb-1 xl:mb-0 ${
+                          t5Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Hour ${t5Status[0].hour.substring(
+                          1
+                        )} | ${t5Status[0].status} Deviation`}
+                      >
+                        {t5Status[0].hour}&nbsp;:&nbsp;{t5Status[0].status}
+                        &nbsp;
+                        <TbDelta />
+                      </div>
+
+                      <div
+                        className={`xl:absolute flex items-center bottom-0 left-0.5 text-[8px] font-medium px-0.5 rounded-md mb-1 xl:mb-0 ${
+                          t5Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Required Δ: ${t5Status[0].deviationUsed}°C | Current Δ: ${t5Status[0].difference}°C`}
+                      >
+                        RΔ:&nbsp;{t5Status[0].deviationUsed}&nbsp;|&nbsp;CΔ
+                        :&nbsp;{t5Status[0].difference}
+                      </div>
+                    </>
                   )}
               </div>
             </div>
@@ -2078,17 +2156,38 @@ const Dashboard = ({
                 </div>
 
                 {t6Status &&
-                  (Array.isArray(t6Status)
-                    ? t6Status.length > 0
-                    : Object.keys(t6Status).length > 0) && (
-                    <div
-                      className="xl:absolute flex items-center  top-0 left-0.5 text-xs font-medium text-red-500 bg-white px-1 rounded-md mb-1 xl:mb-0"
-                      data-tooltip-id="tooltip-style"
-                      data-tooltip-content={`Required Δ: ${t6Status.DeviationUsed}°C | Current Δ: ${t6Status.Difference}°C`}
-                    >
-                      {t6Status.Hour}&nbsp;:&nbsp;{t6Status.Status}&nbsp;
-                      <TbDelta />
-                    </div>
+                  t6Status.length > 0 &&
+                  t6Status[0].status !== "No" && (
+                    <>
+                      <div
+                        className={`xl:absolute flex items-center justify-center top-0 left-0.5  text-xs font-medium px-1 rounded-md mb-1 xl:mb-0 ${
+                          t6Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Hour ${t6Status[0].hour.substring(
+                          1
+                        )} | ${t6Status[0].status} Deviation`}
+                      >
+                        {t6Status[0].hour}&nbsp;:&nbsp;{t6Status[0].status}
+                        &nbsp;
+                        <TbDelta />
+                      </div>
+
+                      <div
+                        className={`xl:absolute flex items-center bottom-0 left-0.5 text-[8px] font-medium px-0.5 rounded-md mb-1 xl:mb-0 ${
+                          t6Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Required Δ: ${t6Status[0].deviationUsed}°C | Current Δ: ${t6Status[0].difference}°C`}
+                      >
+                        RΔ:&nbsp;{t6Status[0].deviationUsed}&nbsp;|&nbsp;CΔ
+                        :&nbsp;{t6Status[0].difference}
+                      </div>
+                    </>
                   )}
               </div>
             </div>
@@ -2140,7 +2239,7 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T8) ===
                   "N/A" || !fixedThermocouples.includes("T8")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
@@ -2182,6 +2281,41 @@ const Dashboard = ({
                           thresholdGraphData[0].T8
                       ).toFixed(1)}°C`}
                 </div>
+
+                {t8Status &&
+                  t8Status.length > 0 &&
+                  t8Status[0].status !== "No" && (
+                    <>
+                      <div
+                        className={`xl:absolute flex items-center justify-center top-0 left-0.5  text-xs font-medium px-1 rounded-md mb-1 xl:mb-0 ${
+                          t8Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Hour ${t8Status[0].hour.substring(
+                          1
+                        )} | ${t8Status[0].status} Deviation`}
+                      >
+                        {t8Status[0].hour}&nbsp;:&nbsp;{t8Status[0].status}
+                        &nbsp;
+                        <TbDelta />
+                      </div>
+
+                      <div
+                        className={`xl:absolute flex items-center bottom-0 left-0.5 text-[8px] font-medium px-0.5 rounded-md mb-1 xl:mb-0 ${
+                          t8Status[0].status === "High"
+                            ? "text-red-500 bg-white"
+                            : "text-blue-500 bg-white"
+                        }`}
+                        data-tooltip-id="tooltip-style"
+                        data-tooltip-content={`Required Δ: ${t8Status[0].deviationUsed}°C | Current Δ: ${t8Status[0].difference}°C`}
+                      >
+                        RΔ:&nbsp;{t8Status[0].deviationUsed}&nbsp;|&nbsp;CΔ
+                        :&nbsp;{t8Status[0].difference}
+                      </div>
+                    </>
+                  )}
               </div>
             </div>
 

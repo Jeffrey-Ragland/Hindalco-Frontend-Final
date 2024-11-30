@@ -20,9 +20,11 @@ const App = () => {
   );
   const [lineName, setLineName] = useState("");
   const [potNumber, setPotNumber] = useState("");
+  const [t1Status, setT1Status] = useState([]);
   const [t4Status, setT4Status] = useState([]);
   const [t5Status, setT5Status] = useState([]);
   const [t6Status, setT6Status] = useState([]);
+  const [t8Status, setT8Status] = useState([]);
 
   // fetching data
   useEffect(() => {
@@ -72,9 +74,11 @@ const App = () => {
       setFixedThermocouples(response.data.selectedThermocouples);
       setLineName(response.data.lineName);
       setPotNumber(response.data.potNumber);
+      setT1Status(response.data.t1Status);
       setT4Status(response.data.t4Status);
       setT5Status(response.data.t5Status);
       setT6Status(response.data.t6Status);
+      setT8Status(response.data.t8Status);
 
       if (response.data.success && response.data.inTimeRange) {
         // console.log('data after process time', response.data.data);
@@ -109,9 +113,11 @@ const App = () => {
                 fixedThermocouples={fixedThermocouples}
                 lineNameDB={lineName}
                 potNumberDB={potNumber}
+                t1Status={t1Status}
                 t4Status={t4Status}
                 t5Status={t5Status}
                 t6Status={t6Status}
+                t8Status={t8Status}
               />
             }
           />

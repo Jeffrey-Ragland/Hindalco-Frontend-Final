@@ -104,16 +104,16 @@ const Dashboard = ({
     );
   };
 
-  const isMobile = window.matchMedia("(max-width: 768px)").matches; //to restrict mobile graph wheel zoom
+  // const isMobile = window.matchMedia("(max-width: 768px)").matches; //to restrict mobile graph wheel zoom
 
   // console.log("fixed termocouples", fixegdThermocouples);
   // console.log("datarange", thresholdGraphDateRange);
-  console.log("threshold graph data", thresholdGraphData);
-  console.log("t4 status", t4Status);
-  console.log("t5 status", t5Status);
-  console.log("t6 status", t6Status);
-  console.log("t1 status", t1Status);
-  console.log("t8 status", t8Status);
+  // console.log("threshold graph data", thresholdGraphData);
+  // console.log("t4 status", t4Status);
+  // console.log("t5 status", t5Status);
+  // console.log("t6 status", t6Status);
+  // console.log("t1 status", t1Status);
+  // console.log("t8 status", t8Status);
 
   const upperThresholdDataX = Array.from(
     { length: 732 },
@@ -408,6 +408,29 @@ const Dashboard = ({
         // Check if a threshold mapping exists for the sensor (T1, T4, etc.)
         const threshold = thresholdMapping[key];
 
+        // if (threshold) {
+        //   const upperThresholdValue = threshold.upper[index];
+        //   const lowerThresholdValue = threshold.lower[index];
+
+        //   // Check if the sensor value is outside the threshold
+        //   const alertIndex = alertsArray.findIndex((alert) => alert[key]);
+
+        //   if (
+        //     sensorValue > upperThresholdValue ||
+        //     sensorValue < lowerThresholdValue
+        //   ) {
+        //     if (alertIndex === -1) {
+        //       alertsArray.push({ [key]: sensorValue, Time: time });
+        //     } else {
+        //       alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
+        //     }
+        //   } else {
+        //     if (alertIndex !== -1) {
+        //       alertsArray.splice(alertIndex, 1);
+        //     }
+        //   }
+        // }
+
         if (threshold) {
           const upperThresholdValue = threshold.upper[index];
           const lowerThresholdValue = threshold.lower[index];
@@ -415,16 +438,38 @@ const Dashboard = ({
           // Check if the sensor value is outside the threshold
           const alertIndex = alertsArray.findIndex((alert) => alert[key]);
 
-          if (
-            sensorValue > upperThresholdValue ||
-            sensorValue < lowerThresholdValue
-          ) {
+          if (sensorValue > upperThresholdValue) {
+            // Value is above the upper threshold
             if (alertIndex === -1) {
-              alertsArray.push({ [key]: sensorValue, Time: time });
+              alertsArray.push({
+                [key]: sensorValue,
+                Time: time,
+                status: "high",
+              });
             } else {
-              alertsArray[alertIndex].push({ [key]: sensorValue, Time: time });
+              alertsArray[alertIndex] = {
+                ...alertsArray[alertIndex],
+                [key]: sensorValue,
+                status: "high",
+              };
+            }
+          } else if (sensorValue < lowerThresholdValue) {
+            // Value is below the lower threshold
+            if (alertIndex === -1) {
+              alertsArray.push({
+                [key]: sensorValue,
+                Time: time,
+                status: "low",
+              });
+            } else {
+              alertsArray[alertIndex] = {
+                ...alertsArray[alertIndex],
+                [key]: sensorValue,
+                status: "low",
+              };
             }
           } else {
+            // Value is within the threshold, remove alert if exists
             if (alertIndex !== -1) {
               alertsArray.splice(alertIndex, 1);
             }
@@ -433,7 +478,18 @@ const Dashboard = ({
       });
   }
 
-  const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
+  // const alertKeys = alertsArray.map((alert) => Object.keys(alert)[0]);
+  // console.log("alerts array", alertsArray);
+
+  const alertKeysHigh = alertsArray
+    .filter((alert) => alert.status === "high")
+    .map((alert) => Object.keys(alert)[0]);
+  const alertKeysLow = alertsArray
+    .filter((alert) => alert.status === "low")
+    .map((alert) => Object.keys(alert)[0]);
+
+  // console.log("alert keys high", alertKeysHigh);
+  // console.log("alert keys low", alertKeysLow);
 
   // bar chart options
   const [barData, setBarData] = useState(() => {
@@ -807,16 +863,16 @@ const Dashboard = ({
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: window.innerWidth >= 768,
             mode: "x",
           },
           zoom: {
             mode: "x",
             wheel: {
-              enabled: !isMobile,
+              enabled: window.innerWidth >= 768,
             },
             pinch: {
-              enabled: true,
+              enabled: window.innerWidth >= 768,
             },
           },
         },
@@ -880,16 +936,16 @@ const Dashboard = ({
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: window.innerWidth >= 768,
             mode: "x",
           },
           zoom: {
             mode: "x",
             wheel: {
-              enabled: !isMobile,
+              enabled: window.innerWidth >= 768,
             },
             pinch: {
-              enabled: true,
+              enabled: window.innerWidth >= 768,
             },
           },
         },
@@ -929,39 +985,199 @@ const Dashboard = ({
 
   const [lineData3, setLineData3] = useState(initialData);
 
+  // useEffect(() => {
+  //   if (previousProcessData && previousProcessData.length > 0) {
+  //     const reversedData = [...previousProcessData].reverse();
+
+  //     const sensorData = Array.from({ length: 15 }, (_, i) =>
+  //       reversedData.map((item) => item[`T${i + 1}`])
+  //     );
+
+  //     const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
+
+  //     setLineData3((prevData) => ({
+  //       ...prevData,
+  //       labels: prevData.labels,
+  //       datasets: [
+  //         // Keep the original datasets (upper and lower threshold)
+  //         ...prevData.datasets.filter(
+  //           (dataset) =>
+  //             dataset.label === "Upper Threshold" ||
+  //             dataset.label === "Lower Threshold"
+  //         ),
+  //         // Add the new sensor datasets
+  //         ...sensorData.map((data, i) => ({
+  //           label: sensorLabels[i],
+  //           data,
+  //           borderColor: sensorColors[i],
+  //           borderWidth: 1.25,
+  //           pointRadius: 0,
+  //           pointHoverRadius: 0,
+  //         })),
+  //       ],
+  //     }));
+  //   }
+  // }, [previousProcessData]);
+
   useEffect(() => {
     if (previousProcessData && previousProcessData.length > 0) {
+      // Find selected thermocouples for the current date range
+      const selectedThermocouples =
+        thresholdGraphDateRange.find(
+          (data) =>
+            previousSelectedDateRange === `${data.startTime}to${data.stopTime}`
+        )?.selectedThermocouples || [];
+
+      // Reverse the data for correct plotting order
       const reversedData = [...previousProcessData].reverse();
 
+      // Generate data and labels for each sensor
       const sensorData = Array.from({ length: 15 }, (_, i) =>
         reversedData.map((item) => item[`T${i + 1}`])
       );
-
       const sensorLabels = Array.from({ length: 15 }, (_, i) => `T${i + 1}`);
 
+      // Filter datasets based on selected thermocouples
+      const filteredSensorDatasets = sensorLabels
+        .map((label, i) => {
+          if (selectedThermocouples.includes(label)) {
+            return {
+              label,
+              data: sensorData[i],
+              borderColor: sensorColors[i],
+              borderWidth: 1.25,
+              pointRadius: 0,
+              pointHoverRadius: 0,
+            };
+          }
+          return null; // Exclude if not selected
+        })
+        .filter(Boolean); // Remove null entries
+
+      const thresholdDatasets = [
+        {
+          label: "UT4,UT5,UT6",
+          data: upperThresholdData456,
+          borderColor: "red",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "LT4,LT5,LT6",
+          data: lowerThresholdData456,
+          borderColor: "red",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "UT1",
+          data: upperThresholdDataT1,
+          borderColor: "green",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "LT1",
+          data: lowerThresholdDataT1,
+          borderColor: "green",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "UT8",
+          data: upperThresholdDataT8,
+          borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "LT8",
+          data: lowerThresholdDataT8,
+          borderColor: "blue",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "UTX",
+          data: upperThresholdDataX,
+          borderColor: "black",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+        {
+          label: "LTX",
+          data: lowerThresholdDataX,
+          borderColor: "black",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tooltip: { enabled: false },
+          borderDash: [5, 5],
+          hidden: true,
+        },
+      ];
+
+      // Update the state with filtered datasets
+      // setLineData3((prevData) => ({
+      //   ...prevData,
+      //   labels: prevData.labels,
+      //   datasets: [
+      //     // Keep the original datasets (upper and lower threshold)
+      //     ...prevData.datasets.filter(
+      //       (dataset) =>
+      //         dataset.label === "Upper Threshold" ||
+      //         dataset.label === "Lower Threshold"
+      //     ),
+      //     // Add the filtered sensor datasets
+      //     ...filteredSensorDatasets,
+      //   ],
+      // }));
       setLineData3((prevData) => ({
         ...prevData,
         labels: prevData.labels,
         datasets: [
-          // Keep the original datasets (upper and lower threshold)
-          ...prevData.datasets.filter(
-            (dataset) =>
-              dataset.label === "Upper Threshold" ||
-              dataset.label === "Lower Threshold"
-          ),
-          // Add the new sensor datasets
-          ...sensorData.map((data, i) => ({
-            label: sensorLabels[i],
-            data,
-            borderColor: sensorColors[i],
-            borderWidth: 1.25,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-          })),
+          ...filteredSensorDatasets,
+          ...thresholdDatasets, // Add threshold datasets
         ],
       }));
     }
-  }, [previousProcessData]);
+  }, [previousProcessData, previousSelectedDateRange, thresholdGraphDateRange]);
 
   const batteryPercentage =
     Array.isArray(dataFromApp) && dataFromApp.length > 0
@@ -1020,10 +1236,12 @@ const Dashboard = ({
               } else {
                 barSeries.push(parseFloat(thresholdGraphData[0][key]));
               }
-              if (alertKeys.includes(key)) {
+              if (alertKeysHigh.includes(key)) {
                 barColors.push("#FF0000");
-              } else {
+              } else if (alertKeysLow.includes(key)) {
                 barColors.push("#23439B");
+              } else {
+                barColors.push("#32a852");
               }
             }
           } else if (viewAllCards === false) {
@@ -1050,10 +1268,12 @@ const Dashboard = ({
               } else {
                 barSeries.push(parseFloat(thresholdGraphData[0][key]));
               }
-              if (alertKeys.includes(key)) {
+              if (alertKeysHigh.includes(key)) {
                 barColors.push("#FF0000");
-              } else {
+              } else if (alertKeysLow.includes(key)) {
                 barColors.push("#23439B");
+              } else {
+                barColors.push("#32a852");
               }
             }
           }
@@ -1141,16 +1361,16 @@ const Dashboard = ({
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: window.innerWidth >= 768,
             mode: "x",
           },
           zoom: {
             mode: "x",
             wheel: {
-              enabled: !isMobile,
+              enabled: window.innerWidth >= 768,
             },
             pinch: {
-              enabled: true,
+              enabled: window.innerWidth >= 768,
             },
           },
         },
@@ -1193,8 +1413,8 @@ const Dashboard = ({
           alert("Please fill all the inputs! ");
         } else {
           await axios.post(
-            // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-            "http://localhost:4000/backend/updateHindalcoProcess",
+            "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+            // "http://localhost:4000/backend/updateHindalcoProcess",
             {
               processStatus,
               selectedThermocouples,
@@ -1210,8 +1430,8 @@ const Dashboard = ({
         }
       } else if (processStatus === "Stop") {
         await axios.post(
-          // "https://hindalco.xyma.live/backend/updateHindalcoProcess",
-          "http://localhost:4000/backend/updateHindalcoProcess",
+          "https://hindalco.xyma.live/backend/updateHindalcoProcess",
+          // "http://localhost:4000/backend/updateHindalcoProcess",
           {
             processStatus,
             selectedThermocouples,
@@ -1231,8 +1451,8 @@ const Dashboard = ({
       const stopDate = split[1];
 
       const response = await axios.get(
-        // "https://hindalco.xyma.live/backend/getHindalcoReport",
-        "http://localhost:4000/backend/getHindalcoReport",
+        "https://hindalco.xyma.live/backend/getHindalcoReport",
+        // "http://localhost:4000/backend/getHindalcoReport",
         {
           params: {
             projectName: "XY001",
@@ -1284,8 +1504,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T2")
-                        ? alertKeys.includes("T2")
+                        ? alertKeysHigh.includes("T2")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T2")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1295,8 +1517,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T2")
-                        ? alertKeys.includes("T2")
+                        ? alertKeysHigh.includes("T2")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T2")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1307,8 +1531,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T1")
-                        ? alertKeys.includes("T1")
+                        ? alertKeysHigh.includes("T1")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T1")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1318,8 +1544,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T1")
-                        ? alertKeys.includes("T1")
+                        ? alertKeysHigh.includes("T1")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T1")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1330,8 +1558,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T12")
-                        ? alertKeys.includes("T12")
+                        ? alertKeysHigh.includes("T12")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T12")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1341,8 +1571,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T12")
-                        ? alertKeys.includes("T12")
+                        ? alertKeysHigh.includes("T12")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T12")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1353,8 +1585,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T11")
-                        ? alertKeys.includes("T11")
+                        ? alertKeysHigh.includes("T11")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T11")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1364,8 +1598,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T11")
-                        ? alertKeys.includes("T11")
+                        ? alertKeysHigh.includes("T11")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T11")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1376,8 +1612,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T4")
-                        ? alertKeys.includes("T4")
+                        ? alertKeysHigh.includes("T4")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T4")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1387,8 +1625,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T4")
-                        ? alertKeys.includes("T4")
+                        ? alertKeysHigh.includes("T4")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T4")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1399,8 +1639,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T5")
-                        ? alertKeys.includes("T5")
+                        ? alertKeysHigh.includes("T5")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T5")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1410,8 +1652,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T5")
-                        ? alertKeys.includes("T5")
+                        ? alertKeysHigh.includes("T5")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T5")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1422,8 +1666,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T6")
-                        ? alertKeys.includes("T6")
+                        ? alertKeysHigh.includes("T6")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T6")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1433,8 +1679,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T6")
-                        ? alertKeys.includes("T6")
+                        ? alertKeysHigh.includes("T6")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T6")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1445,8 +1693,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T8")
-                        ? alertKeys.includes("T8")
+                        ? alertKeysHigh.includes("T8")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T8")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1454,8 +1704,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T8")
-                        ? alertKeys.includes("T8")
+                        ? alertKeysHigh.includes("T8")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T8")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1468,8 +1720,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T14")
-                        ? alertKeys.includes("T14")
+                        ? alertKeysHigh.includes("T14")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T14")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1479,8 +1733,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T14")
-                        ? alertKeys.includes("T14")
+                        ? alertKeysHigh.includes("T14")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T14")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1491,8 +1747,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T10")
-                        ? alertKeys.includes("T10")
+                        ? alertKeysHigh.includes("T10")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T10")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1502,8 +1760,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T10")
-                        ? alertKeys.includes("T10")
+                        ? alertKeysHigh.includes("T10")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T10")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1514,8 +1774,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T9")
-                        ? alertKeys.includes("T9")
+                        ? alertKeysHigh.includes("T9")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T9")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1523,8 +1785,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T9")
-                        ? alertKeys.includes("T9")
+                        ? alertKeysHigh.includes("T9")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T9")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1537,8 +1801,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T3")
-                        ? alertKeys.includes("T3")
+                        ? alertKeysHigh.includes("T3")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T3")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1546,8 +1812,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T3")
-                        ? alertKeys.includes("T3")
+                        ? alertKeysHigh.includes("T3")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T3")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1560,8 +1828,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T7")
-                        ? alertKeys.includes("T7")
+                        ? alertKeysHigh.includes("T7")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T7")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1569,8 +1839,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T7")
-                        ? alertKeys.includes("T7")
+                        ? alertKeysHigh.includes("T7")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T7")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1583,8 +1855,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T13")
-                        ? alertKeys.includes("T13")
+                        ? alertKeysHigh.includes("T13")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T13")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1592,8 +1866,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T13")
-                        ? alertKeys.includes("T13")
+                        ? alertKeysHigh.includes("T13")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T13")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1606,8 +1882,10 @@ const Dashboard = ({
                   <div
                     className={`h-4 md:h-5 w-4 md:w-5 shadow-2xl rounded-full border border-white duration-200 ${
                       fixedThermocouples.includes("T15")
-                        ? alertKeys.includes("T15")
+                        ? alertKeysHigh.includes("T15")
                           ? "card-indicator"
+                          : alertKeysLow.includes("T15")
+                          ? "card-indicator-low"
                           : "bg-[#23439b]"
                         : "bg-gray-500"
                     }`}
@@ -1615,8 +1893,10 @@ const Dashboard = ({
                   <div
                     className={`duration-200 ${
                       fixedThermocouples.includes("T15")
-                        ? alertKeys.includes("T15")
+                        ? alertKeysHigh.includes("T15")
                           ? "text-red-500"
+                          : alertKeysLow.includes("T15")
+                          ? "text-[#23439b]"
                           : "text-[#23439b]"
                         : "text-gray-500"
                     }`}
@@ -1626,7 +1906,7 @@ const Dashboard = ({
                 </div>
               </div>
 
-              <div className="absolute top-1 left-1 flex gap-2 justify-center text-sm 2xl:text-base">
+              <div className="absolute top-1 left-1 flex gap-2 items-center justify-center text-sm 2xl:text-base">
                 {/* device temperature */}
                 <div
                   className="flex items-center gap-0.5 text-[#23439b]"
@@ -1717,7 +1997,7 @@ const Dashboard = ({
 
                 {/* thermocouple configuration */}
                 {lineNameDB && potNumberDB ? (
-                  <div className="text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
+                  <div className="text-[10px] md:text-xs 2xl:text-base font-semibold rounded-md px-1 py-0.5 bg-white text-[#23439b]">
                     Device connected on: {lineNameDB}-Pot:{potNumberDB}
                   </div>
                 ) : (
@@ -1781,8 +2061,10 @@ const Dashboard = ({
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T1) ===
                   "N/A" || !fixedThermocouples.includes("T1")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T1")
+                  : alertKeysHigh.includes("T1")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T1")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -1858,12 +2140,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T2) ===
                   "N/A" || !fixedThermocouples.includes("T2")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T2")
+                  : alertKeysHigh.includes("T2")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T2")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -1904,12 +2188,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T3) ===
                   "N/A" || !fixedThermocouples.includes("T3")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T3")
+                  : alertKeysHigh.includes("T3")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T3")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -1950,12 +2236,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T4) ===
                   "N/A" || !fixedThermocouples.includes("T4")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T4")
+                  : alertKeysHigh.includes("T4")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T4")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2031,12 +2319,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T5) ===
                   "N/A" || !fixedThermocouples.includes("T5")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T5")
+                  : alertKeysHigh.includes("T5")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T5")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2112,12 +2402,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T6) ===
                   "N/A" || !fixedThermocouples.includes("T6")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T6")
+                  : alertKeysHigh.includes("T6")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T6")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2193,12 +2485,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T7) ===
                   "N/A" || !fixedThermocouples.includes("T7")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T7")
+                  : alertKeysHigh.includes("T7")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T7")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2239,12 +2533,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T8) ===
                   "N/A" || !fixedThermocouples.includes("T8")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T8")
+                  : alertKeysHigh.includes("T8")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T8")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2320,12 +2616,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T9) ===
                   "N/A" || !fixedThermocouples.includes("T9")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T9")
+                  : alertKeysHigh.includes("T9")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T9")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2366,12 +2664,14 @@ const Dashboard = ({
             </div>
 
             <div
-              className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+              className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                 (thresholdGraphData.length > 0 && thresholdGraphData[0].T10) ===
                   "N/A" || !fixedThermocouples.includes("T10")
                   ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                  : alertKeys.length > 0 && alertKeys.includes("T10")
+                  : alertKeysHigh.includes("T10")
                   ? "card-indicator"
+                  : alertKeysLow.includes("T10")
+                  ? "card-indicator-low"
                   : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
               }`}
             >
@@ -2415,13 +2715,15 @@ const Dashboard = ({
             {viewAllCards && (
               <>
                 <div
-                  className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+                  className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                     (thresholdGraphData.length > 0 &&
                       thresholdGraphData[0].T11) === "N/A" ||
                     !fixedThermocouples.includes("T11")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 && alertKeys.includes("T11")
+                      : alertKeysHigh.includes("T11")
                       ? "card-indicator"
+                      : alertKeysLow.includes("T11")
+                      ? "card-indicator-low"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
@@ -2463,13 +2765,15 @@ const Dashboard = ({
                 </div>
 
                 <div
-                  className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+                  className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                     (thresholdGraphData.length > 0 &&
                       thresholdGraphData[0].T12) === "N/A" ||
                     !fixedThermocouples.includes("T12")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 && alertKeys.includes("T12")
+                      : alertKeysHigh.includes("T12")
                       ? "card-indicator"
+                      : alertKeysLow.includes("T12")
+                      ? "card-indicator-low"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
@@ -2511,13 +2815,15 @@ const Dashboard = ({
                 </div>
 
                 <div
-                  className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+                  className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                     (thresholdGraphData.length > 0 &&
                       thresholdGraphData[0].T13) === "N/A" ||
                     !fixedThermocouples.includes("T13")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 && alertKeys.includes("T13")
+                      : alertKeysHigh.includes("T13")
                       ? "card-indicator"
+                      : alertKeysLow.includes("T13")
+                      ? "card-indicator-low"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
@@ -2559,13 +2865,15 @@ const Dashboard = ({
                 </div>
 
                 <div
-                  className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+                  className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                     (thresholdGraphData.length > 0 &&
                       thresholdGraphData[0].T14) === "N/A" ||
                     !fixedThermocouples.includes("T14")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 && alertKeys.includes("T14")
+                      : alertKeysHigh.includes("T14")
                       ? "card-indicator"
+                      : alertKeysLow.includes("T14")
+                      ? "card-indicator-low"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
@@ -2607,13 +2915,15 @@ const Dashboard = ({
                 </div>
 
                 <div
-                  className={`py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md  ${
+                  className={`relative py-1 px-2 text-sm 2xl:text-lg flex items-center justify-center gap-1 rounded-md shadow-xl ${
                     (thresholdGraphData.length > 0 &&
                       thresholdGraphData[0].T15) === "N/A" ||
                     !fixedThermocouples.includes("T15")
                       ? "border border-gray-400 text-gray-500 bg-[#f5ffff]"
-                      : alertKeys.length > 0 && alertKeys.includes("T15")
+                      : alertKeysHigh.includes("T15")
                       ? "card-indicator"
+                      : alertKeysLow.includes("T15")
+                      ? "card-indicator-low"
                       : "text-[#23439b] bg-[#f5ffff] border border-gray-400"
                   }`}
                 >
@@ -2779,7 +3089,7 @@ const Dashboard = ({
                       }
                     </div>
 
-                    <div
+                    {/* <div
                       data-tooltip-id="tooltip-style"
                       data-tooltip-content={`Selected Thermocouples: ${
                         thresholdGraphDateRange
@@ -2792,7 +3102,7 @@ const Dashboard = ({
                       }`}
                     >
                       <FiInfo className="text-lg 2xl:text-xl text-[#23439b]" />
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
@@ -2861,7 +3171,7 @@ const Dashboard = ({
               </div>
             </div>
 
-            {alertsArray.length > 0 ? (
+            {/* {alertsArray.length > 0 ? (
               alertsArray.map((alert, index) => {
                 const key = Object.keys(alert)[0];
                 const value = alert[key];
@@ -2881,6 +3191,36 @@ const Dashboard = ({
               })
             ) : (
               <div className="absolute inset-0 flex justify-center items-center text-sm ">
+                No new Alerts
+              </div>
+            )} */}
+
+            {alertsArray.length > 0 ? (
+              alertsArray.map((alert, index) => {
+                const key = Object.keys(alert).find(
+                  (k) => k !== "Time" && k !== "status"
+                );
+                const value = alert[key];
+                const bgColor =
+                  alert.status === "high"
+                    ? "bg-gradient-to-tr from-red-700 via-red-500 to-red-400"
+                    : "bg-gradient-to-tr from-[#23439b] via-[#23439b] to-blue-500";
+
+                return (
+                  <div
+                    key={index}
+                    className={`rounded-md text-white ${bgColor} p-1 flex flex-wrap justify-around items-center mb-2 text-sm 2xl:text-base`}
+                  >
+                    <div>{key}</div>
+                    <div>-</div>
+                    <div className="font-medium">{value}&nbsp;°C</div>
+                    <div>-</div>
+                    <div>{alert.Time}</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="absolute inset-0 flex justify-center items-center text-sm">
                 No new Alerts
               </div>
             )}

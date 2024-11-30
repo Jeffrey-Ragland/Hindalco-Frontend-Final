@@ -255,17 +255,17 @@ const Analytics = ({ thermocoupleConfiguration }) => {
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: window.innerWidth >= 768,
             mode: "x",
           },
           zoom: {
-            enabled: true,
+            enabled: window.innerWidth >= 768,
             mode: "x",
             wheel: {
-              enabled: true,
+              enabled: window.innerWidth >= 768,
             },
             pinch: {
-              enabled: true,
+              enabled: window.innerWidth >= 768,
             },
           },
         },

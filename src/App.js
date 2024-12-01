@@ -39,7 +39,7 @@ const App = () => {
     };
   }, []);
 
-  // get data api
+  // get data api changess
   const getHindalcoData = async () => {
     try {
       const HindalcoCardsViewMore = localStorage.getItem(

@@ -29,6 +29,7 @@ const App = () => {
   // fetching data
   useEffect(() => {
     getHindalcoData();
+    getHindalcoProcess();
 
     const hindalcoInterval = setInterval(getHindalcoData, 2000);
     const hindalcoProcessInterval = setInterval(getHindalcoProcess, 2000);

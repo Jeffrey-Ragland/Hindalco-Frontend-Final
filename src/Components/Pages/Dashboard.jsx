@@ -1202,10 +1202,15 @@ const Dashboard = ({
       const currentDate = new Date();
       const lastDataEntry = dataFromApp[0];
 
+      // console.log("last data entry.time", lastDataEntry.Time);
+
       if (lastDataEntry && lastDataEntry.Time) {
         const lastDataTime = new Date(lastDataEntry.Time.replace(",", "T"));
+        // console.log("last data time", lastDataTime);
         const timeDifference = currentDate.getTime() - lastDataTime.getTime();
         const differenceInMinutes = timeDifference / (1000 * 60);
+
+        // console.log("difference", differenceInMinutes);
 
         if (differenceInMinutes < 6) {
           setActiveStatus("Active");
@@ -3245,7 +3250,7 @@ const Dashboard = ({
 
       {/* start popup */}
       {startPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-10">
           <div className="bg-white px-4 py-6 flex flex-col gap-4 rounded-md text-sm 2xl:text-base font-medium text-[#23439b]">
             <div className="text-[#23439b] text-center text-base 2xl:text-lg font-medium">
               Thermocouple Configuration
@@ -3659,8 +3664,8 @@ const Dashboard = ({
 
       {/* start cofirmation popup */}
       {startConfirmationPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
-          <div className="bg-white px-6 py-6 flex flex-col gap-2 rounded-md text-center md:w-96">
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-6 py-6 flex flex-col gap-2 rounded-md text-center md:w-96 mx-4">
             <div className="flex justify-center items-center">
               <TbAlertTriangle className="text-6xl 2xl:text-7xl text-orange-400" />
             </div>
@@ -3691,7 +3696,7 @@ const Dashboard = ({
 
       {/* stop confirmation popup */}
       {stopPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-10">
           <div className="bg-white px-4 py-6 flex flex-col gap-6 rounded-md">
             <div>Do you really want to stop the process?</div>
             <div className="flex items-center justify-end gap-4">
@@ -3718,8 +3723,8 @@ const Dashboard = ({
 
       {/* low battery popup */}
       {batteryPopup && (
-        <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-10">
-          <div className="bg-white px-6 py-4 flex flex-col gap-6 rounded-md md:w-96">
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-10">
+          <div className="bg-white px-6 py-4 flex flex-col gap-6 rounded-md md:w-96 mx-4">
             <div className="flex gap-2 items-center">
               <PiBatteryWarningBold className="text-2xl 2xl:text-3xl text-red-500" />
               <div className="text-base 2xl:text-lg font-medium">
